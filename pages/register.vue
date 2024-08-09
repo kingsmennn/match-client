@@ -11,29 +11,14 @@
             <h2 class="tw-text-5xl tw-font-bold">Create an account</h2>
             <form @submit.prevent="handleSignup" class="tw-mt-4 tw-text-2xl">
               <label class="tw-relative tw-block">
-                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">Enter email</span>
+                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">Choose username</span>
                 <input
-                  v-model="form.email"
-                  type="email"
-                  placeholder="email@example.com"
+                  v-model="form.username"
+                  type="text"
+                  :placeholder="usernameSlug"
                   :required="true"
+                  @dblclick="handleDoubleClick"
                   class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black">
-              </label>
-
-              <label class="tw-relative tw-mt-4 tw-flex tw-items-center">
-                <span class="tw-absolute tw-top-0 tw-text-base tw-pl-4 tw-pt-1">Create password</span>
-                <input
-                  v-model="form.password"
-                  :type="showPassword ? 'text' : 'password'"
-                  placeholder="******"
-                  :required="true"
-                  class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black">
-                  <v-icon
-                    @click="()=>showPassword=!showPassword"
-                    :class="[showPassword ? '!tw-text-black' : '!tw-text-gray-300']"
-                    class="!tw-absolute !tw-right-0 !tw-mx-3 tw-bg-gray-100 !tw-rounded-2xl">
-                    {{ showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline' }}
-                  </v-icon>
               </label>
 
               <label class="tw-block tw-cursor-pointer tw-select-none">
@@ -102,9 +87,7 @@
 <script setup lang="ts">
 import Tabs from '@/components/Tabs.vue'
 import { AccountType, User } from '@/types';
-import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { setDoc, doc, Timestamp } from 'firebase/firestore';
-import { useFirebaseAuth, useFirestore } from 'vuefire'
+import { generateSlug, RandomWordOptions } from "random-word-slugs";
 
 useHead({
   title: 'iMarket Finder - Register',
@@ -119,31 +102,19 @@ const tab_list:{ slug: string }[] = [
   { slug: AccountType.SELLER },
 ]
 
-// export interface Store {
-//   name: string
-//   description?: string
-//   location: {
-//     state: string
-//     lga: string
-//     market: string
-//   }
-// }
 const form = ref<User>({
-  email: '',
-  password: '',
   accountType: '' as AccountType,
 
   // secondary data to be collected later or generated
   location: {
-    state: null,
-    lga: null,
+    longitude: '',
+    latitude: ''
   },
-  username: null,
-  phone: null,
-  stores: null,
+  username: '',
+  phone: '',
+  stores: [],
   createdAt: new Date(),
 })
-const showPassword = ref(false)
 
 const snackbar = ref({
   show: false,
@@ -155,52 +126,30 @@ const handleInitAccountSelected = (value: string) => {
   form.value.accountType = value as AccountType
 }
 
-const auth = useFirebaseAuth()! // only exists on client side
-const db = useFirestore()
+const options: RandomWordOptions<2> = {
+  format: "kebab",
+  categories: {
+    noun: ["people"],
+  },
+  partsOfSpeech: ['noun', 'noun']
+};
+const usernameSlug = generateSlug(2, options);
+const handleDoubleClick = ()=>form.value.username = usernameSlug
+
 const router = useRouter()
 
 const submiting = ref(false)
 const handleSignup = () => {
   submiting.value = true
-  createUserWithEmailAndPassword(auth, form.value.email, form.value?.password!)
-    .then(async (userCredential) => {
-      const user = userCredential.user
-      console.log({ user })
-      await saveUserToFirestore(user)
-      await saveToCookie({
-        ...form.value,
-        // delete password from cookie
-        password: null
-      })
-      snackbar.value = {
-        show: true,
-        text: 'Account created successfully'
-      }
-      setTimeout(() => router.push('/accounts/'+ user.uid), 1000)
-    })
-    .catch((error) => {
-      const errorCode = error.code
-      const errorMessage = error.message
-      snackbar.value = {
-        show: true,
-        text: errorCode==='auth/email-already-in-use' ?
-          'Email already in use, please login' :
-          errorMessage
-      }
-    })
-    .finally(() => submiting.value = false)
-}
-
-// function interaction with firestore saves the rest of the user details
-const saveUserToFirestore = async (user: any) => {
-  const payload = {
-    ...form.value,
-      id: user.uid,
-      createdAt: Timestamp.now() as unknown as Date,
-  } as User
-  delete payload.password
-
-  await setDoc(doc(db, "users", user.email), payload)
+  try {
+    // on success
+    setTimeout(() => router.push('/accounts/'+ `user.uid`), 1000)
+  } catch(e) {
+    // haldle errors
+    console.log(e)
+  } finally {
+    submiting.value = false
+  }
 }
 
 const userCookie = useCookie<User>('user')

@@ -6974,6 +6974,11 @@ radix3@^1.0.1:
   resolved "https://registry.npmjs.org/radix3/-/radix3-1.0.1.tgz"
   integrity sha512-y+AcwZ3HcUIGc9zGsNVf5+BY/LxL+z+4h4J3/pp8jxSmy1STaCocPS3qrj4tA5ehUSzqtqK+0Aygvz/r/8vy4g==
 
+random-word-slugs@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/random-word-slugs/-/random-word-slugs-0.1.7.tgz#2d5b6e9a5c4269b4da9115a69999d2334b2179ea"
+  integrity sha512-8cyzxOIDeLFvwSPTgCItMXHGT5ZPkjhuFKUTww06Xg1dNMXuGxIKlARvS7upk6JXIm41ZKXmtlKR1iCRWklKmg==
+
 randombytes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/randombytes/-/randombytes-2.1.0.tgz"

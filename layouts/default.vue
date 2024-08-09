@@ -32,12 +32,18 @@
           </template>
 
           <template v-else>
-            <button
+            <NuxtLink
+              to="/login"
+              class="tw-inline-block tw-p-1 tw-select-none">
+              Login
+            </NuxtLink>
+            <NuxtLink
+              to="/register"
               class="tw-inline-block tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
               tw-select-none tw-text-black hover:tw-bg-white/80
               tw-transition-all tw-duration-300">
-              Connect
-            </button>
+              Signup
+            </NuxtLink>
           </template>
         </div>
       </div>
@@ -57,7 +63,7 @@
       </div>
       <hr class="tw-max-w-7xl tw-w-full tw-mx-auto tw-mb-20 tw-mt-10">
       <div>
-        <span class="tw-text-xs tw-text-gray-500">&copy;{{ env.appName }} 2024 | All rights reserved.</span>
+        <span class="tw-text-xs tw-text-gray-500">&copy;{{ env.appName }} 2023 | All rights reserved.</span>
         <div class="tw-flex tw-justify-between tw-items-end tw-text-sm">
           <div class="tw-space-x-4 tw-mt-3">
             <NuxtLink to="/">Terms of use</NuxtLink>
@@ -98,7 +104,7 @@ const disconnect = async () => {
 
   // only redirect if user is on a protected route
   if (route.meta.requiresAuth) {
-    router.push('/')
+    router.push('/login')
   }
 }
 </script>

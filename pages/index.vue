@@ -15,8 +15,8 @@
                 :class="[is_active ? 'tw-border-black' : 'tw-text-gray-400 tw-border-transparent']"
                 class="tw-border-b-4 tw-py-2 tw-transition tw-duration-300 tw-font-medium tw-cursor-pointer">
                 <span class="tw-flex tw-flex-col tw-items-center">
-                  <v-icon>{{ tab.icon }}</v-icon>
-                  <span>{{ tab.name }}</span>
+                  <v-icon>{{ (tab as Tab).icon }}</v-icon>
+                  <span>{{ (tab as Tab).name }}</span>
                 </span>
               </div>
             </template>
@@ -74,7 +74,7 @@
     </div>
 
     <div class="tw-px-6 sm:tw-px-10 tw-p-4 tw-max-w-7xl tw-mx-auto tw-mt-4 sm:tw-mt-10">
-      <h1 class="tw-text-4xl tw-font-bold">Focus on sales, let us forcus on bringing you customers</h1>
+      <h1 class="tw-text-4xl tw-font-bold">Focus on sales, let us focus on bringing you customers</h1>
 
       <div class="tw-grid sm:tw-grid-cols-2 tw-gap-6 tw-mt-4">
         <div class="tw-space-y-2 tw-bg-black tw-text-white">
@@ -115,14 +115,6 @@
           We do this without taking profit from either the buyer or the seller thus any form of
           donations to our cause will go a long way
         </p>
-  
-        <NuxtLink
-          href="https://justpaga.me/favourwright"
-          target="_blank"
-          class="tw-inline-flex tw-gap-2 tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
-          <span>Donate</span>
-          <v-icon>mdi-rocket</v-icon>
-        </NuxtLink>
       </div>
     </div>
 
@@ -174,8 +166,9 @@ const images: string[] = [
   'https://firebasestorage.googleapis.com/v0/b/i-get-am.appspot.com/o/pexels-antonio-sokic-3839432.jpg?alt=media&token=10b06197-c399-4ded-b492-5de4db556f5b',
 ]
 
-const tab = ref()
-const tab_list:{ name: string, slug: string, icon: string }[] = [
+type Tab = { name: string, slug: string, icon: string }
+const tab = ref<string|undefined>()
+const tab_list:Tab[] = [
   { name: 'Help me find stuff', slug: 'buyer', icon: 'mdi-shopping' },
   { name: 'I sell stuff', slug: 'seller', icon: 'mdi-store' },
 ]

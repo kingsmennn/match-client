@@ -4,20 +4,21 @@ export enum AccountType {
 }
 
 export interface Location {
-  state: string | null
-  lga: string | null
-  market?: string | null
+  // state: string
+  // lga: string
+  // market?: string
+  longitude: string
+  latitude: string
 }
 export interface User {
   id?: string
-  username: string | null
-  email: string
-  password?: string | null
-  phone: string | null
+  username: string
+  // email: string
+  phone: string
   location: Location
   createdAt: Date
   accountType: AccountType
-  stores: Store[] | null
+  stores?: Store[]
 }
 export interface Store {
   name: string
