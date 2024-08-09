@@ -24,7 +24,7 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     public: {
-      appName: 'Finder'
+      appName: 'Match'
     }
   },
   vuetify: {

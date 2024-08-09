@@ -16,11 +16,11 @@
         </div>
   
         <div class="tw-space-x-2">
-          <template v-if="!isAnonymous && isSignedIn">
+          <template v-if="isConnected">
             <button
               class="tw-bg-black tw-text-white tw-inline-block tw-rounded-md tw-px-2 tw-p-1 tw-select-none"
-              @click="logout">
-              Logout
+              @click="disconnect">
+              disconnect
             </button>
             <NuxtLink
               :to="`/accounts/${user?.uid}`"
@@ -32,18 +32,12 @@
           </template>
 
           <template v-else>
-            <NuxtLink
-              to="/login"
-              class="tw-inline-block tw-p-1 tw-select-none">
-              Login
-            </NuxtLink>
-            <NuxtLink
-              to="/register"
+            <button
               class="tw-inline-block tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
               tw-select-none tw-text-black hover:tw-bg-white/80
               tw-transition-all tw-duration-300">
-              Signup
-            </NuxtLink>
+              Connect
+            </button>
           </template>
         </div>
       </div>
@@ -63,12 +57,11 @@
       </div>
       <hr class="tw-max-w-7xl tw-w-full tw-mx-auto tw-mb-20 tw-mt-10">
       <div>
-        <span class="tw-text-xs tw-text-gray-500">&copy;{{ env.appName }} 2023 | All rights reserved.</span>
+        <span class="tw-text-xs tw-text-gray-500">&copy;{{ env.appName }} 2024 | All rights reserved.</span>
         <div class="tw-flex tw-justify-between tw-items-end tw-text-sm">
           <div class="tw-space-x-4 tw-mt-3">
             <NuxtLink to="/">Terms of use</NuxtLink>
           </div>
-          <GitBadge text="favourwright" link="http://github.com/favourwright" />
         </div>
       </div>
     </footer>
@@ -81,7 +74,6 @@ import {
   signOut,
 } from 'firebase/auth'
 import { User, AccountType } from '@/types'
-import GitBadge from '@/components/GitBadge.vue';
 
 const auth = useFirebaseAuth() // only exists on client side
 const user = useCurrentUser()
@@ -93,20 +85,20 @@ const user = useCurrentUser()
 const env = useRuntimeConfig().public
 
 const isAnonymous  = computed(() => user.value?.isAnonymous)
-const isSignedIn = computed(() => user.value !== null)
+const isConnected = computed(() => user.value !== null)
 const userCookie = useCookie<User>('user')
 const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
 const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER)
 const router = useRouter()
 const route = useRoute()
-const logout = async () => {
+const disconnect = async () => {
   await signOut(auth!).then(() => {
     userCookie.value = null as unknown as User
   })
 
   // only redirect if user is on a protected route
   if (route.meta.requiresAuth) {
-    router.push('/login')
+    router.push('/')
   }
 }
 </script>
