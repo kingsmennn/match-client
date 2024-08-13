@@ -91,6 +91,7 @@ async function createUser(
       .setFunction("createUser", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
   } catch (error) {
     console.error(error);
   }
@@ -121,6 +122,7 @@ async function createStore(
       .setFunction("createStore", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
   } catch (error) {
     console.error(error);
   }
@@ -155,6 +157,7 @@ async function createRequest(
       .setFunction("createRequest", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
   } catch (error) {
     console.error(error);
   }
@@ -187,6 +190,7 @@ async function createOffer(
       .setFunction("createOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
   } catch (error) {
     console.error(error);
   }
@@ -207,6 +211,7 @@ async function acceptOffer(offerId: string) {
       .setFunction("acceptOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
   } catch (error) {
     console.error(error);
   }
@@ -227,6 +232,7 @@ async function removeOffer(offerId: string) {
       .setFunction("removeOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
   } catch (error) {
     console.error(error);
   }
