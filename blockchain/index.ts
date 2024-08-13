@@ -66,5 +66,7 @@ async function sendTransaction() {
       .addHbarTransfer(AccountId.fromString("0.0.3"), 1);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
