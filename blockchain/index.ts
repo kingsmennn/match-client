@@ -1,4 +1,4 @@
-import { LedgerId } from "@hashgraph/sdk";
+import { AccountId, LedgerId, TransferTransaction } from "@hashgraph/sdk";
 import {
   HashConnect,
   HashConnectConnectionState,
@@ -29,13 +29,21 @@ export async function connectToHashConnect() {
   setUpHashConnectEvents();
 
   await hashconnect.init();
+}
 
+async function openPairing() {
   hashconnect.openPairingModal();
+}
+
+async function disconnect() {
+  hashconnect.disconnect();
+  pairingData = null;
 }
 
 async function setUpHashConnectEvents() {
   hashconnect.pairingEvent.on((newPairing) => {
     pairingData = newPairing;
+    console.log(pairingData);
   });
 
   hashconnect.disconnectionEvent.on((data) => {
@@ -45,4 +53,18 @@ async function setUpHashConnectEvents() {
   hashconnect.connectionStatusChangeEvent.on((connectionStatus) => {
     state = connectionStatus;
   });
+}
+
+async function sendTransaction() {
+  if (pairingData === null) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    let transaction = new TransferTransaction()
+      .addHbarTransfer(accountId, -1)
+      .addHbarTransfer(AccountId.fromString("0.0.3"), 1);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+  } catch (error) {}
 }

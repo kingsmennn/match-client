@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import { connectToHashConnect } from "../blockchain/";
 import { User } from "types";
 
 useHead({
@@ -61,8 +62,9 @@ const userCookie = useCookie<User>("user");
 const handleLogin = () => {
   logingIn.value = true;
   try {
-    // on success
-    setTimeout(() => router.push("/accounts/" + `user.uid`), 1000);
+    connectToHashConnect();
+    // // on success
+    // setTimeout(() => router.push("/accounts/" + `user.uid`), 1000);
   } catch (e) {
     // haldle errors
     console.log(e);
