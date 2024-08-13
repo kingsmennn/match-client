@@ -1,4 +1,13 @@
-import { AccountId, LedgerId, TransferTransaction } from "@hashgraph/sdk";
+import {
+  AccountId,
+  ContractCallQuery,
+  ContractExecuteTransaction,
+  ContractFunctionParameters,
+  ContractId,
+  Hbar,
+  LedgerId,
+  TransferTransaction,
+} from "@hashgraph/sdk";
 import {
   HashConnect,
   HashConnectConnectionState,
@@ -12,6 +21,8 @@ const appMetaData = {
   icons: [],
   url: "",
 };
+
+const CONTRACT_ID = "0.0.1234";
 
 let hashconnect: HashConnect;
 let state: HashConnectConnectionState = HashConnectConnectionState.Disconnected;
@@ -55,15 +66,165 @@ async function setUpHashConnectEvents() {
   });
 }
 
-async function sendTransaction() {
+async function createUser(
+  id: string,
+  username: string,
+  phone: string,
+  lat: number,
+  long: number
+) {
   if (pairingData === null) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
-    let transaction = new TransferTransaction()
-      .addHbarTransfer(accountId, -1)
-      .addHbarTransfer(AccountId.fromString("0.0.3"), 1);
+    const params = new ContractFunctionParameters();
+    params.addAddress(id);
+    params.addAddress(username);
+    params.addAddress(phone);
+    params.addInt256(lat);
+    params.addInt256(long);
+    let transaction = new ContractExecuteTransaction()
+      .setPayableAmount(Hbar.fromTinybars(10))
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000)
+      .setFunction("createUser", params);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function createStore(
+  storeId: string,
+  name: string,
+  description: string,
+  latitude: number,
+  longitude: number
+) {
+  if (pairingData === null) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    const params = new ContractFunctionParameters();
+    params.addAddress(storeId);
+    params.addAddress(name);
+    params.addAddress(description);
+    params.addInt256(latitude);
+    params.addInt256(longitude);
+    let transaction = new ContractExecuteTransaction()
+      .setPayableAmount(Hbar.fromTinybars(10))
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000)
+      .setFunction("createStore", params);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function createRequest(
+  id: string,
+  name: string,
+  buyerId: string,
+  description: string,
+  images: string[],
+  latitude: number,
+  longitude: number
+) {
+  if (pairingData === null) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    const params = new ContractFunctionParameters();
+    params.addAddress(id);
+    params.addAddress(name);
+    params.addAddress(buyerId);
+    params.addAddress(description);
+    params.addAddress(images);
+    params.addInt256(latitude);
+    params.addInt256(longitude);
+    let transaction = new ContractExecuteTransaction()
+      .setPayableAmount(Hbar.fromTinybars(10))
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000)
+      .setFunction("createRequest", params);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function createOffer(
+  id: string,
+  price: number,
+  images: string[],
+  requestId: string,
+  storeName: string,
+  sellerId: string
+) {
+  if (pairingData === null) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    const params = new ContractFunctionParameters();
+    params.addAddress(id);
+    params.addInt256(price);
+    params.addAddress(images);
+    params.addAddress(requestId);
+    params.addAddress(storeName);
+    params.addAddress(sellerId);
+    let transaction = new ContractExecuteTransaction()
+      .setPayableAmount(Hbar.fromTinybars(10))
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000)
+      .setFunction("createOffer", params);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function acceptOffer(offerId: string) {
+  if (pairingData === null) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    const params = new ContractFunctionParameters();
+    params.addAddress(offerId);
+    let transaction = new ContractExecuteTransaction()
+      .setPayableAmount(Hbar.fromTinybars(10))
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000)
+      .setFunction("acceptOffer", params);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function removeOffer(offerId: string) {
+  if (pairingData === null) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    const params = new ContractFunctionParameters();
+    params.addAddress(offerId);
+    let transaction = new ContractExecuteTransaction()
+      .setPayableAmount(Hbar.fromTinybars(10))
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000)
+      .setFunction("removeOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
   } catch (error) {
