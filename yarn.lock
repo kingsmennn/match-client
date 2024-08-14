@@ -1338,7 +1338,7 @@
     rfc4648 "^1.5.3"
     utf8 "^3.0.0"
 
-"@hashgraph/sdk@^2.40.0", "@hashgraph/sdk@^2.49.2":
+"@hashgraph/sdk@^2.40.0":
   version "2.49.2"
   resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.49.2.tgz#0724da93403f36630d52913ac908b26b028a741d"
   integrity sha512-HqESeH6gF/QEm69qmEyPZ40i9w2jBXsyXFqT/kRsrb7yEyCdVrG1Wnt88HxOSP9XyOsm3hj4OBTEiy2sI+kl+A==

@@ -1,18 +1,17 @@
 import {
   AccountId,
-  ContractCallQuery,
   ContractExecuteTransaction,
   ContractFunctionParameters,
   ContractId,
   Hbar,
   LedgerId,
-  TransferTransaction,
 } from "@hashgraph/sdk";
 import {
   HashConnect,
   HashConnectConnectionState,
   SessionData,
 } from "hashconnect";
+import { AccountType } from "types";
 
 const appMetaData = {
   name: "Finder",
@@ -71,7 +70,8 @@ async function createUser(
   username: string,
   phone: string,
   lat: number,
-  long: number
+  long: number,
+  account_type: AccountType
 ) {
   if (pairingData === null) return;
 
@@ -84,6 +84,7 @@ async function createUser(
     params.addAddress(phone);
     params.addInt256(lat);
     params.addInt256(long);
+    params.addInt256(account_type == AccountType.BUYER ? 0 : 1);
     let transaction = new ContractExecuteTransaction()
       .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
