@@ -79,9 +79,9 @@ async function createUser(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addAddress(id);
-    params.addAddress(username);
-    params.addAddress(phone);
+    params.addString(id);
+    params.addString(username);
+    params.addString(phone);
     params.addInt256(lat);
     params.addInt256(long);
     params.addInt256(account_type == AccountType.BUYER ? 0 : 1);
@@ -111,9 +111,9 @@ async function createStore(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addAddress(storeId);
-    params.addAddress(name);
-    params.addAddress(description);
+    params.addString(storeId);
+    params.addString(name);
+    params.addString(description);
     params.addInt256(latitude);
     params.addInt256(longitude);
     let transaction = new ContractExecuteTransaction()
@@ -144,11 +144,11 @@ async function createRequest(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addAddress(id);
-    params.addAddress(name);
-    params.addAddress(buyerId);
-    params.addAddress(description);
-    params.addAddress(images);
+    params.addString(id);
+    params.addString(name);
+    params.addString(buyerId);
+    params.addString(description);
+    params.addStringArray(images);
     params.addInt256(latitude);
     params.addInt256(longitude);
     let transaction = new ContractExecuteTransaction()
@@ -178,12 +178,12 @@ async function createOffer(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addAddress(id);
+    params.addString(id);
     params.addInt256(price);
-    params.addAddress(images);
-    params.addAddress(requestId);
-    params.addAddress(storeName);
-    params.addAddress(sellerId);
+    params.addStringArray(images);
+    params.addString(requestId);
+    params.addString(storeName);
+    params.addString(sellerId);
     let transaction = new ContractExecuteTransaction()
       .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
@@ -204,7 +204,7 @@ async function acceptOffer(offerId: string) {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addAddress(offerId);
+    params.addString(offerId);
     let transaction = new ContractExecuteTransaction()
       .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
