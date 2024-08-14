@@ -53,7 +53,6 @@ async function disconnect() {
 async function setUpHashConnectEvents() {
   hashconnect.pairingEvent.on((newPairing) => {
     pairingData = newPairing;
-    console.log(pairingData);
   });
 
   hashconnect.disconnectionEvent.on((data) => {
