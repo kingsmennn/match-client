@@ -86,7 +86,7 @@ async function createUser(
     params.addInt256(account_type == AccountType.BUYER ? 0 : 1);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000)
+      .setGas(1000000)
       .setFunction("createUser", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
@@ -116,7 +116,7 @@ async function createStore(
     params.addInt256(longitude);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000)
+      .setGas(1000000)
       .setFunction("createStore", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
@@ -150,7 +150,7 @@ async function createRequest(
     params.addInt256(longitude);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000)
+      .setGas(1000000)
       .setFunction("createRequest", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
@@ -182,7 +182,7 @@ async function createOffer(
     params.addString(sellerId);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000)
+      .setGas(1000000)
       .setFunction("createOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
@@ -202,7 +202,7 @@ async function acceptOffer(offerId: string) {
     params.addString(offerId);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000)
+      .setGas(1000000)
       .setFunction("acceptOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
@@ -222,7 +222,7 @@ async function removeOffer(offerId: string) {
     params.addAddress(offerId);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000)
+      .setGas(1000000)
       .setFunction("removeOffer", params);
 
     const receipt = await hashconnect.sendTransaction(accountId, transaction);
