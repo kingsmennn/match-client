@@ -85,7 +85,6 @@ async function createUser(
     params.addInt256(long);
     params.addInt256(account_type == AccountType.BUYER ? 0 : 1);
     let transaction = new ContractExecuteTransaction()
-      .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000)
       .setFunction("createUser", params);
@@ -116,7 +115,6 @@ async function createStore(
     params.addInt256(latitude);
     params.addInt256(longitude);
     let transaction = new ContractExecuteTransaction()
-      .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000)
       .setFunction("createStore", params);
@@ -151,7 +149,6 @@ async function createRequest(
     params.addInt256(latitude);
     params.addInt256(longitude);
     let transaction = new ContractExecuteTransaction()
-      .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000)
       .setFunction("createRequest", params);
@@ -184,7 +181,6 @@ async function createOffer(
     params.addString(storeName);
     params.addString(sellerId);
     let transaction = new ContractExecuteTransaction()
-      .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000)
       .setFunction("createOffer", params);
@@ -205,7 +201,6 @@ async function acceptOffer(offerId: string) {
     const params = new ContractFunctionParameters();
     params.addString(offerId);
     let transaction = new ContractExecuteTransaction()
-      .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000)
       .setFunction("acceptOffer", params);
@@ -226,7 +221,6 @@ async function removeOffer(offerId: string) {
     const params = new ContractFunctionParameters();
     params.addAddress(offerId);
     let transaction = new ContractExecuteTransaction()
-      .setPayableAmount(Hbar.fromTinybars(10))
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000)
       .setFunction("removeOffer", params);
