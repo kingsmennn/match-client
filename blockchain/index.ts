@@ -83,7 +83,7 @@ async function createUser(
     params.addString(phone);
     params.addInt256(lat);
     params.addInt256(long);
-    params.addInt256(account_type == AccountType.BUYER ? 0 : 1);
+    params.addUint8(account_type == AccountType.BUYER ? 0 : 1);
     let transaction = new ContractExecuteTransaction()
       .setContractId(ContractId.fromString(CONTRACT_ID))
       .setGas(1000000)
