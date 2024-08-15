@@ -40,9 +40,7 @@ export async function connectToHashConnect() {
   setUpHashConnectEvents();
 
   await hashconnect.init();
-}
 
-async function openPairing() {
   hashconnect.openPairingModal();
 }
 
