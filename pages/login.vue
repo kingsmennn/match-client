@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { connectToHashConnect } from "../blockchain/";
+import { connectToHashConnect, getUser } from "../blockchain/";
 import { User } from "types";
 
 useHead({
@@ -59,10 +59,11 @@ const snackbar = ref({
 const router = useRouter();
 const logingIn = ref(false);
 const userCookie = useCookie<User>("user");
-const handleLogin = () => {
+const handleLogin = async () => {
   logingIn.value = true;
   try {
-    connectToHashConnect();
+    await connectToHashConnect();
+    await getUser();
     // // on success
     // setTimeout(() => router.push("/accounts/" + `user.uid`), 1000);
   } catch (e) {
