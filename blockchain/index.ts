@@ -17,8 +17,8 @@ const appMetaData = {
   name: "Finder",
   description:
     "Finder is a blockchain application that allows buyers to find the best deals on products they want to buy.",
-  icons: [],
-  url: "",
+  icons: [window.location.origin + "/favicon.ico"],
+  url: window.location.origin,
 };
 
 const CONTRACT_ID = "0.0.4685013";
