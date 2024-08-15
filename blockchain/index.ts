@@ -65,7 +65,6 @@ async function setUpHashConnectEvents() {
 }
 
 async function createUser(
-  id: string,
   username: string,
   phone: string,
   lat: number,
@@ -78,7 +77,7 @@ async function createUser(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addString(id);
+
     params.addString(username);
     params.addString(phone);
     params.addInt256(lat);
@@ -97,7 +96,6 @@ async function createUser(
 }
 
 async function createStore(
-  storeId: string,
   name: string,
   description: string,
   latitude: number,
@@ -109,7 +107,6 @@ async function createStore(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addString(storeId);
     params.addString(name);
     params.addString(description);
     params.addInt256(latitude);
@@ -127,7 +124,6 @@ async function createStore(
 }
 
 async function createRequest(
-  id: string,
   name: string,
   buyerId: string,
   description: string,
@@ -141,7 +137,6 @@ async function createRequest(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addString(id);
     params.addString(name);
     params.addString(buyerId);
     params.addString(description);
@@ -161,7 +156,6 @@ async function createRequest(
 }
 
 async function createOffer(
-  id: string,
   price: number,
   images: string[],
   requestId: string,
@@ -174,7 +168,6 @@ async function createOffer(
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
 
     const params = new ContractFunctionParameters();
-    params.addString(id);
     params.addInt256(price);
     params.addStringArray(images);
     params.addString(requestId);
