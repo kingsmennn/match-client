@@ -12,7 +12,7 @@ import {
   HashConnectConnectionState,
   SessionData,
 } from "hashconnect";
-import { AccountType } from "@/types";
+import { AccountType, CreateOfferDTO, CreateRequestDTO, CreateStoreDTO, CreateUserDTO } from "@/types";
 
 const appMetaData = {
   name: "Finder",
@@ -65,13 +65,13 @@ async function setUpHashConnectEvents() {
   });
 }
 
-async function createUser(
-  username: string,
-  phone: string,
-  lat: number,
-  long: number,
-  account_type: AccountType
-): Promise<TransactionReceipt | undefined> {
+export async function createUser({
+  username,
+  phone,
+  lat,
+  long,
+  account_type,
+} : CreateUserDTO): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -96,12 +96,12 @@ async function createUser(
   }
 }
 
-async function createStore(
-  name: string,
-  description: string,
-  latitude: number,
-  longitude: number
-): Promise<TransactionReceipt | undefined> {
+export async function createStore({
+  name,
+  description,
+  latitude,
+  longitude,
+}: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -124,14 +124,14 @@ async function createStore(
   }
 }
 
-async function createRequest(
-  name: string,
-  buyerId: string,
-  description: string,
-  images: string[],
-  latitude: number,
-  longitude: number
-): Promise<TransactionReceipt | undefined> {
+export async function createRequest({
+  name,
+  buyerId,
+  description,
+  images,
+  latitude,
+  longitude,
+}: CreateRequestDTO): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -156,13 +156,13 @@ async function createRequest(
   }
 }
 
-async function createOffer(
-  price: number,
-  images: string[],
-  requestId: string,
-  storeName: string,
-  sellerId: string
-): Promise<TransactionReceipt | undefined> {
+export async function createOffer({
+  price,
+  images,
+  requestId,
+  storeName,
+  sellerId,
+}: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -186,7 +186,7 @@ async function createOffer(
   }
 }
 
-async function acceptOffer(
+export async function acceptOffer(
   offerId: string
 ): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
@@ -208,7 +208,7 @@ async function acceptOffer(
   }
 }
 
-async function removeOffer(
+export async function removeOffer(
   offerId: string
 ): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;

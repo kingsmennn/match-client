@@ -62,3 +62,36 @@ export interface Offer {
   createdAt: Date
   updatedAt: Date
 }
+
+// contract types
+export type CreateUserDTO = {
+  username: string,
+  phone: string,
+  lat: number,
+  long: number,
+  account_type: AccountType
+}
+
+export type CreateStoreDTO = {
+  name: string,
+  description: string,
+  latitude: number,
+  longitude: number
+}
+
+export type CreateRequestDTO = {
+  name: string,
+  buyerId: string,
+  description: string,
+  images: string[],
+  latitude: number,
+  longitude: number
+}
+
+export type CreateOfferDTO = {
+  price: number,
+  images: string[],
+  requestId: string,
+  storeName: string,
+  sellerId: string
+}
