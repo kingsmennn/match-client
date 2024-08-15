@@ -21,7 +21,7 @@ const appMetaData = {
   url: "",
 };
 
-const CONTRACT_ID = "0.0.1234";
+const CONTRACT_ID = "0.0.4685013";
 
 let hashconnect: HashConnect;
 let state: HashConnectConnectionState = HashConnectConnectionState.Disconnected;
