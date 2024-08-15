@@ -11,7 +11,7 @@ import {
   HashConnectConnectionState,
   SessionData,
 } from "hashconnect";
-import { AccountType } from "types";
+import { AccountType } from "@/types";
 
 const appMetaData = {
   name: "Finder",
