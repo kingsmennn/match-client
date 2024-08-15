@@ -16,35 +16,45 @@
         </div>
   
         <div class="tw-space-x-2">
-          <template v-if="isConnected">
-            <button
-              class="tw-bg-black tw-text-white tw-inline-block tw-rounded-md tw-px-2 tw-p-1 tw-select-none"
-              @click="disconnect">
-              disconnect
-            </button>
-            <NuxtLink
-              :to="`/accounts/${user?.uid}`"
-              class="tw-inline-block tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
-              tw-select-none tw-text-black hover:tw-bg-white/80
-              tw-transition-all tw-duration-300">
-              My Account
-            </NuxtLink>
-          </template>
+          <button
+            id="account-type"
+            class="tw-inline-flex tw-items-center tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
+            tw-select-none tw-text-black hover:tw-bg-white/80
+            tw-transition-all tw-duration-300"
+            :disabled="connecting"
+            @click="()=>userStore.isConnected ? null : handleLogin()">
+            <template v-if="!connecting">
+              {{ userStore.isConnected ? 'Connected' : 'Connect' }}
+            </template>
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="black"
+              size="20"
+              width="2"
+            >
+            </v-progress-circular>
+          </button>
 
-          <template v-else>
-            <NuxtLink
-              to="/login"
-              class="tw-inline-block tw-p-1 tw-select-none">
-              Login
-            </NuxtLink>
-            <NuxtLink
-              to="/register"
-              class="tw-inline-block tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
-              tw-select-none tw-text-black hover:tw-bg-white/80
-              tw-transition-all tw-duration-300">
-              Signup
-            </NuxtLink>
-          </template>
+          <v-menu v-if="userStore.isConnected" activator="#account-type" transition="slide-y-transition">
+            <div
+              class="tw-bg-white tw-px-3 tw-py-2 tw-mt-2 tw-rounded-lg tw-flex tw-flex-col
+              tw-gap-3 tw-shadow-lg">
+              <span class="tw-text-sm">
+                active account id <strong>{{ userStore.accountId }}</strong>
+              </span>
+              <button
+                class="tw-select-none tw-self-start tw-text-rose-700"
+                @click="disconnect">
+                disconnect
+              </button>
+              <NuxtLink
+                to="/account"
+                class="tw-bg-black tw-text-white tw-justify-center tw-rounded-md tw-px-2 tw-p-1 tw-select-none">
+                My account
+              </NuxtLink>
+            </div>
+          </v-menu>
         </div>
       </div>
     </header>
@@ -75,36 +85,37 @@
 </template>
 
 <script setup lang="ts">
-import {
-  signInAnonymously,
-  signOut,
-} from 'firebase/auth'
 import { User, AccountType } from '@/types'
-
-const auth = useFirebaseAuth() // only exists on client side
-const user = useCurrentUser()
-// onMounted(async ()=>{
-//   signOut(auth!)
-//   // const user = await signInAnonymously(auth!)
-// })
+import { useUserStore } from '@/pinia/user';
 
 const env = useRuntimeConfig().public
 
-const isAnonymous  = computed(() => user.value?.isAnonymous)
-const isConnected = computed(() => user.value !== null)
 const userCookie = useCookie<User>('user')
 const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
-const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER)
-const router = useRouter()
-const route = useRoute()
-const disconnect = async () => {
-  await signOut(auth!).then(() => {
-    userCookie.value = null as unknown as User
-  })
+
+
+
+
+const userStore = useUserStore()
+const connecting = ref(false)
+const handleLogin = async () => {
+  connecting.value = true;
+  try {
+    await userStore.connectToHashConnect();
+    // once connected the subscription function will update the user store
+  } catch (e) {
+    // haldle errors
+    console.log(e);
+  } finally {
+    connecting.value = false;
+  }
+};
+const disconnect = () => {
+  userStore.disconnect()
 
   // only redirect if user is on a protected route
-  if (route.meta.requiresAuth) {
-    router.push('/login')
-  }
+  // if (route.meta.requiresAuth) {
+  //   router.push('/login')
+  // }
 }
 </script>
