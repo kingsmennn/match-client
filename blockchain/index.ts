@@ -5,6 +5,7 @@ import {
   ContractId,
   Hbar,
   LedgerId,
+  TransactionReceipt,
 } from "@hashgraph/sdk";
 import {
   HashConnect,
@@ -70,7 +71,7 @@ async function createUser(
   lat: number,
   long: number,
   account_type: AccountType
-) {
+): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -100,7 +101,7 @@ async function createStore(
   description: string,
   latitude: number,
   longitude: number
-) {
+): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -130,7 +131,7 @@ async function createRequest(
   images: string[],
   latitude: number,
   longitude: number
-) {
+): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -161,7 +162,7 @@ async function createOffer(
   requestId: string,
   storeName: string,
   sellerId: string
-) {
+): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -185,7 +186,9 @@ async function createOffer(
   }
 }
 
-async function acceptOffer(offerId: string) {
+async function acceptOffer(
+  offerId: string
+): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
@@ -205,7 +208,9 @@ async function acceptOffer(offerId: string) {
   }
 }
 
-async function removeOffer(offerId: string) {
+async function removeOffer(
+  offerId: string
+): Promise<TransactionReceipt | undefined> {
   if (pairingData === null) return;
 
   try {
