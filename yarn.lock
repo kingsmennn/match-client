@@ -5812,7 +5812,7 @@ hash.js@1.1.7, hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
-hashconnect@^3.0.13:
+hashconnect@3.0.13:
   version "3.0.13"
   resolved "https://registry.yarnpkg.com/hashconnect/-/hashconnect-3.0.13.tgz#7fc61299305efb16a794aa1811d7f1e225c4d426"
   integrity sha512-K4jL0gzSdQZFLA2krcyoLe0eq5waHzEI+MsQ8Kaa/XvwHMB2NwNIdaPx3MDWKx2Q87DTd2jhY8+VOesW1JIkwg==

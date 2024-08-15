@@ -24,7 +24,7 @@
     "firebase": "^10.1.0",
     "firebase-admin": "^11.10.1",
     "firebase-functions": "^4.4.1",
-    "hashconnect": "^3.0.13",
+    "hashconnect": "3.0.13",
     "moment": "^2.29.4",
     "nuxt-vuefire": "^0.2.13",
     "random-word-slugs": "^0.1.7",
