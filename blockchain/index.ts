@@ -12,7 +12,21 @@ import {
   HashConnectConnectionState,
   SessionData,
 } from "hashconnect";
-import { AccountType, CreateOfferDTO, CreateRequestDTO, CreateStoreDTO, CreateUserDTO } from "@/types";
+import {
+  AccountType,
+  CreateOfferDTO,
+  CreateRequestDTO,
+  CreateStoreDTO,
+  CreateUserDTO,
+} from "@/types";
+
+import { ethers } from "ethers";
+import { marketAbi } from "./abi";
+
+const HEDERA_JSON_RPC = {
+  mainnet: "https://mainnet.hashio.io/api",
+  testnet: "https://testnet.hashio.io/api",
+};
 
 const appMetaData = {
   name: "Finder",
@@ -41,7 +55,7 @@ export async function connectToHashConnect() {
 
   await hashconnect.init();
 
-  hashconnect.openPairingModal();
+  await hashconnect.openPairingModal();
 }
 
 async function disconnect() {
@@ -69,8 +83,8 @@ export async function createUser({
   lat,
   long,
   account_type,
-} : CreateUserDTO): Promise<TransactionReceipt | undefined> {
-  if (pairingData === null) return;
+}: CreateUserDTO): Promise<TransactionReceipt | undefined> {
+  if (!pairingData) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
@@ -100,7 +114,7 @@ export async function createStore({
   latitude,
   longitude,
 }: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
-  if (pairingData === null) return;
+  if (!pairingData) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
@@ -130,7 +144,7 @@ export async function createRequest({
   latitude,
   longitude,
 }: CreateRequestDTO): Promise<TransactionReceipt | undefined> {
-  if (pairingData === null) return;
+  if (!pairingData) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
@@ -161,7 +175,7 @@ export async function createOffer({
   storeName,
   sellerId,
 }: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
-  if (pairingData === null) return;
+  if (!pairingData) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
@@ -187,7 +201,7 @@ export async function createOffer({
 export async function acceptOffer(
   offerId: string
 ): Promise<TransactionReceipt | undefined> {
-  if (pairingData === null) return;
+  if (!pairingData) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
@@ -209,7 +223,7 @@ export async function acceptOffer(
 export async function removeOffer(
   offerId: string
 ): Promise<TransactionReceipt | undefined> {
-  if (pairingData === null) return;
+  if (!pairingData) return;
 
   try {
     let accountId = AccountId.fromString(pairingData!.accountIds[0]);
@@ -226,4 +240,21 @@ export async function removeOffer(
   } catch (error) {
     console.error(error);
   }
+}
+
+function getContract() {
+  const contractAddress = AccountId.fromString(CONTRACT_ID).toSolidityAddress();
+  const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
+  return new ethers.Contract(contractAddress, marketAbi, provider);
+}
+
+export async function getUser() {
+  if (!pairingData) return;
+  const contract = getContract();
+  const userAddress = AccountId.fromString(
+    pairingData.accountIds[0]
+  ).toSolidityAddress();
+
+  const user = await contract.users(userAddress);
+  return user;
 }
