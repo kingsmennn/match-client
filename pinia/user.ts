@@ -159,7 +159,7 @@ export const useUserStore = defineStore("user", {
         params.addString(phone);
         params.addInt256(lat);
         params.addInt256(long);
-        params.addUint8(account_type == AccountType.BUYER ? 0 : 1);
+        params.addUint8(account_type);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
           .setGas(1000000)
