@@ -5,6 +5,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // redirect the user to the login page
   if (!userCookie.value?.accountType || userCookie.value?.accountType !== AccountType.SELLER) {
     console.log('only sellers can access dashboard page')
+    return
     return navigateTo({
       path: '/',
       query: {
