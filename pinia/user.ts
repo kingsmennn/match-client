@@ -1,18 +1,21 @@
-/* stores/user.js */
 import { 
   AccountId,
+  ContractExecuteTransaction,
+  ContractFunctionParameters,
+  ContractId,
   // ContractExecuteTransaction,
   // ContractFunctionParameters,
   // ContractId,
   // Hbar,
   LedgerId,
+  TransactionReceipt,
   // TransactionReceipt,
  } from '@hashgraph/sdk';
 import { ethers } from "ethers";
 import { marketAbi } from "@/blockchain/abi";
 import { HashConnect, HashConnectConnectionState, SessionData } from 'hashconnect';
 import { defineStore } from 'pinia';
-import { AccountType, BlockchainUser } from '@/types';
+import { AccountType, BlockchainUser, CreateUserDTO } from '@/types';
 
 type UserStore = {
   accountId: string | null;
@@ -121,6 +124,39 @@ export const useUserStore = defineStore('user', {
       const userAddress = AccountId.fromString(account_id).toSolidityAddress();
       const user = await contract.users(`0x${userAddress}`);
       return user;
+    },
+    
+    // create new user
+    async createUser({
+      username,
+      phone,
+      lat,
+      long,
+      account_type,
+    }: CreateUserDTO): Promise<TransactionReceipt | undefined> {
+      if (!this.contract.pairingData || !this.accountId) return;
+    
+      try {    
+        const params = new ContractFunctionParameters();
+    
+        params.addString(username);
+        params.addString(phone);
+        params.addInt256(lat);
+        params.addInt256(long);
+        params.addUint8(account_type == AccountType.BUYER ? 0 : 1);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(CONTRACT_ID))
+          .setGas(1000000)
+          .setFunction("createUser", params);
+    
+        const receipt = await this.contract.hashconnect.sendTransaction(
+          AccountId.fromString(this.accountId),
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+      }
     }
   },
   persist: {
