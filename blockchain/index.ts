@@ -36,7 +36,7 @@ const appMetaData = {
   url: window.location.origin,
 };
 
-const CONTRACT_ID = "0.0.4685013";
+const CONTRACT_ID = "0.0.4686833";
 
 let hashconnect: HashConnect;
 let state: HashConnectConnectionState = HashConnectConnectionState.Disconnected;
