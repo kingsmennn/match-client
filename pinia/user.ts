@@ -79,7 +79,8 @@ export const useUserStore = defineStore('user', {
         const userId: string = this.contract.pairingData.accountIds[0];
         this.accountId = userId;
 
-        const blockchainUser = await this.fetchUser(userId)
+        const blockchainUser = await this.fetchUser(this.accountId)
+        console.log({blockchainUser})
         // check if the user exists in the blockchain by checking id
         const hasId = !!blockchainUser[0];
         if(!!blockchainUser[0]) {

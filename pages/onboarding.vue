@@ -9,7 +9,7 @@
 
           <div>
             <h2 class="tw-text-5xl tw-font-bold">Lastly...</h2>
-            <form @submit.prevent="handleSignup" class="tw-mt-4 tw-text-2xl">
+            <form @submit.prevent="handleCompleteOnbaording" class="tw-mt-4 tw-text-2xl">
               <label class="tw-relative tw-block">
                 <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">Choose username</span>
                 <input
@@ -141,7 +141,7 @@ const router = useRouter()
 
 const userStore = useUserStore()
 const submiting = ref(false)
-const handleSignup = async () => {
+const handleCompleteOnbaording = async () => {
   submiting.value = true
   try {
     const payload: CreateUserDTO = {
@@ -151,11 +151,27 @@ const handleSignup = async () => {
       long: form.value.location.longitude,
       lat: form.value.location.latitude,
     }
-    console.log({ createUserPayload: payload })
     const res = await userStore.createUser(payload)
-    console.log({ createUserRes: res })
-    // on success
-    // setTimeout(() => router.push('/accounts/'+ `user.uid`), 1000)
+    if(res?.status._code === 22) {
+      // success
+      console.log({ createUserRes: res })
+      // fetch user data
+      const user = await userStore.fetchUser(userStore.accountId!)
+      if(!user) {
+        throw new Error('User not found in blockchain')
+      }
+      // save user to storage
+      const userCookie = useCookie<User>('user')
+      userCookie.value = {
+        id: userStore.accountId!,
+        accountType: form.value.accountType,
+        username: form.value.username,
+        phone: form.value.phone,
+        location: form.value.location,
+        createdAt: form.value.createdAt,
+      }
+      router.push('/accounts/'+ userStore.accountId)
+    }
   } catch(e) {
     // haldle errors
     console.log(e)
@@ -164,11 +180,11 @@ const handleSignup = async () => {
   }
 }
 
-const userCookie = useCookie<User>('user')
-const saveToCookie = async (user: User) => {
-  await new Promise((resolve) => {
-    userCookie.value = user
-    resolve(true)
-  })
-}
+// const userCookie = useCookie<User>('user')
+// const saveToCookie = async (user: User) => {
+//   await new Promise((resolve) => {
+//     userCookie.value = user
+//     resolve(true)
+//   })
+// }
 </script>
