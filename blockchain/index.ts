@@ -262,10 +262,6 @@ export async function getUser(account_id: string) {
   return user;
 }
 
-// mapping(uint256 => Request) public requests;
-// mapping(uint256 => Offer) public offers;
-// mapping(address => mapping(uint256 => bool)) public buyerOffers; // Tracks offers created by each buyer for each request
-
 export async function getOffer(id: number) {
   if (!pairingData) return;
   const contract = getContract();
@@ -282,5 +278,26 @@ export async function getRequest(id: number) {
   return request;
 }
 
-// mapping(address => mapping(uint256 => Store)) public userStores;
-// mapping(address => uint256[]) public userStoreIds;
+export async function getUserStore(userAddress: string, storeId: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const store = await contract.userStores(userAddress, storeId);
+
+  return store;
+}
+
+export async function getUserStoreIds(userAddress: string) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const storeIds = await contract.userStoreIds(userAddress);
+
+  return storeIds;
+}
+
+export async function getBuyerOffers(userAddress: string, requestId: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const offers = await contract.buyerOffers(userAddress, requestId);
+
+  return offers;
+}
