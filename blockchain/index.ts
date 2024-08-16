@@ -249,12 +249,13 @@ function getContract() {
   return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
 }
 
-export async function getUser() {
+export async function getUser(account_id: string) {
   if (!pairingData) return;
   const contract = getContract();
-  const userAddress = AccountId.fromString(
-    pairingData.accountIds[0]
-  ).toSolidityAddress();
+  const userAddress = AccountId.fromString(account_id).toSolidityAddress();
+  // const userAddress = AccountId.fromString(
+  //   pairingData.accountIds[0]
+  // ).toSolidityAddress();
 
   const user = await contract.users(`0x${userAddress}`);
 
@@ -283,4 +284,3 @@ export async function getRequest(id: number) {
 
 // mapping(address => mapping(uint256 => Store)) public userStores;
 // mapping(address => uint256[]) public userStoreIds;
-

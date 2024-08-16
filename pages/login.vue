@@ -63,7 +63,7 @@ const handleLogin = async () => {
   logingIn.value = true;
   try {
     await connectToHashConnect();
-    await getUser();
+
     // // on success
     // setTimeout(() => router.push("/accounts/" + `user.uid`), 1000);
   } catch (e) {
