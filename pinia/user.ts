@@ -1,7 +1,18 @@
 /* stores/user.js */
-import { LedgerId } from '@hashgraph/sdk';
+import { 
+  AccountId,
+  // ContractExecuteTransaction,
+  // ContractFunctionParameters,
+  // ContractId,
+  // Hbar,
+  LedgerId,
+  // TransactionReceipt,
+ } from '@hashgraph/sdk';
+import { ethers } from "ethers";
+import { marketAbi } from "@/blockchain/abi";
 import { HashConnect, HashConnectConnectionState, SessionData } from 'hashconnect';
 import { defineStore } from 'pinia';
+import { AccountType, BlockchainUser } from '@/types';
 
 type UserStore = {
   accountId: string | null;
@@ -9,9 +20,18 @@ type UserStore = {
     state: HashConnectConnectionState
     pairingData: SessionData | null
     hashconnect: HashConnect
+  },
+  userDetails?: BlockchainUser,
+  blockchainError: {
+    userExists: boolean,
   }
 }
 
+const HEDERA_JSON_RPC = {
+  mainnet: "https://mainnet.hashio.io/api",
+  testnet: "https://testnet.hashio.io/api",
+};
+const CONTRACT_ID = "0.0.4686833";
 const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
 const DEBUG = true;
 const appMetaData = {
@@ -34,6 +54,10 @@ export const useUserStore = defineStore('user', {
         appMetaData,
         DEBUG
       )
+    },
+    userDetails: undefined,
+    blockchainError: {
+      userExists: false,
     }
   }),
   getters: {
@@ -41,16 +65,32 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async connectToHashConnect() {
-      await this.contract.hashconnect.init();
       this.setUpHashConnectEvents();
-      this.contract.hashconnect.openPairingModal();
+      await this.contract.hashconnect.init();
+      await this.contract.hashconnect.openPairingModal();
     },
     async setUpHashConnectEvents() {
-      this.contract.hashconnect.pairingEvent.on((newPairing) => {
+      this.contract.hashconnect.pairingEvent.on(async (newPairing) => {
         this.contract.pairingData = newPairing;
         // set the account id of the user
         const userId: string = this.contract.pairingData.accountIds[0];
         this.accountId = userId;
+
+        const blockchainUser = await this.fetchUser(userId)
+        // check if the user exists in the blockchain by checking id
+        const hasId = !!blockchainUser[0];
+        if(!!blockchainUser[0]) {
+          this.userDetails = [
+            blockchainUser[0],
+            blockchainUser[1],
+            blockchainUser[2],
+            blockchainUser[3],
+            blockchainUser[4],
+            blockchainUser[5]
+          ]
+        } else if (!hasId && this.accountId) {
+          this.blockchainError.userExists = true;
+        }
       });
 
       this.contract.hashconnect.disconnectionEvent.on((data) => {
@@ -66,7 +106,24 @@ export const useUserStore = defineStore('user', {
       this.contract.hashconnect.disconnect();
       this.contract.pairingData = null;
       this.accountId = null;
+      this.userDetails = undefined;
+      this.blockchainError.userExists = false;
+    },
+
+    getContract() {
+      const contractAddress = AccountId.fromString(CONTRACT_ID).toSolidityAddress();
+      const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
+    
+      return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
+    },
+    async fetchUser(account_id: string):Promise<BlockchainUser> {
+      const contract = this.getContract();
+      const userAddress = AccountId.fromString(account_id).toSolidityAddress();
+      const user = await contract.users(`0x${userAddress}`);
+      return user;
     }
   },
-  persist: true,
+  persist: {
+    paths: ['accountId', 'contract.state', 'userDetails[0]', 'blockchainError.userExists'],
+  },
 });

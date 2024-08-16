@@ -22,7 +22,7 @@
             tw-select-none tw-text-black hover:tw-bg-white/80
             tw-transition-all tw-duration-300"
             :disabled="connecting"
-            @click="()=>userStore.isConnected ? null : handleLogin()">
+            @click="()=>userStore.isConnected ? null : handleWalletConnect()">
             <template v-if="!connecting">
               {{ userStore.isConnected ? 'Connected' : 'Connect' }}
             </template>
@@ -38,21 +38,23 @@
 
           <v-menu v-if="userStore.isConnected" activator="#account-type" transition="slide-y-transition">
             <div
-              class="tw-bg-white tw-px-3 tw-py-2 tw-mt-2 tw-rounded-lg tw-flex tw-flex-col
+              class="tw-bg-white tw-mt-2 tw-rounded-lg tw-flex tw-flex-col
               tw-gap-3 tw-shadow-lg">
-              <span class="tw-text-sm">
-                active account id <strong>{{ userStore.accountId }}</strong>
+              <span class="tw-text-sm tw-border-b tw-px-3 tw-py-2 tw-pb-1.5">
+                Active account id <strong>{{ userStore.accountId }}</strong>
               </span>
-              <button
-                class="tw-select-none tw-self-start tw-text-rose-700"
-                @click="disconnect">
-                disconnect
-              </button>
-              <NuxtLink
-                to="/account"
-                class="tw-bg-black tw-text-white tw-justify-center tw-rounded-md tw-px-2 tw-p-1 tw-select-none">
-                My account
-              </NuxtLink>
+              <div class="tw-flex tw-flex-col tw-gap-y-3 tw-px-3 tw-pb-3">
+                <button
+                  class="tw-select-none tw-self-start tw-text-rose-700"
+                  @click="disconnect">
+                  disconnect
+                </button>
+                <NuxtLink
+                  to="/account"
+                  class="tw-bg-black tw-text-white tw-justify-center tw-rounded-md tw-px-2 tw-p-1 tw-select-none">
+                  My account
+                </NuxtLink>
+              </div>
             </div>
           </v-menu>
         </div>
@@ -98,7 +100,7 @@ const isSeller = computed(() => userCookie.value?.accountType === AccountType.SE
 
 const userStore = useUserStore()
 const connecting = ref(false)
-const handleLogin = async () => {
+const handleWalletConnect = async () => {
   connecting.value = true;
   try {
     await userStore.connectToHashConnect();
@@ -118,4 +120,12 @@ const disconnect = () => {
   //   router.push('/login')
   // }
 }
+const router = useRouter()
+// check if connected user has been saved to the blockchain
+watch([()=>userStore.blockchainError.userExists, ()=>userStore.accountId], ([userExists, accountId]) => {
+  if (userExists && accountId) {
+    // redirect to register page
+    router.push('/register')
+  }
+})
 </script>
