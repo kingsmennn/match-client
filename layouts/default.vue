@@ -125,7 +125,7 @@ const router = useRouter()
 watch([()=>userStore.blockchainError.userExists, ()=>userStore.accountId], ([userExists, accountId]) => {
   if (userExists && accountId) {
     // redirect to register page
-    router.push('/register')
+    router.push('/onboarding')
   }
 })
 </script>
