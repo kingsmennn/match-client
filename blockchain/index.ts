@@ -245,7 +245,8 @@ export async function removeOffer(
 function getContract() {
   const contractAddress = AccountId.fromString(CONTRACT_ID).toSolidityAddress();
   const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
-  return new ethers.Contract(contractAddress, marketAbi, provider);
+
+  return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
 }
 
 export async function getUser() {
@@ -255,6 +256,31 @@ export async function getUser() {
     pairingData.accountIds[0]
   ).toSolidityAddress();
 
-  const user = await contract.users(userAddress);
+  const user = await contract.users(`0x${userAddress}`);
+
   return user;
 }
+
+// mapping(uint256 => Request) public requests;
+// mapping(uint256 => Offer) public offers;
+// mapping(address => mapping(uint256 => bool)) public buyerOffers; // Tracks offers created by each buyer for each request
+
+export async function getOffer(id: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const offer = await contract.offers(id);
+
+  return offer;
+}
+
+export async function getRequest(id: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const request = await contract.requests(id);
+
+  return request;
+}
+
+// mapping(address => mapping(uint256 => Store)) public userStores;
+// mapping(address => uint256[]) public userStoreIds;
+
