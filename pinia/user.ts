@@ -30,7 +30,7 @@ type UserStore = {
   };
   userDetails?: BlockchainUser;
   blockchainError: {
-    userExists: boolean;
+    userNotFound: boolean;
   };
 };
 
@@ -64,7 +64,7 @@ export const useUserStore = defineStore("user", {
     },
     userDetails: undefined,
     blockchainError: {
-      userExists: false,
+      userNotFound: false,
     },
   }),
   getters: {
@@ -103,7 +103,7 @@ export const useUserStore = defineStore("user", {
             blockchainUser[5],
           ];
         } else if (!hasId && this.accountId) {
-          this.blockchainError.userExists = true;
+          this.blockchainError.userNotFound = true;
         }
       });
 
@@ -123,7 +123,7 @@ export const useUserStore = defineStore("user", {
       this.contract.pairingData = null;
       this.accountId = null;
       this.userDetails = undefined;
-      this.blockchainError.userExists = false;
+      this.blockchainError.userNotFound = false;
     },
 
     getContract() {
@@ -180,7 +180,7 @@ export const useUserStore = defineStore("user", {
       "accountId",
       "contract.state",
       "userDetails[0]",
-      "blockchainError.userExists",
+      "blockchainError.userNotFound",
     ],
   },
 });
