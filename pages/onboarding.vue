@@ -8,8 +8,8 @@
           <Tabs :tab_list="tab_list" query_name="user_type" :value="tab" @model-value="handleInitAccountSelected"></Tabs>
 
           <div>
-            <h2 class="tw-text-5xl tw-font-bold">Create an account</h2>
-            <form @submit.prevent="handleSignup" class="tw-mt-4 tw-text-2xl">
+            <h2 class="tw-text-5xl tw-font-bold">Lastly...</h2>
+            <form @submit.prevent="handleCompleteOnbaording" class="tw-mt-4 tw-text-2xl">
               <label class="tw-relative tw-block">
                 <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">Choose username</span>
                 <input
@@ -57,7 +57,7 @@
                 class="tw-w-full tw-bg-black tw-text-white tw-py-4 tw-mt-10 tw-rounded-md tw-font-medium"
                 :disabled="submiting">
                 <template v-if="!submiting">
-                  Create account
+                  Complete
                 </template>
                 <v-progress-circular
                   v-else
@@ -86,7 +86,8 @@
 
 <script setup lang="ts">
 import Tabs from '@/components/Tabs.vue'
-import { AccountType, User } from '@/types';
+import { AccountType, CreateUserDTO, User } from '@/types';
+import { useUserStore } from '@/pinia/user';
 import { generateSlug, RandomWordOptions } from "random-word-slugs";
 
 useHead({
@@ -107,8 +108,8 @@ const form = ref<User>({
 
   // secondary data to be collected later or generated
   location: {
-    longitude: '',
-    latitude: ''
+    longitude: 0,
+    latitude: 0
   },
   username: '',
   phone: '',
@@ -138,12 +139,39 @@ const handleDoubleClick = ()=>form.value.username = usernameSlug
 
 const router = useRouter()
 
+const userStore = useUserStore()
 const submiting = ref(false)
-const handleSignup = () => {
+const handleCompleteOnbaording = async () => {
   submiting.value = true
   try {
-    // on success
-    setTimeout(() => router.push('/accounts/'+ `user.uid`), 1000)
+    const payload: CreateUserDTO = {
+      username: form.value.username,
+      account_type: form.value.accountType,
+      phone: '',
+      long: form.value.location.longitude,
+      lat: form.value.location.latitude,
+    }
+    const res = await userStore.createUser(payload)
+    if(res?.status._code === 22) {
+      // success
+      console.log({ createUserRes: res })
+      // fetch user data
+      const user = await userStore.fetchUser(userStore.accountId!)
+      if(!user) {
+        throw new Error('User not found in blockchain')
+      }
+      // save user to storage
+      const userCookie = useCookie<User>('user')
+      userCookie.value = {
+        id: userStore.accountId!,
+        accountType: form.value.accountType,
+        username: form.value.username,
+        phone: form.value.phone,
+        location: form.value.location,
+        createdAt: form.value.createdAt,
+      }
+      router.push('/accounts/'+ userStore.accountId)
+    }
   } catch(e) {
     // haldle errors
     console.log(e)
@@ -152,11 +180,11 @@ const handleSignup = () => {
   }
 }
 
-const userCookie = useCookie<User>('user')
-const saveToCookie = async (user: User) => {
-  await new Promise((resolve) => {
-    userCookie.value = user
-    resolve(true)
-  })
-}
+// const userCookie = useCookie<User>('user')
+// const saveToCookie = async (user: User) => {
+//   await new Promise((resolve) => {
+//     userCookie.value = user
+//     resolve(true)
+//   })
+// }
 </script>

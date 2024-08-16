@@ -3,6 +3,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // redirect the user to the login page
   if (!user) {
+    return
     return navigateTo({
       path: '/login',
       query: {

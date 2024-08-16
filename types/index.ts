@@ -3,14 +3,14 @@ export enum AccountType {
   SELLER = 'seller'
 }
 
-export interface Location {
+export type Location = {
   // state: string
   // lga: string
   // market?: string
-  longitude: string
-  latitude: string
+  longitude: number
+  latitude: number
 }
-export interface User {
+export type User = {
   id?: string
   username: string
   // email: string
@@ -20,7 +20,7 @@ export interface User {
   accountType: AccountType
   stores?: Store[]
 }
-export interface Store {
+export type Store = {
   name: string
   description?: string
   location: Location
@@ -34,7 +34,7 @@ export enum RequestLifecycle {
   COMPLETED = 'completed',
 }
 
-export interface Request {
+export type Request = {
   id?: string
   name: string
   buyerId: string
@@ -51,7 +51,7 @@ export interface Request {
   updatedAt: Date
 }
 
-export interface Offer {
+export type Offer = {
   id?: string
   price: number
   images: string[]
@@ -61,4 +61,50 @@ export interface Offer {
   isAccepted: boolean
   createdAt: Date
   updatedAt: Date
+}
+
+// contract types
+export type CreateUserDTO = {
+  username: string,
+  phone: string,
+  lat: number,
+  long: number,
+  account_type: AccountType
+}
+
+type id = string;
+type username = string;
+type phone = string;
+type createdAt = Date;
+export type BlockchainUser = [
+  id,
+  username,
+  phone,
+  Location,
+  createdAt,
+  AccountType
+]
+
+export type CreateStoreDTO = {
+  name: string,
+  description: string,
+  latitude: number,
+  longitude: number
+}
+
+export type CreateRequestDTO = {
+  name: string,
+  buyerId: string,
+  description: string,
+  images: string[],
+  latitude: number,
+  longitude: number
+}
+
+export type CreateOfferDTO = {
+  price: number,
+  images: string[],
+  requestId: string,
+  storeName: string,
+  sellerId: string
 }
