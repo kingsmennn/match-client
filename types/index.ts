@@ -3,13 +3,13 @@ export enum AccountType {
   SELLER,
 }
 
-export type Location = {
+export type Location = [
   // state: string
   // lga: string
   // market?: string
-  longitude: number;
-  latitude: number;
-};
+  longitude: number,
+  latitude: number
+];
 export type User = {
   id?: string;
   username: string;

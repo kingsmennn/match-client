@@ -104,6 +104,7 @@ export const useUserStore = defineStore(STORE_KEY, {
             blockchainUser[4], // createdAt,
             blockchainUser[5], // AccountType
           ];
+          console.log({userDetails: this.userDetails})
         } else if (!hasId && this.accountId) {
           this.blockchainError.userNotFound = true;
         }
@@ -191,8 +192,8 @@ export const useUserStore = defineStore(STORE_KEY, {
 
         params.addString(username || this.userDetails?.[0]!);
         params.addString(phone || this.userDetails?.[1]!);
-        params.addInt256(lat || this.userDetails?.[3].latitude!);
-        params.addInt256(long || this.userDetails?.[3].longitude!);
+        params.addInt256(long || this.userDetails?.[3][0]!);
+        params.addInt256(lat || this.userDetails?.[3][1]!);
         params.addUint8((account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
