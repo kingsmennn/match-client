@@ -1,4 +1,4 @@
-import { 
+import {
   AccountId,
   ContractExecuteTransaction,
   ContractFunctionParameters,
@@ -10,31 +10,37 @@ import {
   LedgerId,
   TransactionReceipt,
   // TransactionReceipt,
- } from '@hashgraph/sdk';
+} from "@hashgraph/sdk";
 import { ethers } from "ethers";
 import { marketAbi } from "@/blockchain/abi";
-import { HashConnect, HashConnectConnectionState, SessionData } from 'hashconnect';
-import { defineStore } from 'pinia';
-import { AccountType, BlockchainUser, CreateUserDTO } from '@/types';
+import {
+  HashConnect,
+  HashConnectConnectionState,
+  SessionData,
+} from "hashconnect";
+import { defineStore } from "pinia";
+import { AccountType, BlockchainUser, CreateUserDTO } from "@/types";
+import { useCookies } from '@vueuse/integrations/useCookies'
 
 type UserStore = {
   accountId: string | null;
   contract: {
-    state: HashConnectConnectionState
-    pairingData: SessionData | null
-    hashconnect: HashConnect
-  },
-  userDetails?: BlockchainUser,
+    state: HashConnectConnectionState;
+    pairingData: SessionData | null;
+    hashconnect: HashConnect;
+  };
+  userDetails?: BlockchainUser;
   blockchainError: {
-    userExists: boolean,
-  }
-}
+    userNotFound: boolean;
+  };
+};
 
 const HEDERA_JSON_RPC = {
   mainnet: "https://mainnet.hashio.io/api",
   testnet: "https://testnet.hashio.io/api",
 };
 const CONTRACT_ID = "0.0.4686833";
+const LOCATION_DECIMALS = 18
 const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
 const DEBUG = true;
 const appMetaData = {
@@ -45,7 +51,8 @@ const appMetaData = {
   url: window.location.origin,
 };
 
-export const useUserStore = defineStore('user', {
+const STORE_KEY = "@userStore";
+export const useUserStore = defineStore(STORE_KEY, {
   state: (): UserStore => ({
     accountId: null,
     contract: {
@@ -56,12 +63,12 @@ export const useUserStore = defineStore('user', {
         PROJECT_ID,
         appMetaData,
         DEBUG
-      )
+      ),
     },
     userDetails: undefined,
     blockchainError: {
-      userExists: false,
-    }
+      userNotFound: false,
+    },
   }),
   getters: {
     isConnected: (state) => !!state.accountId,
@@ -72,6 +79,12 @@ export const useUserStore = defineStore('user', {
       await this.contract.hashconnect.init();
       await this.contract.hashconnect.openPairingModal();
     },
+    async getEvmAddress(account_id: string) {
+      const url = `https://testnet.mirrornode.hedera.com/api/v1/accounts/${account_id}?limit=1`;
+      const response = await fetch(url);
+      const data = await response.json();
+      return data?.evm_address;
+    },
     async setUpHashConnectEvents() {
       this.contract.hashconnect.pairingEvent.on(async (newPairing) => {
         this.contract.pairingData = newPairing;
@@ -79,21 +92,25 @@ export const useUserStore = defineStore('user', {
         const userId: string = this.contract.pairingData.accountIds[0];
         this.accountId = userId;
 
-        const blockchainUser = await this.fetchUser(this.accountId)
-        console.log({blockchainUser})
+        const blockchainUser = await this.fetchUser(this.accountId);
+
         // check if the user exists in the blockchain by checking id
         const hasId = !!blockchainUser[0];
-        if(!!blockchainUser[0]) {
+        if (!!blockchainUser[0]) {
           this.userDetails = [
-            blockchainUser[0],
-            blockchainUser[1],
-            blockchainUser[2],
-            blockchainUser[3],
-            blockchainUser[4],
-            blockchainUser[5]
-          ]
+            Number(blockchainUser[0]), // id,
+            blockchainUser[1], // username,
+            blockchainUser[2], // phone,
+            [
+              Number(blockchainUser[3][0]),
+              Number(blockchainUser[3][1])
+            ], // Location,
+            Number(blockchainUser[4]), // createdAt,
+            Number(blockchainUser[5]), // AccountType
+          ];
+          console.log({userDetails: this.userDetails})
         } else if (!hasId && this.accountId) {
-          this.blockchainError.userExists = true;
+          this.blockchainError.userNotFound = true;
         }
       });
 
@@ -102,31 +119,37 @@ export const useUserStore = defineStore('user', {
         this.accountId = null;
       });
 
-      this.contract.hashconnect.connectionStatusChangeEvent.on((connectionStatus) => {
-        this.contract.state = connectionStatus;
-      })
+      this.contract.hashconnect.connectionStatusChangeEvent.on(
+        (connectionStatus) => {
+          this.contract.state = connectionStatus;
+        }
+      );
     },
     disconnect() {
       this.contract.hashconnect.disconnect();
       this.contract.pairingData = null;
       this.accountId = null;
       this.userDetails = undefined;
-      this.blockchainError.userExists = false;
+      this.blockchainError.userNotFound = false;
+      // remove the cookie because sometimes the state persists
+      useCookies().remove(STORE_KEY);
     },
 
     getContract() {
-      const contractAddress = AccountId.fromString(CONTRACT_ID).toSolidityAddress();
+      const contractAddress =
+        AccountId.fromString(CONTRACT_ID).toSolidityAddress();
       const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
-    
+
       return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
     },
-    async fetchUser(account_id: string):Promise<BlockchainUser> {
+    async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
-      const userAddress = AccountId.fromString(account_id).toSolidityAddress();
-      const user = await contract.users(`0x${userAddress}`);
+      const userAddress = await this.getEvmAddress(account_id);
+
+      const user = await contract.users(userAddress);
       return user;
     },
-    
+
     // create new user
     async createUser({
       username,
@@ -136,10 +159,10 @@ export const useUserStore = defineStore('user', {
       account_type,
     }: CreateUserDTO): Promise<TransactionReceipt | undefined> {
       if (!this.contract.pairingData || !this.accountId) return;
-    
-      try {    
+
+      try {
         const params = new ContractFunctionParameters();
-    
+
         params.addString(username);
         params.addString(phone);
         params.addInt256(lat);
@@ -149,7 +172,46 @@ export const useUserStore = defineStore('user', {
           .setContractId(ContractId.fromString(CONTRACT_ID))
           .setGas(1000000)
           .setFunction("createUser", params);
-    
+
+        const receipt = await this.contract.hashconnect.sendTransaction(
+          AccountId.fromString(this.accountId),
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async updateUser({
+      username,
+      phone,
+      lat,
+      long,
+      account_type,
+    }: Partial<CreateUserDTO>): Promise<TransactionReceipt | undefined> {
+      if (!this.contract.pairingData || !this.accountId) return;
+
+      try {
+        const params = new ContractFunctionParameters();
+
+        const payload = {
+          username: username || this.userDetails?.[1]!,
+          phone: phone || this.userDetails?.[2]!,
+          long: long || this.userDetails?.[3][0]!,
+          lat: lat || this.userDetails?.[3][1]!,
+          account_type: (account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!
+        }
+
+        params.addString(payload.username)
+        params.addString(payload.phone)
+        params.addInt256(Math.trunc(payload.long * (10**LOCATION_DECIMALS)))
+        params.addInt256(Math.trunc(payload.lat * (10**LOCATION_DECIMALS)))
+        params.addUint8(payload.account_type)
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(CONTRACT_ID))
+          .setGas(1000000)
+          .setFunction("createUser", params);
+
         const receipt = await this.contract.hashconnect.sendTransaction(
           AccountId.fromString(this.accountId),
           transaction
@@ -161,6 +223,11 @@ export const useUserStore = defineStore('user', {
     }
   },
   persist: {
-    paths: ['accountId', 'contract.state', 'userDetails[0]', 'blockchainError.userExists'],
+    paths: [
+      "accountId",
+      "contract.state",
+      "userDetails[0]",
+      "blockchainError.userNotFound",
+    ],
   },
 });

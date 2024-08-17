@@ -39,9 +39,9 @@ export const marketAbi = [
     inputs: [
       {
         indexed: true,
-        internalType: "string",
+        internalType: "uint256",
         name: "offerId",
-        type: "string",
+        type: "uint256",
       },
       {
         indexed: true,
@@ -63,9 +63,9 @@ export const marketAbi = [
       },
       {
         indexed: false,
-        internalType: "string",
+        internalType: "uint256",
         name: "requestId",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "OfferCreated",
@@ -76,9 +76,9 @@ export const marketAbi = [
     inputs: [
       {
         indexed: true,
-        internalType: "string",
+        internalType: "uint256",
         name: "offerId",
-        type: "string",
+        type: "uint256",
       },
       {
         indexed: true,
@@ -95,21 +95,21 @@ export const marketAbi = [
     inputs: [
       {
         indexed: true,
-        internalType: "string",
+        internalType: "uint256",
         name: "requestId",
-        type: "string",
+        type: "uint256",
       },
       {
         indexed: true,
-        internalType: "string",
+        internalType: "uint256",
         name: "offerId",
-        type: "string",
+        type: "uint256",
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "sellerAddress",
-        type: "address",
+        internalType: "uint256",
+        name: "sellerId",
+        type: "uint256",
       },
     ],
     name: "RequestAccepted",
@@ -120,9 +120,9 @@ export const marketAbi = [
     inputs: [
       {
         indexed: true,
-        internalType: "string",
+        internalType: "uint256",
         name: "requestId",
-        type: "string",
+        type: "uint256",
       },
       {
         indexed: true,
@@ -163,6 +163,12 @@ export const marketAbi = [
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "storeId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
         internalType: "string",
         name: "storeName",
         type: "string",
@@ -194,9 +200,9 @@ export const marketAbi = [
       },
       {
         indexed: false,
-        internalType: "string",
+        internalType: "uint256",
         name: "userId",
-        type: "string",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -217,9 +223,9 @@ export const marketAbi = [
   {
     inputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "_offerId",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "acceptOffer",
@@ -235,9 +241,9 @@ export const marketAbi = [
         type: "address",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "buyerOffers",
@@ -254,11 +260,6 @@ export const marketAbi = [
   {
     inputs: [
       {
-        internalType: "string",
-        name: "_id",
-        type: "string",
-      },
-      {
         internalType: "int256",
         name: "_price",
         type: "int256",
@@ -269,18 +270,13 @@ export const marketAbi = [
         type: "string[]",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "_requestId",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "string",
         name: "_storeName",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_sellerId",
         type: "string",
       },
     ],
@@ -293,17 +289,7 @@ export const marketAbi = [
     inputs: [
       {
         internalType: "string",
-        name: "_id",
-        type: "string",
-      },
-      {
-        internalType: "string",
         name: "_name",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_buyerId",
         type: "string",
       },
       {
@@ -336,11 +322,6 @@ export const marketAbi = [
     inputs: [
       {
         internalType: "string",
-        name: "_storeId",
-        type: "string",
-      },
-      {
-        internalType: "string",
         name: "_name",
         type: "string",
       },
@@ -367,11 +348,6 @@ export const marketAbi = [
   },
   {
     inputs: [
-      {
-        internalType: "string",
-        name: "_id",
-        type: "string",
-      },
       {
         internalType: "string",
         name: "_username",
@@ -406,17 +382,17 @@ export const marketAbi = [
   {
     inputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "offers",
     outputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "id",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "int256",
@@ -424,9 +400,9 @@ export const marketAbi = [
         type: "int256",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "requestId",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "string",
@@ -434,9 +410,9 @@ export const marketAbi = [
         type: "string",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "sellerId",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "bool",
@@ -460,9 +436,9 @@ export const marketAbi = [
   {
     inputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "_offerId",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "removeOffer",
@@ -473,17 +449,17 @@ export const marketAbi = [
   {
     inputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "requests",
     outputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "id",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "string",
@@ -491,9 +467,9 @@ export const marketAbi = [
         type: "string",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "buyerId",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "int256",
@@ -501,9 +477,9 @@ export const marketAbi = [
         type: "int256",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "lockedSellerId",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "string",
@@ -562,9 +538,9 @@ export const marketAbi = [
     name: "userStoreIds",
     outputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "",
-        type: "string",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -578,13 +554,18 @@ export const marketAbi = [
         type: "address",
       },
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "",
-        type: "string",
+        type: "uint256",
       },
     ],
     name: "userStores",
     outputs: [
+      {
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
       {
         internalType: "string",
         name: "name",
@@ -627,9 +608,9 @@ export const marketAbi = [
     name: "users",
     outputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "id",
-        type: "string",
+        type: "uint256",
       },
       {
         internalType: "string",

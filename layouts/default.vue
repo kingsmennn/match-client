@@ -19,7 +19,7 @@
           <button
             id="account-type"
             class="tw-inline-flex tw-items-center tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
-            tw-select-none tw-text-black hover:tw-bg-white/80
+            tw-select-none tw-text-black hover:tw-bg-white/80 tw-relative
             tw-transition-all tw-duration-300"
             :disabled="connecting"
             @click="()=>userStore.isConnected ? null : handleWalletConnect()">
@@ -34,6 +34,11 @@
               width="2"
             >
             </v-progress-circular>
+            <span
+              v-if="isNotOnboarded"
+              class="tw-h-1.5 tw-w-1.5 tw-absolute tw-bottom-full tw-left-0 tw-bg-white
+              tw-rounded-full tw-animate-ping">
+            </span>
           </button>
 
           <v-menu v-if="userStore.isConnected" activator="#account-type" transition="slide-y-transition">
@@ -43,18 +48,24 @@
               <span class="tw-text-sm tw-border-b tw-px-3 tw-py-2 tw-pb-1.5">
                 Active account id <strong>{{ userStore.accountId }}</strong>
               </span>
-              <div class="tw-flex tw-flex-col tw-gap-y-3 tw-px-3 tw-pb-3">
+              <div class="tw-flex tw-gap-y-3 tw-px-3 tw-pb-3 [&>*]:tw-flex-1 tw-text-center">
+                <NuxtLink
+                  :to="`${isNotOnboarded ? '/onboarding' : '/accounts/'+userStore.accountId}`"
+                  class="tw-bg-black tw-text-white tw-justify-center tw-rounded-md tw-px-2 tw-p-1 tw-select-none">
+                  {{ isNotOnboarded ? 'Onboarding' : 'My account' }}
+                </NuxtLink>
                 <button
                   class="tw-select-none tw-self-start tw-text-rose-700"
                   @click="disconnect">
-                  disconnect
+                  Disconnect
                 </button>
-                <NuxtLink
-                  to="/account"
-                  class="tw-bg-black tw-text-white tw-justify-center tw-rounded-md tw-px-2 tw-p-1 tw-select-none">
-                  My account
-                </NuxtLink>
               </div>
+              <!-- complete onboarding notice -->
+               <span
+                v-if="isNotOnboarded"
+                class="tw-text-xs tw-text-gray-500 tw-px-3 tw-pb-3 tw-pt-2 tw-border-t">
+                Complete onboarding to start using the platform
+              </span>
             </div>
           </v-menu>
         </div>
@@ -99,6 +110,10 @@ const isSeller = computed(() => userCookie.value?.accountType === AccountType.SE
 
 
 const userStore = useUserStore()
+const isNotOnboarded = computed(() => (
+    (userStore.isConnected && userStore.blockchainError.userNotFound)
+  )
+)
 const connecting = ref(false)
 const handleWalletConnect = async () => {
   connecting.value = true;
@@ -122,7 +137,7 @@ const disconnect = () => {
 }
 const router = useRouter()
 // check if connected user has been saved to the blockchain
-watch([()=>userStore.blockchainError.userExists, ()=>userStore.accountId], ([userExists, accountId]) => {
+watch([()=>userStore.blockchainError.userNotFound, ()=>userStore.accountId], ([userExists, accountId]) => {
   if (userExists && accountId) {
     // redirect to register page
     router.push('/onboarding')
