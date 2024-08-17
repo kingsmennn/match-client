@@ -13,7 +13,6 @@ import {
 } from "@hashgraph/sdk";
 import { ethers } from "ethers";
 import { marketAbi } from "@/blockchain/abi";
-import lighthouse from "@lighthouse-web3/sdk";
 import {
   HashConnect,
   HashConnectConnectionState,
@@ -21,6 +20,7 @@ import {
 } from "hashconnect";
 import { defineStore } from "pinia";
 import { AccountType, BlockchainUser, CreateUserDTO } from "@/types";
+import { useCookies } from '@vueuse/integrations/useCookies'
 
 type UserStore = {
   accountId: string | null;
@@ -41,7 +41,6 @@ const HEDERA_JSON_RPC = {
 };
 const CONTRACT_ID = "0.0.4686833";
 const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
-const LIGHTHOUSE_KEY = "274f6573.514379c4e0324096b7047a8cfbfac947";
 const DEBUG = true;
 const appMetaData = {
   name: "Finder",
@@ -51,7 +50,8 @@ const appMetaData = {
   url: window.location.origin,
 };
 
-export const useUserStore = defineStore("user", {
+const STORE_KEY = "@userStore";
+export const useUserStore = defineStore(STORE_KEY, {
   state: (): UserStore => ({
     accountId: null,
     contract: {
@@ -78,12 +78,6 @@ export const useUserStore = defineStore("user", {
       await this.contract.hashconnect.init();
       await this.contract.hashconnect.openPairingModal();
     },
-    async uploadToLightHouse(file: any) {
-      // <input onChange={e=>uploadToLightHouse(e.target.files)} type="file" />
-
-      const uploadResponse = await lighthouse.upload(file, LIGHTHOUSE_KEY);
-      return `https://gateway.lighthouse.storage/ipfs/${uploadResponse.data.Hash}`;
-    },
     async getEvmAddress(account_id: string) {
       const url = `https://testnet.mirrornode.hedera.com/api/v1/accounts/${account_id}?limit=1`;
       const response = await fetch(url);
@@ -103,12 +97,12 @@ export const useUserStore = defineStore("user", {
         const hasId = !!blockchainUser[0];
         if (!!blockchainUser[0]) {
           this.userDetails = [
-            blockchainUser[0],
-            blockchainUser[1],
-            blockchainUser[2],
-            blockchainUser[3],
-            blockchainUser[4],
-            blockchainUser[5],
+            blockchainUser[0], // id,
+            blockchainUser[1], // username,
+            blockchainUser[2], // phone,
+            blockchainUser[3], // Location,
+            blockchainUser[4], // createdAt,
+            blockchainUser[5], // AccountType
           ];
         } else if (!hasId && this.accountId) {
           this.blockchainError.userNotFound = true;
@@ -132,6 +126,8 @@ export const useUserStore = defineStore("user", {
       this.accountId = null;
       this.userDetails = undefined;
       this.blockchainError.userNotFound = false;
+      // remove the cookie because sometimes the state persists
+      useCookies().remove(STORE_KEY);
     },
 
     getContract() {
@@ -146,7 +142,6 @@ export const useUserStore = defineStore("user", {
       const userAddress = await this.getEvmAddress(account_id);
 
       const user = await contract.users(userAddress);
-
       return user;
     },
 
@@ -182,6 +177,37 @@ export const useUserStore = defineStore("user", {
         console.error(error);
       }
     },
+    async updateUser({
+      username,
+      phone,
+      lat,
+      long,
+      account_type,
+    }: Partial<CreateUserDTO>): Promise<TransactionReceipt | undefined> {
+      if (!this.contract.pairingData || !this.accountId) return;
+
+      try {
+        const params = new ContractFunctionParameters();
+
+        params.addString(username || this.userDetails?.[0]!);
+        params.addString(phone || this.userDetails?.[1]!);
+        params.addInt256(lat || this.userDetails?.[3].latitude!);
+        params.addInt256(long || this.userDetails?.[3].longitude!);
+        params.addUint8((account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(CONTRACT_ID))
+          .setGas(1000000)
+          .setFunction("createUser", params);
+
+        const receipt = await this.contract.hashconnect.sendTransaction(
+          AccountId.fromString(this.accountId),
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+      }
+    }
   },
   persist: {
     paths: [

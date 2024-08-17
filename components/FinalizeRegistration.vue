@@ -2,10 +2,14 @@
   <div>
     <div
       class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-4 sm:tw-items-center tw-justify-between
-      tw-bg-black tw-p-3 tw-rounded-lg tw-text-white">
+      tw-bg-black tw-p-3 tw-rounded-lg tw-text-white md:tw-gap-10">
       <div class="tw-space-y-1">
         <div>
-          <strong>Almost done!</strong> Just a few more questions and you are set ✨
+          <strong>Almost done!</strong> We just need access to your location ✨
+          <small class="tw-block tw-mb-2">
+            <v-icon size="20">mdi-alert-circle</v-icon>
+            For us to give you the best match for your items, you're advised to complete this step in the area you live
+          </small>
         </div>
         <div class="tw-h-3 tw-rounded-full tw-bg-white/40 tw-overflow-hidden">
           <span class="tw-block tw-h-full tw-w-[70%] tw-bg-white tw-rounded-full"></span>
@@ -15,12 +19,12 @@
       <button
         class="tw-px-3 tw-py-1 tw-rounded-full tw-bg-white tw-text-black
         hover:tw-bg-white/80 tw-transition-all tw-duration-300"
-        @click="modal = true">
+        @click="deviceLocationPreference({bePrecise:true})">
         Complete
       </button>
     </div>
 
-    <v-dialog v-model="modal" max-width="600">
+    <!-- <v-dialog v-model="modal" max-width="600">
       <div class="tw-bg-white tw-gap-4 tw-p-4 tw-text-black">
         <div>
           <h2 class="tw-text-5xl tw-font-bold">Finish Registration</h2>
@@ -152,11 +156,21 @@
           </form>
         </div>
       </div>
-    </v-dialog>
+    </v-dialog> -->
   </div>
 </template>
 
 <script setup lang="ts">
+const {
+  location,
+  deviceLocationPreference,
+  locationWarnNotice
+} = useGetLocation()
+
+const modal = ref(false)
+</script>
+
+<!-- <script setup lang="ts">
 import { AccountType, Location, Store, User } from '@/types';
 import { ref } from 'vue'
 import states from '@/nigerian-states.json'
@@ -314,4 +328,4 @@ const handleFinalSignup = async () => {
   submiting.value = false
   modal.value = false
 }
-</script>
+</script> -->

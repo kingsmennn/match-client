@@ -25,7 +25,8 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     public: {
-      appName: 'Match'
+      appName: 'Match',
+      lightHouseApiKey: process.env.LIGHTHOUSE_API_KEY
     }
   },
   vuetify: {
