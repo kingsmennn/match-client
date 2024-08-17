@@ -78,7 +78,9 @@ export const useUserStore = defineStore("user", {
       await this.contract.hashconnect.init();
       await this.contract.hashconnect.openPairingModal();
     },
-    async uploadToLightHouse(file) {
+    async uploadToLightHouse(file: any) {
+      // <input onChange={e=>uploadToLightHouse(e.target.files)} type="file" />
+
       const uploadResponse = await lighthouse.upload(file, LIGHTHOUSE_KEY);
       return `https://gateway.lighthouse.storage/ipfs/${uploadResponse.data.Hash}`;
     },
