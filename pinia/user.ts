@@ -177,6 +177,8 @@ export const useUserStore = defineStore(STORE_KEY, {
           AccountId.fromString(this.accountId),
           transaction
         );
+        // resets
+        this.blockchainError.userNotFound = false
         return receipt;
       } catch (error) {
         console.error(error);
