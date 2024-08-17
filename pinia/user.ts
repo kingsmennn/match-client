@@ -13,6 +13,7 @@ import {
 } from "@hashgraph/sdk";
 import { ethers } from "ethers";
 import { marketAbi } from "@/blockchain/abi";
+import lighthouse from "@lighthouse-web3/sdk";
 import {
   HashConnect,
   HashConnectConnectionState,
@@ -40,6 +41,7 @@ const HEDERA_JSON_RPC = {
 };
 const CONTRACT_ID = "0.0.4686833";
 const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
+const LIGHTHOUSE_KEY = "274f6573.514379c4e0324096b7047a8cfbfac947";
 const DEBUG = true;
 const appMetaData = {
   name: "Finder",
@@ -76,6 +78,10 @@ export const useUserStore = defineStore("user", {
       await this.contract.hashconnect.init();
       await this.contract.hashconnect.openPairingModal();
     },
+    async uploadToLightHouse(file) {
+      const uploadResponse = await lighthouse.upload(file, LIGHTHOUSE_KEY);
+      return `https://gateway.lighthouse.storage/ipfs/${uploadResponse.data.Hash}`;
+    },
     async getEvmAddress(account_id: string) {
       const url = `https://testnet.mirrornode.hedera.com/api/v1/accounts/${account_id}?limit=1`;
       const response = await fetch(url);
@@ -90,7 +96,7 @@ export const useUserStore = defineStore("user", {
         this.accountId = userId;
 
         const blockchainUser = await this.fetchUser(this.accountId);
-       
+
         // check if the user exists in the blockchain by checking id
         const hasId = !!blockchainUser[0];
         if (!!blockchainUser[0]) {
