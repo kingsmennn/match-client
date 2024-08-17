@@ -28,15 +28,15 @@ export default function () {
     console.warn(`Error obtaining location: ${error.message}`);
   }
   const deviceLocationPreference = ({
-    callback, bePrecise
+    callback, bePrecise = false
   }:{
     callback?:(location: GeolocationPosition)=>void,
-    bePrecise:boolean
+    bePrecise?:boolean
   }) => {
     if (navigator.geolocation) {
       const options = {
         enableHighAccuracy: bePrecise, // Request high accuracy
-        timeout: 5000, // Maximum time (in milliseconds) allowed to retrieve the location
+        timeout: 10000, // Maximum time (in milliseconds) allowed to retrieve the location
         maximumAge: 0 // Do not use a cached position
       };
   

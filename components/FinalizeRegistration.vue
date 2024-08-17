@@ -19,7 +19,7 @@
       <button
         class="tw-px-3 tw-py-1 tw-rounded-full tw-bg-white tw-text-black
         hover:tw-bg-white/80 tw-transition-all tw-duration-300"
-        @click="deviceLocationPreference({bePrecise:true})">
+        @click="deviceLocationPreference({ callback: handleLocationUpdate })">
         Complete
       </button>
     </div>
@@ -161,6 +161,8 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '@/pinia/user';
+
 const {
   location,
   deviceLocationPreference,
@@ -168,6 +170,20 @@ const {
 } = useGetLocation()
 
 const modal = ref(false)
+
+const userStore = useUserStore()
+const handleLocationUpdate = async () =>{
+  console.log("I was called")
+  try {
+    const res = await userStore.updateUser({
+      lat: location.value.lat,
+      long: location.value.lng
+    })
+    console.log({updateUserRes: res})
+  } catch (e){
+    console.log(e)
+  }
+}
 </script>
 
 <!-- <script setup lang="ts">

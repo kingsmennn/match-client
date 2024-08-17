@@ -72,10 +72,10 @@ export type CreateUserDTO = {
   account_type: AccountType;
 };
 
-type id = string;
+type id = number;
 type username = string;
 type phone = string;
-type createdAt = Date;
+type createdAt = number;
 export type BlockchainUser = [
   id,
   username,

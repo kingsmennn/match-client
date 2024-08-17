@@ -40,6 +40,7 @@ const HEDERA_JSON_RPC = {
   testnet: "https://testnet.hashio.io/api",
 };
 const CONTRACT_ID = "0.0.4686833";
+const LOCATION_DECIMALS = 18
 const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
 const DEBUG = true;
 const appMetaData = {
@@ -97,12 +98,15 @@ export const useUserStore = defineStore(STORE_KEY, {
         const hasId = !!blockchainUser[0];
         if (!!blockchainUser[0]) {
           this.userDetails = [
-            blockchainUser[0], // id,
+            Number(blockchainUser[0]), // id,
             blockchainUser[1], // username,
             blockchainUser[2], // phone,
-            blockchainUser[3], // Location,
-            blockchainUser[4], // createdAt,
-            blockchainUser[5], // AccountType
+            [
+              Number(blockchainUser[3][0]),
+              Number(blockchainUser[3][1])
+            ], // Location,
+            Number(blockchainUser[4]), // createdAt,
+            Number(blockchainUser[5]), // AccountType
           ];
           console.log({userDetails: this.userDetails})
         } else if (!hasId && this.accountId) {
@@ -190,11 +194,19 @@ export const useUserStore = defineStore(STORE_KEY, {
       try {
         const params = new ContractFunctionParameters();
 
-        params.addString(username || this.userDetails?.[0]!);
-        params.addString(phone || this.userDetails?.[1]!);
-        params.addInt256(long || this.userDetails?.[3][0]!);
-        params.addInt256(lat || this.userDetails?.[3][1]!);
-        params.addUint8((account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!);
+        const payload = {
+          username: username || this.userDetails?.[1]!,
+          phone: phone || this.userDetails?.[2]!,
+          long: long || this.userDetails?.[3][0]!,
+          lat: lat || this.userDetails?.[3][1]!,
+          account_type: (account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!
+        }
+
+        params.addString(payload.username)
+        params.addString(payload.phone)
+        params.addInt256(Math.trunc(payload.long * (10**LOCATION_DECIMALS)))
+        params.addInt256(Math.trunc(payload.lat * (10**LOCATION_DECIMALS)))
+        params.addUint8(payload.account_type)
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
           .setGas(1000000)
