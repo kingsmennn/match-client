@@ -98,22 +98,17 @@ definePageMeta({
 })
 
 const tab = ref()
-const tab_list:{ slug: string }[] = [
+const tab_list:{ slug: AccountType }[] = [
   { slug: AccountType.BUYER },
   { slug: AccountType.SELLER },
 ]
 
 const form = ref<User>({
-  accountType: '' as AccountType,
-
-  // secondary data to be collected later or generated
-  location: {
-    longitude: 0,
-    latitude: 0
-  },
+  accountType: '' as unknown as AccountType,
   username: '',
+  // secondary data to be collected later or generated
+  location: [ 0, 0 ],
   phone: '',
-  stores: [],
   createdAt: new Date(),
 })
 
@@ -122,9 +117,9 @@ const snackbar = ref({
   text: ''
 })
 
-const handleInitAccountSelected = (value: string) => {
+const handleInitAccountSelected = (value: AccountType) => {
   tab.value = value
-  form.value.accountType = value as AccountType
+  form.value.accountType = value
 }
 
 const options: RandomWordOptions<2> = {
@@ -148,13 +143,12 @@ const handleCompleteOnbaording = async () => {
       username: form.value.username,
       account_type: form.value.accountType,
       phone: '',
-      long: form.value.location.longitude,
-      lat: form.value.location.latitude,
+      long: form.value.location[0],
+      lat: form.value.location[1],
     }
     const res = await userStore.createUser(payload)
     if(res?.status._code === 22) {
       // success
-      console.log({ createUserRes: res })
       // fetch user data
       const user = await userStore.fetchUser(userStore.accountId!)
       if(!user) {
@@ -168,7 +162,7 @@ const handleCompleteOnbaording = async () => {
         username: form.value.username,
         phone: form.value.phone,
         location: form.value.location,
-        createdAt: form.value.createdAt,
+        createdAt: new Date(form.value.createdAt),
       }
       router.push('/accounts/'+ userStore.accountId)
     }
