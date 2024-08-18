@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { User, AccountType, STORE_KEY_MIDDLEWARE } from '@/types'
+import { User, AccountType, STORE_KEY_MIDDLEWARE, STORE_KEY } from '@/types'
 import { useUserStore } from '@/pinia/user';
 
 const env = useRuntimeConfig().public
@@ -107,6 +107,7 @@ const route = useRoute()
 const userStore = useUserStore()
 
 const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
+const storeCookie = useCookie(STORE_KEY)
 const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
 
 const connecting = ref(false)
@@ -126,6 +127,7 @@ const handleWalletConnect = async () => {
 const disconnect = async () => {
   try {
     userCookie.value = null as unknown as User
+    storeCookie.value = null
     await userStore.disconnect()
     // only redirect if user is on a protected route
     if (route.meta.requiresAuth) {

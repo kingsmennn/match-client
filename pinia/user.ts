@@ -19,8 +19,7 @@ import {
   SessionData,
 } from "hashconnect";
 import { defineStore } from "pinia";
-import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User } from "@/types";
-import { useCookies } from '@vueuse/integrations/useCookies'
+import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User, Location } from "@/types";
 
 type UserStore = {
   accountId: string | null;
@@ -81,7 +80,7 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
     username: (state)=>state.userDetails?.[1],
     phone: (state)=>state.userDetails?.[2],
-    loction: (state)=>state.userDetails?.[3],
+    location: (state)=>state.userDetails?.[3],
     accountType: (state) => state.userDetails?.[5]
   },
   actions: {
@@ -224,7 +223,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       lat,
       long,
       account_type,
-    }: Partial<CreateUserDTO>): Promise<TransactionReceipt | undefined> {
+    }: Partial<CreateUserDTO>): Promise<{receipt: TransactionReceipt, location: Location} | undefined> {
       if (!this.contract.pairingData || !this.accountId) return;
 
       try {
@@ -233,15 +232,15 @@ export const useUserStore = defineStore(STORE_KEY, {
         const payload = {
           username: username || this.userDetails?.[1]!,
           phone: phone || this.userDetails?.[2]!,
-          long: long || this.userDetails?.[3][0]!,
-          lat: lat || this.userDetails?.[3][1]!,
+          long: Math.trunc((long || this.userDetails?.[3][0]!) * (10**LOCATION_DECIMALS)),
+          lat: Math.trunc((lat || this.userDetails?.[3][1]!) * (10**LOCATION_DECIMALS)),
           account_type: ((account_type || this.userDetails?.[5]!) === AccountType.BUYER ? 0 : 1)
         }
 
         params.addString(payload.username)
         params.addString(payload.phone)
-        params.addInt256(Math.trunc(payload.long * (10**LOCATION_DECIMALS)))
-        params.addInt256(Math.trunc(payload.lat * (10**LOCATION_DECIMALS)))
+        params.addInt256(payload.long)
+        params.addInt256(payload.lat)
         params.addUint8(payload.account_type)
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
@@ -252,7 +251,7 @@ export const useUserStore = defineStore(STORE_KEY, {
           AccountId.fromString(this.accountId),
           transaction
         );
-        return receipt;
+        return {receipt, location: [payload.long, payload.lat]};
       } catch (error) {
         console.error(error);
       }
