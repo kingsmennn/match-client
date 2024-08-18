@@ -72,7 +72,13 @@ export const useUserStore = defineStore(STORE_KEY, {
   }),
   getters: {
     isConnected: (state) => !!state.accountId,
-    hasLocation: (state) => !!state.userDetails?.[3][0],
+    passedSecondaryCheck: (state) => {
+      return state.userDetails?.[5] === AccountType.BUYER ?
+        // buyers only need give access to their location
+        !!state.userDetails?.[3][0] :
+        // sellers need to setup their store
+        false // TODO
+    },
     accountType: (state) => state.userDetails?.[5]
   },
   actions: {

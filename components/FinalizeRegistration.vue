@@ -5,10 +5,10 @@
       tw-bg-black tw-p-3 tw-rounded-lg tw-text-white md:tw-gap-10">
       <div class="tw-space-y-1">
         <div>
-          <strong>Almost done!</strong> We just need access to your location ✨
+          <strong>Almost done!</strong> {{ heading }}
           <small class="tw-block tw-mb-2">
             <v-icon size="20">mdi-alert-circle</v-icon>
-            For us to give you the best match for your items, you're advised to complete this step in the area you live
+            {{ subHeading }}
           </small>
         </div>
         <div class="tw-h-3 tw-rounded-full tw-bg-white/40 tw-overflow-hidden">
@@ -19,7 +19,7 @@
       <button
         class="tw-px-3 tw-py-1 tw-rounded-full tw-bg-white tw-text-black
         hover:tw-bg-white/80 tw-transition-all tw-duration-300"
-        @click="deviceLocationPreference({ callback: handleLocationUpdate })">
+        @click="complete">
         Complete
       </button>
     </div>
@@ -162,6 +162,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/pinia/user';
+import { AccountType } from '@/types';
 
 const {
   location,
@@ -169,20 +170,36 @@ const {
   locationWarnNotice
 } = useGetLocation()
 
-const modal = ref(false)
+const heading = computed(()=>
+  userStore.accountType === AccountType.BUYER ?
+    'We just need access to your location 📍' :
+    userStore.accountType === AccountType.SELLER ?
+      'Lets help you setup your store' :
+      null
+)
+const subHeading = computed(()=>
+  userStore.accountType === AccountType.BUYER ?
+    "For us to give you the best match for your items, you're advised to complete this step in the area you live" :
+    userStore.accountType === AccountType.SELLER ?
+      'This process is required for you to start using our platform as a '+AccountType.SELLER :
+      null
+)
 
 const userStore = useUserStore()
-const handleLocationUpdate = async () =>{
-  console.log("I was called")
-  try {
-    const res = await userStore.updateUser({
-      lat: location.value.lat,
-      long: location.value.lng
-    })
-    console.log({updateUserRes: res})
-  } catch (e){
-    console.log(e)
-  }
+const router = useRouter()
+const complete = () => {
+  userStore.accountType === AccountType.BUYER ?
+    deviceLocationPreference({ callback: async () => {
+      try {
+        await userStore.updateUser({
+          lat: location.value.lat,
+          long: location.value.lng
+        })
+      } catch (e){
+        console.log(e)
+      }
+    }}) :
+    userStore.accountType === AccountType.SELLER ? router.push('/accounts/store-setup') : null
 }
 </script>
 

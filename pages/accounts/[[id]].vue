@@ -2,9 +2,8 @@
   <div class="tw-max-w-7xl tw-mx-auto">
     <div class="tw-p-6 sm:tw-p-10">
       <FinalizeRegistration
-        v-if="!isCompletedNow && !isCompleted"
-        :accountType="userCookie?.accountType"
-        v-model="isCompletedNow" class="tw-mb-6"
+        v-if="!userStore.passedSecondaryCheck"
+        class="tw-mb-6"
       />
 
       <div class="tw-mb-6 tw-flex tw-justify-between tw-items-center">
@@ -36,8 +35,8 @@
               :class="[is_active ? 'tw-border-black' : 'tw-text-gray-400 tw-border-transparent']"
               class="tw-border-b-4 tw-py-2 tw-transition tw-duration-300 tw-font-medium tw-cursor-pointer">
               <span class="tw-flex tw-flex-col tw-items-center">
-                <v-icon>{{ tab?.icon }}</v-icon>
-                <span>{{ tab?.name }}</span>
+                <v-icon>{{ (tab as any)?.icon }}</v-icon>
+                <span>{{ (tab as any)?.name }}</span>
               </span>
             </div>
           </template>
@@ -96,6 +95,7 @@ import { useRoute } from 'vue-router'
 import { ref, computed } from 'vue'
 import { RequestLifecycle, AccountType, User, Request, Offer } from '@/types'
 import { getDatabase, ref as RTDBRef, equalTo, orderByChild, query, onValue } from "firebase/database";
+import { useUserStore } from '@/pinia/user';
 
 useHead({
   title: 'iMarket Finder - Your account',
@@ -106,7 +106,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-// console.log(route.params.id)
+const userStore = useUserStore()
 
 const isCompletedNow = ref(false)
 const isCompleted = computed(()=>!!userCookie.value?.username)
