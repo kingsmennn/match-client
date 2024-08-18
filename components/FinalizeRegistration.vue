@@ -29,10 +29,11 @@
 <script setup lang="ts">
 import { useUserStore } from '@/pinia/user';
 import { AccountType, STORE_KEY_MIDDLEWARE, User } from '@/types';
+import { toast } from 'vue-sonner';
 
 const {
   location,
-  deviceLocationPreference,
+  getDevicePosition,
   locationWarnNotice
 } = useGetLocation()
 
@@ -56,26 +57,32 @@ const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
 const router = useRouter()
 const complete = () => {
   userStore.accountType === AccountType.BUYER ?
-    deviceLocationPreference({ callback: async () => {
-      try {
-        const res = await userStore.updateUser({
-          lat: location.value.lat,
-          long: location.value.lng
-        })
-        if (userStore?.userDetails) {
-          userStore.userDetails[3] = [
-            res?.location[0]!,
-            res?.location[1]!
-          ]
-          userCookie.value.location = [
-            res?.location[0]!,
-            res?.location[1]!
-          ]
+    getDevicePosition({
+      // bePrecise:true,
+      callback: async () => {
+        try {
+          const res = await userStore.updateUser({
+            lat: location.value.lat,
+            long: location.value.lng
+          })
+          if (userStore?.userDetails) {
+            userStore.userDetails[3] = [
+              res?.location[0]!,
+              res?.location[1]!
+            ]
+            userCookie.value.location = [
+              res?.location[0]!,
+              res?.location[1]!
+            ]
+          }
+        } catch (e){
+          console.log(e)
         }
-      } catch (e){
-        console.log(e)
+      },
+      onError: (error) => {
+        toast.error('Please try again: '+error.message)
       }
-    }}) :
+    }) :
     userStore.accountType === AccountType.SELLER ? router.push('/accounts/store-setup') : null
 }
 </script>
