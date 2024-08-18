@@ -76,7 +76,6 @@ type id = number;
 type username = string;
 type phone = string;
 type createdAt = number;
-type account_type = AccountType
 export type BlockchainUser = [
   id,
   username,
@@ -109,3 +108,6 @@ export type CreateOfferDTO = {
   storeName: string;
   sellerId: string;
 };
+
+export const STORE_KEY = "@userStore";
+export const STORE_KEY_MIDDLEWARE = "@userStoreMiddleware";

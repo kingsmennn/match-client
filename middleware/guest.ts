@@ -1,10 +1,12 @@
+import { useUserStore } from "@/pinia/user"
+
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const user = await getCurrentUser()
+  const userStore = useUserStore()
 
   // user is logged in, redirect to home page
-  if (user) {
+  if (userStore.isConnected) {
     return navigateTo({
-      path: `/accounts/${user.uid}`,
+      path: `/accounts/${userStore.accountId}`,
       query: {
         redirect: to.fullPath,
       },

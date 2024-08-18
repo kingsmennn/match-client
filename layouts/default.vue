@@ -35,7 +35,7 @@
             >
             </v-progress-circular>
             <span
-              v-if="isNotOnboarded"
+              v-if="userStore.isNotOnboarded"
               class="tw-h-1.5 tw-w-1.5 tw-absolute tw-bottom-full tw-left-0 tw-bg-white
               tw-rounded-full tw-animate-ping">
             </span>
@@ -50,9 +50,9 @@
               </span>
               <div class="tw-flex tw-gap-y-3 tw-px-3 tw-pb-3 [&>*]:tw-flex-1 tw-text-center">
                 <NuxtLink
-                  :to="`${isNotOnboarded ? '/onboarding' : '/accounts/'+userStore.accountId}`"
+                  :to="`${userStore.isNotOnboarded ? '/onboarding' : '/accounts/'+userStore.accountId}`"
                   class="tw-bg-black tw-text-white tw-justify-center tw-rounded-md tw-px-2 tw-p-1 tw-select-none">
-                  {{ isNotOnboarded ? 'Onboarding' : 'My account' }}
+                  {{ userStore.isNotOnboarded ? 'Onboarding' : 'My account' }}
                 </NuxtLink>
                 <button
                   class="tw-select-none tw-self-start tw-text-rose-700"
@@ -62,7 +62,7 @@
               </div>
               <!-- complete onboarding notice -->
                <span
-                v-if="isNotOnboarded"
+                v-if="userStore.isNotOnboarded"
                 class="tw-text-xs tw-text-gray-500 tw-px-3 tw-pb-3 tw-pt-2 tw-border-t">
                 Complete onboarding to start using the platform
               </span>
@@ -98,22 +98,17 @@
 </template>
 
 <script setup lang="ts">
-import { User, AccountType } from '@/types'
+import { User, AccountType, STORE_KEY_MIDDLEWARE } from '@/types'
 import { useUserStore } from '@/pinia/user';
 
 const env = useRuntimeConfig().public
+const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
 
-const userCookie = useCookie<User>('user')
+const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
 const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
 
-
-
-
-const userStore = useUserStore()
-const isNotOnboarded = computed(() => (
-    (userStore.isConnected && userStore.blockchainError.userNotFound)
-  )
-)
 const connecting = ref(false)
 const handleWalletConnect = async () => {
   connecting.value = true;
@@ -127,15 +122,19 @@ const handleWalletConnect = async () => {
     connecting.value = false;
   }
 };
-const disconnect = () => {
-  userStore.disconnect()
 
-  // only redirect if user is on a protected route
-  // if (route.meta.requiresAuth) {
-  //   router.push('/login')
-  // }
+const disconnect = async () => {
+  try {
+    userCookie.value = null as unknown as User
+    await userStore.disconnect()
+    // only redirect if user is on a protected route
+    if (route.meta.requiresAuth) {
+      router.push('/')
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
-const router = useRouter()
 // check if connected user has been saved to the blockchain
 watch([()=>userStore.blockchainError.userNotFound, ()=>userStore.accountId], ([userExists, accountId]) => {
   if (userExists && accountId) {

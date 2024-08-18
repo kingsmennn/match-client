@@ -31,12 +31,12 @@
                 Send notifications to store owners in markets around you from the comfort of your home
               </p>
 
-              <NuxtLink
-                to="/register?user_type=buyer"
+              <!-- should be a connect function -->
+              <button
                 class="tw-inline-block tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
                 <span>Get started</span>
                 <v-icon>mdi-arrow-right</v-icon>
-              </NuxtLink>
+              </button>
             </template>
 
             <template v-if="tab===tab_list[1].slug">
@@ -52,7 +52,7 @@
                 @click="handleSellerBtnClick"
                 class="tw-inline-block tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
                 <span>
-                  {{ isSeller ? 'View Active Requests' : (isBuyer ? 'We\'ll log you out from this account' : 'Register store') }}
+                  {{ isSeller ? 'View Active Requests' : (isBuyer ? 'Your account would be switched to "sellers" account' : 'Register store') }}
                   </span>
                 <v-icon>mdi-arrow-right</v-icon>
               </button>
@@ -184,7 +184,6 @@ const userCookie = useCookie<User>('user')
 const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
 const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER)
 
-// :to="isSeller ? '/requests' : (isBuyer ? '' : '/register?user_type=seller')"
 const router = useRouter()
 const auth = useFirebaseAuth() // only exists on client side
 
@@ -193,9 +192,9 @@ const handleSellerBtnClick = async () => {
     router.push('/requests')
     return
   } else if (isBuyer.value) {
-    await signOut(auth!).then(() => {
-      userCookie.value = null as unknown as User
-    })
+    // await signOut(auth!).then(() => {
+    //   userCookie.value = null as unknown as User
+    // })
   }
   router.push('/register?user_type=seller')
 

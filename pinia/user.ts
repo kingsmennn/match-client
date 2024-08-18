@@ -19,7 +19,7 @@ import {
   SessionData,
 } from "hashconnect";
 import { defineStore } from "pinia";
-import { AccountType, BlockchainUser, CreateUserDTO } from "@/types";
+import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User } from "@/types";
 import { useCookies } from '@vueuse/integrations/useCookies'
 
 type UserStore = {
@@ -51,7 +51,6 @@ const appMetaData = {
   url: window.location.origin,
 };
 
-const STORE_KEY = "@userStore";
 export const useUserStore = defineStore(STORE_KEY, {
   state: (): UserStore => ({
     accountId: null,
@@ -72,6 +71,7 @@ export const useUserStore = defineStore(STORE_KEY, {
   }),
   getters: {
     isConnected: (state) => !!state.accountId,
+    isNotOnboarded: (state) => !!state.accountId && state.blockchainError.userNotFound,
     passedSecondaryCheck: (state) => {
       return state.userDetails?.[5] === AccountType.BUYER ?
         // buyers only need give access to their location
@@ -79,6 +79,9 @@ export const useUserStore = defineStore(STORE_KEY, {
         // sellers need to setup their store
         false // TODO
     },
+    username: (state)=>state.userDetails?.[1],
+    phone: (state)=>state.userDetails?.[2],
+    loction: (state)=>state.userDetails?.[3],
     accountType: (state) => state.userDetails?.[5]
   },
   actions: {
@@ -94,6 +97,8 @@ export const useUserStore = defineStore(STORE_KEY, {
       return data?.evm_address;
     },
     async setUpHashConnectEvents() {
+      const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE) // will be used by middleware
+      
       this.contract.hashconnect.pairingEvent.on(async (newPairing) => {
         this.contract.pairingData = newPairing;
         // set the account id of the user
@@ -104,19 +109,43 @@ export const useUserStore = defineStore(STORE_KEY, {
 
         // check if the user exists in the blockchain by checking id
         const hasId = !!blockchainUser[0];
-        if (!!blockchainUser[0]) {
+        if (hasId) {
+          const details = {
+            id: Number(blockchainUser[0]),
+            username: blockchainUser[1],
+            phone: blockchainUser[2],
+            location: {
+              long: Number(blockchainUser[3][0]),
+              lat: Number(blockchainUser[3][1])
+            },
+            createdAt: Number(blockchainUser[4]),
+            accountType: Number(blockchainUser[5]) === 0 ? AccountType.BUYER : AccountType.SELLER
+          }
+          const { id, username, phone, location, createdAt, accountType } = details
+          
           this.userDetails = [
-            Number(blockchainUser[0]), // id,
-            blockchainUser[1], // username,
-            blockchainUser[2], // phone,
+            id,
+            username,
+            phone,
             [
-              Number(blockchainUser[3][0]),
-              Number(blockchainUser[3][1])
-            ], // Location,
-            Number(blockchainUser[4]), // createdAt,
-            Number(blockchainUser[5]) === 0 ? AccountType.BUYER : AccountType.SELLER, // AccountType
+              location.long,
+              location.lat
+            ],
+            createdAt,
+            accountType
           ];
-          console.log({userDetails: this.userDetails})
+
+          userCookie.value = {
+            id: this.accountId,
+            username,
+            phone,
+            location: [
+              location.long,
+              location.lat
+            ],
+            createdAt: new Date(createdAt),
+            accountType
+          }
         } else if (!hasId && this.accountId) {
           this.blockchainError.userNotFound = true;
         }
@@ -133,14 +162,12 @@ export const useUserStore = defineStore(STORE_KEY, {
         }
       );
     },
-    disconnect() {
-      this.contract.hashconnect.disconnect();
+    async disconnect() {
+      await this.contract.hashconnect.disconnect();
       this.contract.pairingData = null;
       this.accountId = null;
       this.userDetails = undefined;
       this.blockchainError.userNotFound = false;
-      // remove the cookie because sometimes the state persists
-      useCookies().remove(STORE_KEY);
     },
 
     getContract() {
