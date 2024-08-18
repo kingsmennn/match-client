@@ -1,6 +1,6 @@
 export enum AccountType {
-  BUYER,
-  SELLER,
+  BUYER = 'buyer',
+  SELLER = 'seller'
 }
 
 export type Location = [
@@ -76,6 +76,7 @@ type id = number;
 type username = string;
 type phone = string;
 type createdAt = number;
+type account_type = AccountType
 export type BlockchainUser = [
   id,
   username,

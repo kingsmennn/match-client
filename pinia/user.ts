@@ -72,6 +72,8 @@ export const useUserStore = defineStore(STORE_KEY, {
   }),
   getters: {
     isConnected: (state) => !!state.accountId,
+    hasLocation: (state) => !!state.userDetails?.[3][0],
+    accountType: (state) => state.userDetails?.[5]
   },
   actions: {
     async connectToHashConnect() {
@@ -106,7 +108,7 @@ export const useUserStore = defineStore(STORE_KEY, {
               Number(blockchainUser[3][1])
             ], // Location,
             Number(blockchainUser[4]), // createdAt,
-            Number(blockchainUser[5]), // AccountType
+            Number(blockchainUser[5]) === 0 ? AccountType.BUYER : AccountType.SELLER, // AccountType
           ];
           console.log({userDetails: this.userDetails})
         } else if (!hasId && this.accountId) {
@@ -162,12 +164,11 @@ export const useUserStore = defineStore(STORE_KEY, {
 
       try {
         const params = new ContractFunctionParameters();
-
         params.addString(username);
         params.addString(phone);
         params.addInt256(lat);
         params.addInt256(long);
-        params.addUint8(account_type == AccountType.BUYER ? 0 : 1);
+        params.addUint8(account_type === AccountType.BUYER ? 0 : 1);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
           .setGas(1000000)
@@ -201,7 +202,7 @@ export const useUserStore = defineStore(STORE_KEY, {
           phone: phone || this.userDetails?.[2]!,
           long: long || this.userDetails?.[3][0]!,
           lat: lat || this.userDetails?.[3][1]!,
-          account_type: (account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!
+          account_type: ((account_type || this.userDetails?.[5]!) === AccountType.BUYER ? 0 : 1)
         }
 
         params.addString(payload.username)
@@ -228,7 +229,7 @@ export const useUserStore = defineStore(STORE_KEY, {
     paths: [
       "accountId",
       "contract.state",
-      "userDetails[0]",
+      "userDetails",
       "blockchainError.userNotFound",
     ],
   },
