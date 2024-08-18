@@ -9,6 +9,9 @@ export default defineNuxtConfig({
     '@invictus.codes/nuxt-vuetify',
     '@vueuse/nuxt',
   ],
+  build: {
+    transpile: ['vue-sonner']
+  },
   vuefire: {
     // ensures the auth module is enabled
     auth: true,

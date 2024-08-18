@@ -33,6 +33,7 @@
     "nuxt-vuefire": "^0.2.13",
     "random-word-slugs": "^0.1.7",
     "universal-cookie": "^7",
+    "vue-sonner": "^1.1.4",
     "vuefire": "^3.1.13"
   }
 }

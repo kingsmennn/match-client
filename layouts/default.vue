@@ -94,12 +94,14 @@
         </div>
       </div>
     </footer>
+    <Toaster closeButton />
   </div>
 </template>
 
 <script setup lang="ts">
 import { User, AccountType, STORE_KEY_MIDDLEWARE, STORE_KEY } from '@/types'
 import { useUserStore } from '@/pinia/user';
+import { Toaster } from "vue-sonner";
 
 const env = useRuntimeConfig().public
 const router = useRouter()
