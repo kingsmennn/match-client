@@ -52,6 +52,7 @@ const complete = async () => {
       latitude: location.value.lat,
     })
     // redirect back to accounts page
+    toast.success("Your store's successfully created!")
     router.replace('/accounts/'+ userStore.accountId)
   } catch (error) {
     console.log(error)

@@ -94,7 +94,6 @@ export type CreateStoreDTO = {
 
 export type CreateRequestDTO = {
   name: string;
-  buyerId: string;
   description: string;
   images: string[];
   latitude: number;
