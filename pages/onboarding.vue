@@ -5,7 +5,7 @@
         <div class="lg:tw-w-1/2 tw-min-h-full tw-bg-white sm:tw-p-6">
           <!-- this Tabs component isn't visually rendered, only used to detect the tab user was
           coming from on the landing page OR the signup form to display -->
-          <Tabs :tab_list="tab_list" query_name="user_type" :value="tab" @model-value="handleInitAccountSelected"></Tabs>
+          <Tabs :tab_list="tab_list" query_name="user_type" :value="tab" @model-value="(value)=>handleInitAccountSelected(value as AccountType)"></Tabs>
 
           <div>
             <h2 class="tw-text-5xl tw-font-bold">Lastly...</h2>
@@ -137,6 +137,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const submiting = ref(false)
 const handleCompleteOnbaording = async () => {
+  console.log("Called")
   submiting.value = true
   try {
     const payload: CreateUserDTO = {
