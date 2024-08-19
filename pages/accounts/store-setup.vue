@@ -52,7 +52,7 @@ const complete = async () => {
     console.log(error)
     toast.error(error as any)
   } finally {
-    submiting.value = true
+    submiting.value = false
   }
 }
 </script>
@@ -67,7 +67,7 @@ const complete = async () => {
           <small
             class="tw-bg-black tw-text-white tw-p-1 tw-mt-2">
             <v-icon size="20">mdi-alert-circle</v-icon>
-            This process is to be completed within your store premise (<strong>recommended: inside your store</strong>)
+            This (ONE-TIME-SETUP) process is to be completed within your store premise (<strong>recommended: inside your store</strong>)
           </small>
           <form @submit.prevent="complete" class="tw-mt-4 tw-text-2xl">
             <div>
@@ -97,6 +97,16 @@ const complete = async () => {
                   placeholder="Arya's Clothing"
                   :required="true"
                   class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black">
+              </label>
+
+              <label class="tw-relative tw-block tw-mt-4">
+                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your stores name?</span>
+                <textarea
+                  v-model="form.description"
+                  placeholder="We sell the best cosplay clothes in the universe"
+                  required
+                  class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black tw-min-h-[100px]">
+                </textarea>
               </label>
 
               <div class="tw-flex tw-mt-4">
