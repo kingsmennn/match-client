@@ -2,7 +2,7 @@
   <div class="tw-max-w-7xl tw-mx-auto">
     <div class="tw-p-6 sm:tw-p-10 tw-text-2xl">
       <NuxtLink
-        :to="'/accounts/'+user?.uid"
+        :to="'/accounts/'+userStore.accountId"
         class="tw-text-xl tw-font-medium tw-inline-flex tw-items-center tw-gap-2">
         <v-icon>mdi-chevron-left</v-icon>
         <span>Back</span>
@@ -67,6 +67,7 @@
               </v-col>
 
               <!-- image upload progress -->
+               {{ progress }}
               <div class="tw-absolute tw-inset-0 tw-flex tw-items-end tw-pointer-events-none">
                 <div v-show="!readyForAnotherUpload" class="tw-h-4 tw-w-full">
                   <div
@@ -186,6 +187,8 @@ const handleAddImaageBtnClick = async () => {
       form.value.images.push(res)
       // upload file here
       uploadingImage.value = false
+      carousel.value = 0
+      resetFiles()
     }
     return
   }
