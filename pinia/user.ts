@@ -20,6 +20,7 @@ import {
 } from "hashconnect";
 import { defineStore } from "pinia";
 import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User, Location } from "@/types";
+import { appMetaData, CONTRACT_ID, DEBUG, HEDERA_JSON_RPC, LOCATION_DECIMALS, PROJECT_ID } from "@/constants";
 
 type UserStore = {
   accountId: string | null;
@@ -32,22 +33,6 @@ type UserStore = {
   blockchainError: {
     userNotFound: boolean;
   };
-};
-
-const HEDERA_JSON_RPC = {
-  mainnet: "https://mainnet.hashio.io/api",
-  testnet: "https://testnet.hashio.io/api",
-};
-const CONTRACT_ID = "0.0.4686833";
-const LOCATION_DECIMALS = 18
-const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
-const DEBUG = true;
-const appMetaData = {
-  name: "Finder",
-  description:
-    "Finder is a blockchain application that allows buyers to find the best deals on products they want to buy.",
-  icons: [window.location.origin + "/favicon.ico"],
-  url: window.location.origin,
 };
 
 export const useUserStore = defineStore(STORE_KEY, {
