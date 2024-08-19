@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useStoreStore } from '@/pinia/store';
-import { useUserStore } from 'pinia/user';
+import { useUserStore } from '@/pinia/user';
 import { toast } from 'vue-sonner';
 
 definePageMeta({
