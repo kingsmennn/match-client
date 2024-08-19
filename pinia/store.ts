@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 import { CreateStoreDTO, STORE_STORE_KEY } from '@/types';
 import { AccountId, ContractExecuteTransaction, ContractFunctionParameters, ContractId, TransactionReceipt } from '@hashgraph/sdk';
 import { useUserStore } from './user';
-import { CONTRACT_ID, LOCATION_DECIMALS } from '@/constants';
+import { CONTRACT_ID, LOCATION_DECIMALS } from '@/utils/constants';
+import { getEvmAddress } from "@/utils/contract-utils";
 
 export const useStoreStore = defineStore(STORE_STORE_KEY, {
   state: () => ({
@@ -44,15 +45,13 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     
         const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
         // save to store
-        if(userStore.storeDetails ){
-          userStore.storeDetails = {
-            name: payload.name,
-            description: payload.description,
-            location: [
-              payload.long,
-              payload.lat
-            ]
-          }
+        userStore.storeDetails = {
+          name: payload.name,
+          description: payload.description,
+          location: [
+            payload.long,
+            payload.lat
+          ]
         }
         return receipt;
       } catch (error) {

@@ -20,7 +20,8 @@ import {
 } from "hashconnect";
 import { defineStore } from "pinia";
 import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User, Location, Store } from "@/types";
-import { appMetaData, CONTRACT_ID, DEBUG, HEDERA_JSON_RPC, LOCATION_DECIMALS, PROJECT_ID } from "@/constants";
+import { appMetaData, CONTRACT_ID, DEBUG, HEDERA_JSON_RPC, LOCATION_DECIMALS, PROJECT_ID } from "@/utils/constants";
+import { getEvmAddress } from "@/utils/contract-utils";
 
 type UserStore = {
   accountId: string | null;
@@ -74,12 +75,6 @@ export const useUserStore = defineStore(STORE_KEY, {
       this.setUpHashConnectEvents();
       await this.contract.hashconnect.init();
       await this.contract.hashconnect.openPairingModal();
-    },
-    async getEvmAddress(account_id: string) {
-      const url = `https://testnet.mirrornode.hedera.com/api/v1/accounts/${account_id}?limit=1`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data?.evm_address;
     },
     async setUpHashConnectEvents() {
       const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE) // will be used by middleware
@@ -164,7 +159,7 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
     async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
-      const userAddress = await this.getEvmAddress(account_id);
+      const userAddress = await getEvmAddress(account_id);
 
       const user = await contract.users(userAddress);
       return user;
