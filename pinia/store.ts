@@ -58,18 +58,20 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         console.error(error);
       }
     },
-    async getUserStoreIds(userAddress: string) {
+    async getUserStoreIds(accountId: string) {
       const userStore = useUserStore()
       if (!userStore.contract.pairingData) return;
 
+      const userAddress = await getEvmAddress(accountId);
       const contract = userStore.getContract();
       const storeIds = await contract.userStoreIds(userAddress);
       return storeIds;
     },
-    async getUserStore(userAddress: string, storeId: number) {
+    async getUserStore(accountId: string, storeId: number) {
       const userStore = useUserStore()
       if (!userStore.contract.pairingData) return;
       
+      const userAddress = await getEvmAddress(accountId);
       const contract = userStore.getContract();
       const store = await contract.userStores(userAddress, storeId);
       return store;

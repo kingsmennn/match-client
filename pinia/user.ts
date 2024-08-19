@@ -22,6 +22,7 @@ import { defineStore } from "pinia";
 import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User, Location, Store } from "@/types";
 import { appMetaData, CONTRACT_ID, DEBUG, HEDERA_JSON_RPC, LOCATION_DECIMALS, PROJECT_ID } from "@/utils/constants";
 import { getEvmAddress } from "@/utils/contract-utils";
+import { useStoreStore } from "./store";
 
 type UserStore = {
   accountId: string | null;
@@ -126,6 +127,12 @@ export const useUserStore = defineStore(STORE_KEY, {
             createdAt: new Date(createdAt),
             accountType
           }
+
+          // if user is a seller, we need to get their store details
+          if(this.accountType !== AccountType.SELLER) return
+          const storeStore = useStoreStore()
+          const res = await storeStore.getUserStoreIds(this.accountId)
+          console.log({getUserStoreIdsRes: res})
         } else if (!hasId && this.accountId) {
           this.blockchainError.userNotFound = true;
         }
