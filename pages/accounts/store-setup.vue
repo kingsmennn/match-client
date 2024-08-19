@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useStoreStore } from '@/pinia/store';
 import { toast } from 'vue-sonner';
 
 definePageMeta({
@@ -35,13 +36,21 @@ const handleLocation = ()=> {
   })
 }
 
+const storesStore = useStoreStore()
 const submiting = ref(false)
-const complete = () => {
+const complete = async () => {
+  if(!form.value.locationObtained) return toast.error(locationWarnNotice)
   submiting.value = true
   try {
-    
+    await storesStore.createStore({
+      name: form.value.storeName,
+      description: form.value.description,
+      longitude: location.value.lng,
+      latitude: location.value.lat,
+    })
   } catch (error) {
-    
+    console.log(error)
+    toast.error(error as any)
   } finally {
     submiting.value = true
   }

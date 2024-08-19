@@ -111,3 +111,5 @@ export type CreateOfferDTO = {
 
 export const STORE_KEY = "@userStore";
 export const STORE_KEY_MIDDLEWARE = "@userStoreMiddleware";
+
+export const STORE_STORE_KEY = '@StoreStore'
