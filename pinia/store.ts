@@ -43,11 +43,37 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
           .setFunction("createStore", params);
     
         const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
+        // save to store
+        if(userStore.storeDetails ){
+          userStore.storeDetails = {
+            name: payload.name,
+            description: payload.description,
+            location: [
+              payload.long,
+              payload.lat
+            ]
+          }
+        }
         return receipt;
       } catch (error) {
         console.error(error);
       }
+    },
+    async getUserStoreIds(userAddress: string) {
+      const userStore = useUserStore()
+      if (!userStore.contract.pairingData) return;
+
+      const contract = userStore.getContract();
+      const storeIds = await contract.userStoreIds(userAddress);
+      return storeIds;
+    },
+    async getUserStore(userAddress: string, storeId: number) {
+      const userStore = useUserStore()
+      if (!userStore.contract.pairingData) return;
+      
+      const contract = userStore.getContract();
+      const store = await contract.userStores(userAddress, storeId);
+      return store;
     }
-    
   }
 });

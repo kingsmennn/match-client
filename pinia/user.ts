@@ -19,7 +19,7 @@ import {
   SessionData,
 } from "hashconnect";
 import { defineStore } from "pinia";
-import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User, Location } from "@/types";
+import { AccountType, BlockchainUser, CreateUserDTO, STORE_KEY, STORE_KEY_MIDDLEWARE, User, Location, Store } from "@/types";
 import { appMetaData, CONTRACT_ID, DEBUG, HEDERA_JSON_RPC, LOCATION_DECIMALS, PROJECT_ID } from "@/constants";
 
 type UserStore = {
@@ -30,6 +30,7 @@ type UserStore = {
     hashconnect: HashConnect;
   };
   userDetails?: BlockchainUser;
+  storeDetails?: Store
   blockchainError: {
     userNotFound: boolean;
   };
@@ -61,7 +62,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         // buyers only need give access to their location
         !!state.userDetails?.[3][0] :
         // sellers need to setup their store
-        false // TODO
+        !!state?.storeDetails?.name
     },
     username: (state)=>state.userDetails?.[1],
     phone: (state)=>state.userDetails?.[2],
@@ -248,6 +249,10 @@ export const useUserStore = defineStore(STORE_KEY, {
       "contract.state",
       "userDetails",
       "blockchainError.userNotFound",
+      
+      "storeDetails.name",
+      "storeDetails.description",
+      "storeDetails.location"
     ],
   },
 });

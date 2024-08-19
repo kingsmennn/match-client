@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useStoreStore } from '@/pinia/store';
+import { useUserStore } from 'pinia/user';
 import { toast } from 'vue-sonner';
 
 definePageMeta({
@@ -36,6 +37,8 @@ const handleLocation = ()=> {
   })
 }
 
+const router = useRouter()
+const userStore = useUserStore()
 const storesStore = useStoreStore()
 const submiting = ref(false)
 const complete = async () => {
@@ -48,6 +51,8 @@ const complete = async () => {
       longitude: location.value.lng,
       latitude: location.value.lat,
     })
+    // redirect back to accounts page
+    router.replace('/accounts/'+ userStore.accountId)
   } catch (error) {
     console.log(error)
     toast.error(error as any)
@@ -60,7 +65,6 @@ const complete = async () => {
 <template>
   <div class="tw-max-w-7xl tw-mx-auto">
     <div class="tw-p-6 sm:tw-p-10">
-
       <div class="tw-bg-white tw-gap-4 tw-text-black">
         <div>
           <h2 class="tw-text-5xl tw-font-bold">Store Setup</h2>
