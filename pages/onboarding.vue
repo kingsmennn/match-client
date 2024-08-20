@@ -90,8 +90,9 @@ import { AccountType, CreateUserDTO, User } from '@/types';
 import { useUserStore } from '@/pinia/user';
 import { generateSlug, RandomWordOptions } from "random-word-slugs";
 
+const env = useRuntimeConfig().public
 useHead({
-  title: 'iMarket Finder - Register',
+  title: env.appName+' - Register',
 })
 definePageMeta({
   middleware: 'guest',

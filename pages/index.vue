@@ -145,16 +145,17 @@ import Tabs from '@/components/Tabs.vue'
 import { signOut } from 'firebase/auth'
 import { User, AccountType } from '@/types'
 
+const env = useRuntimeConfig().public
 useHead({
-  title: 'iMarket Finder',
+  title: env.appName,
   meta: [
-    { name: 'description', content: 'Market Item Finder is a platform that helps you find items you are looking for in the market' },
-    { name: 'og:title', content: 'iMarket Finder' },
-    { name: 'og:description', content: 'Market Item Finder is a platform that helps you find items you are looking for in the market' },
+    { name: 'description', content: `${ env.appName } is a platform that helps you find items you are looking for in the market` },
+    { name: 'og:title', content: env.appName },
+    { name: 'og:description', content: `${ env.appName } is a platform that helps you find items you are looking for in the market` },
     { name: 'og:image', content: 'https://firebasestorage.googleapis.com/v0/b/market-item-finder.appspot.com/o/pexels-antonio-sokic-3839432.jpg?alt=media&token=47151f3e-2eb1-4147-83d5-96a3bbccff70' },
     { name: 'og:url', content: 'https://imarket-finder.netlify.app/' },
-    { name: 'twitter:title', content: 'iMarket Finder' },
-    { name: 'twitter:description', content: 'Market Item Finder is a platform that helps you find items you are looking for in the market' },
+    { name: 'twitter:title', content: env.appName },
+    { name: 'twitter:description', content: `${ env.appName } is a platform that helps you find items you are looking for in the market` },
     { name: 'twitter:image', content: 'https://firebasestorage.googleapis.com/v0/b/market-item-finder.appspot.com/o/pexels-antonio-sokic-3839432.jpg?alt=media&token=47151f3e-2eb1-4147-83d5-96a3bbccff70' },
     { name: 'twitter:url', content: 'https://imarket-finder.netlify.app/' },
   ],

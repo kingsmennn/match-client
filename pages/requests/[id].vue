@@ -124,6 +124,7 @@ import SellerQuoteRequestor from '@/components/SellerQuoteRequestor.vue';
 import { getDatabase, onValue, ref as RTDBRef, query, orderByChild, equalTo } from 'firebase/database';
 import { AccountType, Offer, Request, RequestLifecycle, User } from '@/types';
 import moment from 'moment'
+import { useRequestsStore } from '@/pinia/request';
 
 definePageMeta({
   middleware: 'auth',
@@ -137,24 +138,26 @@ if(!route.params.id) router.push('/')
 const carousel = ref(0)
 
 const requestDetails = ref<Request>()
-// fetching from firebase RTDB
+const requestsStore = useRequestsStore()
 const fetchUserRequests = async () => {
-  const db = getDatabase();
-  const myRequestsRef = RTDBRef(db, 'requests/'+route.params.id)
-  onValue(myRequestsRef, (snapshot) => {
+  const res = await requestsStore.getRequest(route.params.id as unknown as number)
+  console.log({res})
+  // const db = getDatabase();
+  // const myRequestsRef = RTDBRef(db, 'requests/'+route.params.id)
+  // onValue(myRequestsRef, (snapshot) => {
 
-    const data = {
-      ...snapshot.val(),
-      id: snapshot.key
-    }
-    // if user is not a seller and not the current user, they shouldn't
-    // be able to view this request
-    if((data.buyerId !== userCookie.value?.id) && !isSeller.value){
-      router.push('/')
-      return
-    }
-    requestDetails.value = data
-  });
+  //   const data = {
+  //     ...snapshot.val(),
+  //     id: snapshot.key
+  //   }
+  //   // if user is not a seller and not the current user, they shouldn't
+  //   // be able to view this request
+  //   if((data.buyerId !== userCookie.value?.id) && !isSeller.value){
+  //     router.push('/')
+  //     return
+  //   }
+  //   requestDetails.value = data
+  // });
 }
 onMounted(fetchUserRequests)
 const timeAgo = computed<string>(()=>{

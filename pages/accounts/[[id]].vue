@@ -99,8 +99,9 @@ import { RequestLifecycle, AccountType, User, Request, Offer, RequestLifecycleIn
 import { useUserStore } from '@/pinia/user';
 import { useRequestsStore } from '@/pinia/request';
 
+const env = useRuntimeConfig().public
 useHead({
-  title: 'iMarket Finder - Your account',
+  title: env.appName+' - Your account',
 })
 definePageMeta({
   middleware: 'auth',
