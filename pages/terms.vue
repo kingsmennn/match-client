@@ -12,7 +12,9 @@ const effectiveDate = new Date('2024-08-01')
     </div>
     <div class="tw-max-w-7xl tw-mx-auto">
       <div class="tw-p-6 sm:tw-p-10">
-        <p class="tw-text-gray-600 tw-mb-4">Effective Date: <span class="tw-font-semibold">{{ effectiveDate }}</span></p>
+        <p class="tw-text-gray-600 tw-mb-4">Effective Date: <span class="tw-font-semibold">{{ effectiveDate }}</span>
+        </p>
+
 
         <p class="tw-text-gray-600 tw-mb-4">Welcome to the <span class="tw-font-semibold">{{ env.appName }}</span>
           (“the Service”). By using our platform, you agree to comply with and be bound by the following terms and
@@ -20,9 +22,8 @@ const effectiveDate = new Date('2024-08-01')
 
         <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-mt-8 tw-mb-4">1. Introduction</h2>
         <p class="tw-text-gray-600 tw-mb-4">The {{ env.appName }} web application (“the Service”) helps users find
-          market items quickly by connecting them to nearby sellers, similar to the concept of Uber but for market
-          goods. The Service allows users to search for items they need and discover available options from various
-          vendors near their location.</p>
+          market items quickly by allowing them to create requests for items they need. Vendors or sellers who have the
+          items can then respond to these requests, making it easier for users to obtain goods near their location.</p>
 
         <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-mt-8 tw-mb-4">2. Acceptance of Terms</h2>
         <p class="tw-text-gray-600 tw-mb-4">By accessing and using the Service, you accept and agree to be bound by
@@ -80,7 +81,8 @@ const effectiveDate = new Date('2024-08-01')
 
         <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-mt-8 tw-mb-4">10. Contact Information</h2>
         <p class="tw-text-gray-600 tw-mb-4">If you have any questions or concerns regarding these Terms of Use, please
-          contact us at <a class="tw-font-bold" :href="`mailto:${env.appContactEmail}`">{{ env.appContactEmail }}</a></p>
+          contact us at <a class="tw-font-bold" :href="`mailto:${env.appContactEmail}`">{{ env.appContactEmail }}</a>
+        </p>
       </div>
     </div>
   </div>
