@@ -45,16 +45,16 @@
         <div class="tw-mt-6">
           <div v-show="tab===tab_list[0].slug" class="tw-grid sm:tw-grid-cols-2 tw-gap-3">
             <!-- <RequestItem
-              v-for="request in activeRequestList" :key="request.id"
-              :requestId="request.id!"
+              v-for="request in activeRequestList" :key="request._id"
+              :requestId="request._id"
               :lifecycle="request.lifecycle"
               :itemName="request.name"
               :thumbnail="request.images[0]"
-              :created-at="request.createdAt"
-              :buyerId="request.buyerId"
-              :locked-seller-id="request.lockedSellerId ?? null"
+              :created-at="new Date(request.created_at)"
+              :buyerId="request.buyerAddress"
+              :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
-              :account-type="userCookie?.accountType"
+              :account-type="userStore?.accountType"
             /> -->
           </div>
           
@@ -93,8 +93,9 @@ import Tabs from '@/components/Tabs.vue';
 import RequestItem from '@/components/RequestItem.vue';
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { RequestLifecycle, AccountType, User, Request, Offer } from '@/types'
+import { RequestLifecycle, AccountType, User, Request, Offer, RequestLifecycleIndex } from '@/types'
 import { useUserStore } from '@/pinia/user';
+import { useRequestsStore } from '@/pinia/request';
 
 useHead({
   title: 'iMarket Finder - Your account',
@@ -127,23 +128,42 @@ onBeforeMount(()=>{
   ]
 })
 
-const userRequestList = ref<Request[]>([])
-const fetchUserRequests = async () => {
-}
+const requestsStore = useRequestsStore()
+onMounted(()=>{
+  requestsStore.fetchAllUserRequests(userStore.accountId!)
+})
 
-const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
-const fetchSellersAcceptedOfferIds = async () => {
-}
-const sellerRequestList = ref<Request[]>([])
 onMounted(()=>{
   if (isSeller.value) {
-    fetchSellersAcceptedOfferIds()
+    // fetchSellersAcceptedOfferIds()
     return
   }
-  fetchUserRequests()
+
+  requestsStore.fetchAllUserRequests(userStore.accountId!)
 })
+
 const activeRequestList = computed(() => {
+  if (isSeller.value) {
+    return []
+    // return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
+  }
+  return requestsStore.list.filter(request=>{
+    request.lifecycle !== RequestLifecycleIndex.COMPLETED
+  })
 })
+// const completedRequestList = computed(() => {
+//   if (isSeller.value) {
+//     return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
+//   }
+//   return userRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
+// })
+
+// const userRequestList = ref<Request[]>([])
+
+// const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
+// const fetchSellersAcceptedOfferIds = async () => {
+// }
+// const sellerRequestList = ref<Request[]>([])
 </script>
 
 <!-- <script setup lang="ts">
@@ -212,27 +232,5 @@ watch(()=>requestIdsWithAcceptedOffersFromSeller.value, (value)=>{
     // using once here because of a duplication bug when updates trigger this function
     }, { onlyOnce: true });
   })
-})
-
-onMounted(()=>{
-  if (isSeller.value) {
-    fetchSellersAcceptedOfferIds()
-    return
-  }
-
-  fetchUserRequests()
-})
-
-const activeRequestList = computed(() => {
-  if (isSeller.value) {
-    return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
-  }
-  return userRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
-})
-const completedRequestList = computed(() => {
-  if (isSeller.value) {
-    return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
-  }
-  return userRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
 })
 </script> -->

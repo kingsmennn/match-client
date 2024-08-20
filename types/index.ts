@@ -33,6 +33,13 @@ export enum RequestLifecycle {
   REQUEST_LOCKED = "request_locked",
   COMPLETED = "completed",
 }
+export enum RequestLifecycleIndex {
+  PENDING,
+  ACCEPTED_BY_SELLER,
+  ACCEPTED_BY_BUYER,
+  REQUEST_LOCKED,
+  COMPLETED,
+}
 
 export type Request = {
   id?: string;
@@ -50,6 +57,33 @@ export type Request = {
   state: string;
   updatedAt: Date;
 };
+
+export type RequestResponse = {
+  _id: string
+  transactionHash: string
+  address: string
+  buyerAddress: string
+  images: string[]
+  lifecycle: RequestLifecycleIndex
+  requestId: string
+  signature: string
+  createdAt: string
+  updated_at: string
+  buyerId: number
+  description: string
+  requestName: string
+  sellerIds?: string[]
+  lockedSellerId?: 0
+
+  {
+    "latitude": 6461710096179115000,
+    "longitude": 7473966214619183000,
+    "sellersPriceQuote": 0,
+    "signature": "0x56ca0afdd5f54238e27cf178a4bd73abd99ea55a21defd28381b76d0761993ae",
+    "updatedAt": 1724169044,
+    "updated_at": "2024-08-20T16:08:28.207Z"
+  }
+}
 
 export type Offer = {
   id?: string;
