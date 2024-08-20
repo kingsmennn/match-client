@@ -299,3 +299,54 @@ export async function getBuyerOffers(userAddress: string, requestId: number) {
 
   return offers;
 }
+
+export async function getOfferImageByIndex(offerId: number, index: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const image = await contract.getOfferImageByIndex(offerId, index);
+
+  return image;
+}
+
+export async function getOfferImagesLength(offerId: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const length = await contract.getOfferImagesLength(offerId);
+
+  return length;
+}
+
+export async function getRequestImageByIndex(requestId: number, index: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const image = await contract.getRequestImageByIndex(requestId, index);
+
+  return image;
+}
+
+export async function getRequestImagesLength(requestId: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const length = await contract.getRequestImagesLength(requestId);
+
+  return length;
+}
+
+export async function getRequestSellerIdByIndex(
+  requestId: number,
+  index: number
+) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const sellerId = await contract.getRequestSellerIdByIndex(requestId, index);
+
+  return sellerId;
+}
+
+export async function getRequestSellerIdsLength(requestId: number) {
+  if (!pairingData) return;
+  const contract = getContract();
+  const length = await contract.getRequestSellerIdsLength(requestId);
+
+  return length;
+}
