@@ -125,6 +125,7 @@ import { getDatabase, onValue, ref as RTDBRef, query, orderByChild, equalTo } fr
 import { AccountType, Offer, Request, RequestLifecycleIndex, RequestResponse, User } from '@/types';
 import moment from 'moment'
 import { useRequestsStore } from '@/pinia/request';
+import { useUserStore } from '@/pinia/user';
 
 definePageMeta({
   middleware: 'auth',
@@ -159,10 +160,9 @@ const previewImage = (src: string) => {
   previewedImage.value = src
 }
 
-const user = useCurrentUser()
-const userCookie = useCookie<User>('user')
-const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
-const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER) 
+const userStore = useUserStore()
+const isSeller = computed(() => userStore.accountType === AccountType.SELLER)
+const isBuyer = computed(() => userStore.accountType === AccountType.BUYER) 
 
 const tab = ref()
 const tab_list = ref<{ name: string, slug: string }[]>([])
