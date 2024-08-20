@@ -4,10 +4,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+# Install dependencies using yarn
+RUN yarn install
 
 COPY . /app
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev","--host"]
+# Use yarn to run the development server
+CMD ["yarn", "dev", "--host"]

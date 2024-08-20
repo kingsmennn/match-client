@@ -29,8 +29,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appName: 'Match',
+      appContactEmail: process.env.MATCH_CONTACT_EMAIL || 'kingsmen.hackers@gmail.com',
+      matchApiUrl: process.env.MATCH_API_URL,
       lightHouseApiKey: process.env.LIGHTHOUSE_API_KEY,
-      hederaBaseUrl: process.env.HEDERA_BASE_URL
+      hederaBaseUrl: process.env.HEDERA_BASE_URL,
     }
   },
   vuetify: {
