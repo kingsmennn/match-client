@@ -1,6 +1,6 @@
 export enum AccountType {
-  BUYER,
-  SELLER,
+  BUYER = 'buyer',
+  SELLER = 'seller'
 }
 
 export type Location = [
@@ -94,7 +94,6 @@ export type CreateStoreDTO = {
 
 export type CreateRequestDTO = {
   name: string;
-  buyerId: string;
   description: string;
   images: string[];
   latitude: number;
@@ -108,3 +107,8 @@ export type CreateOfferDTO = {
   storeName: string;
   sellerId: string;
 };
+
+export const STORE_KEY = "@userStore";
+export const STORE_KEY_MIDDLEWARE = "@userStoreMiddleware";
+
+export const STORE_STORE_KEY = '@StoreStore'

@@ -5,10 +5,10 @@
       tw-bg-black tw-p-3 tw-rounded-lg tw-text-white md:tw-gap-10">
       <div class="tw-space-y-1">
         <div>
-          <strong>Almost done!</strong> We just need access to your location ✨
+          <strong>Almost done!</strong> {{ heading }}
           <small class="tw-block tw-mb-2">
             <v-icon size="20">mdi-alert-circle</v-icon>
-            For us to give you the best match for your items, you're advised to complete this step in the area you live
+            {{ subHeading }}
           </small>
         </div>
         <div class="tw-h-3 tw-rounded-full tw-bg-white/40 tw-overflow-hidden">
@@ -19,170 +19,71 @@
       <button
         class="tw-px-3 tw-py-1 tw-rounded-full tw-bg-white tw-text-black
         hover:tw-bg-white/80 tw-transition-all tw-duration-300"
-        @click="deviceLocationPreference({ callback: handleLocationUpdate })">
+        @click="complete">
         Complete
       </button>
     </div>
-
-    <!-- <v-dialog v-model="modal" max-width="600">
-      <div class="tw-bg-white tw-gap-4 tw-p-4 tw-text-black">
-        <div>
-          <h2 class="tw-text-5xl tw-font-bold">Finish Registration</h2>
-          <form @submit.prevent="handleFinalSignup" class="tw-mt-4 tw-text-2xl">
-            <div class="tw-overflow-y-auto tw-max-h-[60vh] tw-p-1">
-              <label class="tw-relative tw-block">
-                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What do we call you?</span>
-                <input
-                  v-model="form.username"
-                  type="text"
-                  placeholder="Arya Stark"
-                  :required="true"
-                  class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black">
-              </label>
-  
-              <label class="tw-relative tw-mt-4 tw-block">
-                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">
-                  Contact number {{ accountType===AccountType.SELLER ? '' : '(optional)' }}
-                </span>
-                <input
-                  v-model="form.phone"
-                  type="text"
-                  placeholder="+234 901 2345 678"
-                  :required="accountType===AccountType.SELLER"
-                  class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black">
-              </label>
-
-              <div
-                v-if="accountType===AccountType.BUYER"
-                class="tw-flex tw-bg-gray-100 tw-mt-4 tw-relative tw-rounded-lg">
-                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your location?</span>
-                <label for="state" class="tw-block tw-flex-grow sm:tw-max-w-[50%]">
-                  <select
-                    v-model="form.state"
-                    class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize 
-                    placeholder:tw-text-gray-700"
-                    name="state" id="state" :required="true">
-                    <option value="">SELECT STATE</option>
-                    <option v-for="(state,i) in stateNames" :key="i" :value="state">{{ state }}</option>
-                  </select>
-                </label>
-                <label for="lga" class="tw-block tw-border-l-2 tw-flex-grow sm:tw-max-w-[50%]">
-                  <select
-                    v-model="form.lga"
-                    class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize
-                    placeholder:tw-text-gray-700"
-                    name="lga" id="lga" :required="true">
-                    <option value="">SELECT LGA</option>
-                    <option v-for="(lga,i) in activeLgas" :key="i" :value="lga">{{ lga }}</option>
-                  </select>
-                </label>
-              </div>
-  
-              <template v-if="accountType===AccountType.SELLER">
-                <fieldset class="tw-border-t-4 tw-my-10">
-                  <legend class="tw-px-4 tw-text-center">
-                    <h2 class="tw-text-gray-600">About your store</h2>
-                  </legend>
-                </fieldset>
-    
-                <label class="tw-relative tw-block">
-                  <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your store name?</span>
-                  <input
-                    v-model="form.storeName"
-                    type="text"
-                    placeholder="Arya's Clothing"
-                    :required="true"
-                    class="tw-w-full tw-bg-gray-100 tw-p-4 tw-pt-7 tw-rounded-md tw-outline-black">
-                </label>
-  
-                <div class="tw-flex tw-bg-gray-100 tw-mt-4 tw-relative tw-rounded-lg">
-                  <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your store address?</span>
-                  <label for="state" class="tw-block tw-flex-grow sm:tw-max-w-[50%]">
-                    <select
-                      v-model="form.state"
-                      class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize 
-                      placeholder:tw-text-gray-700"
-                      name="state" id="state" :required="true">
-                      <option value="">SELECT STATE</option>
-                      <option v-for="(state,i) in stateNames" :key="i" :value="state">{{ state }}</option>
-                    </select>
-                  </label>
-                  <label for="lga" class="tw-block tw-border-l-2 tw-flex-grow sm:tw-max-w-[50%]">
-                    <select
-                      v-model="form.lga"
-                      class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize
-                      placeholder:tw-text-gray-700"
-                      name="lga" id="lga" :required="true">
-                      <option value="">SELECT LGA</option>
-                      <option v-for="(lga,i) in activeLgas" :key="i" :value="lga">{{ lga }}</option>
-                    </select>
-                  </label>
-                </div>
-                
-                <label v-show="!!form.lga" for="lga" class="tw-block tw-mt-4 tw-relative">
-                  <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What market is store in</span>
-                  <select
-                    v-model="form.market"
-                    class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize
-                    placeholder:tw-text-gray-700 tw-bg-gray-100 tw-rounded-lg"
-                    name="lga" id="lga" :required="false">
-                    <option value="">SELECT MARKET</option>
-                    <option v-for="(market,i) in marketsInActiveLga" :key="i" :value="market">{{ market }}</option>
-                  </select>
-                </label>
-                
-                <small
-                  v-if="!!form.lga && !marketsInActiveLga.length"
-                  class="tw-bg-black tw-text-white tw-px-1 tw-mt-2">
-                  <v-icon size="20">mdi-alert-circle</v-icon>
-                  Seems like we haven't added your market yet. Please contact us to add it.
-                </small>
-              </template>
-            </div>
-
-            <button
-              class="tw-w-full tw-bg-black tw-text-white tw-py-4 tw-mt-10 tw-rounded-md tw-font-medium"
-              :disabled="submiting">
-              <template v-if="!submiting">
-                Finish
-              </template>
-              <v-progress-circular
-                v-else
-                indeterminate
-                color="white"
-                size="20" width="2">
-              </v-progress-circular>
-            </button>
-          </form>
-        </div>
-      </div>
-    </v-dialog> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from '@/pinia/user';
+import { AccountType, STORE_KEY_MIDDLEWARE, User } from '@/types';
+import { toast } from 'vue-sonner';
 
 const {
   location,
-  deviceLocationPreference,
+  getDevicePosition,
   locationWarnNotice
 } = useGetLocation()
 
-const modal = ref(false)
+const heading = computed(()=>
+  userStore.accountType === AccountType.BUYER ?
+    'We just need access to your location 📍' :
+    userStore.accountType === AccountType.SELLER ?
+      'Lets help you setup your store' :
+      null
+)
+const subHeading = computed(()=>
+  userStore.accountType === AccountType.BUYER ?
+    "For us to give you the best match for your items, you're advised to complete this step in the area you live" :
+    userStore.accountType === AccountType.SELLER ?
+      'This process is required for you to start using our platform as a '+AccountType.SELLER :
+      null
+)
 
 const userStore = useUserStore()
-const handleLocationUpdate = async () =>{
-  console.log("I was called")
-  try {
-    const res = await userStore.updateUser({
-      lat: location.value.lat,
-      long: location.value.lng
-    })
-    console.log({updateUserRes: res})
-  } catch (e){
-    console.log(e)
-  }
+const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
+const router = useRouter()
+const complete = () => {
+  userStore.accountType === AccountType.BUYER ?
+    getDevicePosition({
+      // bePrecise:true,
+      callback: async () => {
+        try {
+          const res = await userStore.updateUser({
+            lat: location.value.lat,
+            long: location.value.lng
+          })
+          if (userStore?.userDetails) {
+            userStore.userDetails[3] = [
+              res?.location[0]!,
+              res?.location[1]!
+            ]
+            userCookie.value.location = [
+              res?.location[0]!,
+              res?.location[1]!
+            ]
+          }
+        } catch (e){
+          console.log(e)
+        }
+      },
+      onError: (error) => {
+        toast.error('Please try again: '+error.message)
+      }
+    }) :
+    userStore.accountType === AccountType.SELLER ? router.push('/accounts/store-setup') : null
 }
 </script>
 

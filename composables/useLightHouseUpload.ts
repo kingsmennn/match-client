@@ -11,7 +11,7 @@ export default function (){
   }
 
   const uploadFile = async (file: any) => {
-    const uploadResponse = await lighthouse.upload(file, env.lightHouseApiKey, undefined, progressCallback);
+    const uploadResponse = await lighthouse.upload([file], env.lightHouseApiKey, undefined, progressCallback);
     return `https://gateway.lighthouse.storage/ipfs/${uploadResponse.data.Hash}`;
   }
 

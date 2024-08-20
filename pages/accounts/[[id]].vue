@@ -2,9 +2,8 @@
   <div class="tw-max-w-7xl tw-mx-auto">
     <div class="tw-p-6 sm:tw-p-10">
       <FinalizeRegistration
-        v-if="!isCompletedNow && !isCompleted"
-        :accountType="userCookie?.accountType"
-        v-model="isCompletedNow" class="tw-mb-6"
+        v-if="!userStore.passedSecondaryCheck"
+        class="tw-mb-6"
       />
 
       <div class="tw-mb-6 tw-flex tw-justify-between tw-items-center">
@@ -36,8 +35,8 @@
               :class="[is_active ? 'tw-border-black' : 'tw-text-gray-400 tw-border-transparent']"
               class="tw-border-b-4 tw-py-2 tw-transition tw-duration-300 tw-font-medium tw-cursor-pointer">
               <span class="tw-flex tw-flex-col tw-items-center">
-                <v-icon>{{ tab?.icon }}</v-icon>
-                <span>{{ tab?.name }}</span>
+                <v-icon>{{ (tab as any)?.icon }}</v-icon>
+                <span>{{ (tab as any)?.name }}</span>
               </span>
             </div>
           </template>
@@ -45,7 +44,7 @@
 
         <div class="tw-mt-6">
           <div v-show="tab===tab_list[0].slug" class="tw-grid sm:tw-grid-cols-2 tw-gap-3">
-            <RequestItem
+            <!-- <RequestItem
               v-for="request in activeRequestList" :key="request.id"
               :requestId="request.id!"
               :lifecycle="request.lifecycle"
@@ -56,11 +55,11 @@
               :locked-seller-id="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
               :account-type="userCookie?.accountType"
-            />
+            /> -->
           </div>
           
           <div v-show="tab===tab_list[1].slug" class="tw-grid tw-gap-3">
-            <RequestItem
+            <!-- <RequestItem
               v-for="request in completedRequestList" :key="request.id"
               :requestId="request.id!"
               :lifecycle="request.lifecycle"
@@ -72,16 +71,16 @@
               :sellers-price-quote="request.sellersPriceQuote ?? null"
               :account-type="userCookie?.accountType"
               :is-completed="true"
-            />
+            /> -->
           </div>
 
           <!-- show empty state UI when either tab has no content -->
-          <div
+          <!-- <div
             v-show="(tab===tab_list[0].slug && activeRequestList.length===0) || (tab===tab_list[1].slug && completedRequestList.length===0)"
             class="tw-p-6 tw-py-10 tw-text-center tw-border-4 tw-border-gray-400/5 tw-rounded-2xl
             tw-bg-gray-300/5 tw-my-10 tw-text-2xl tw-text-gray-500">
             <p>All {{ tab }} requests will be listed here...</p>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -92,10 +91,10 @@
 import FinalizeRegistration from '@/components/FinalizeRegistration.vue'
 import Tabs from '@/components/Tabs.vue';
 import RequestItem from '@/components/RequestItem.vue';
-import { useRoute } from 'vue-router'
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { RequestLifecycle, AccountType, User, Request, Offer } from '@/types'
-import { getDatabase, ref as RTDBRef, equalTo, orderByChild, query, onValue } from "firebase/database";
+import { useUserStore } from '@/pinia/user';
 
 useHead({
   title: 'iMarket Finder - Your account',
@@ -106,10 +105,10 @@ definePageMeta({
 })
 
 const route = useRoute()
-// console.log(route.params.id)
-
-const isCompletedNow = ref(false)
-const isCompleted = computed(()=>!!userCookie.value?.username)
+const userStore = useUserStore()
+const userInitial = computed(() => userStore?.username?.charAt(0).toUpperCase() ?? '?')
+const isSeller = computed(() => userStore.accountType === AccountType.SELLER)
+const isBuyer = computed(() => userStore.accountType === AccountType.BUYER) 
 
 const tab = ref()
 const tab_list = ref<{ name: string, slug: string, icon: string }[]>([])
@@ -127,6 +126,34 @@ onBeforeMount(()=>{
     { name: 'Completed requests', slug: 'completed', icon: 'mdi-cube-send' },
   ]
 })
+
+const userRequestList = ref<Request[]>([])
+const fetchUserRequests = async () => {
+}
+
+const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
+const fetchSellersAcceptedOfferIds = async () => {
+}
+const sellerRequestList = ref<Request[]>([])
+onMounted(()=>{
+  if (isSeller.value) {
+    fetchSellersAcceptedOfferIds()
+    return
+  }
+  fetchUserRequests()
+})
+const activeRequestList = computed(() => {
+})
+</script>
+
+<!-- <script setup lang="ts">
+import { getDatabase, ref as RTDBRef, equalTo, orderByChild, query, onValue } from "firebase/database";
+
+
+
+const isCompletedNow = ref(false)
+const isCompleted = computed(()=>!!userCookie.value?.username)
+
 
 const user = useCurrentUser()
 const userCookie = useCookie<User>('user')
@@ -208,4 +235,4 @@ const completedRequestList = computed(() => {
   }
   return userRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
 })
-</script>
+</script> -->

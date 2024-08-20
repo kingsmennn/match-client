@@ -19,8 +19,26 @@ import {
   SessionData,
 } from "hashconnect";
 import { defineStore } from "pinia";
-import { AccountType, BlockchainUser, CreateUserDTO } from "@/types";
-import { useCookies } from '@vueuse/integrations/useCookies'
+import {
+  AccountType,
+  BlockchainUser,
+  CreateUserDTO,
+  STORE_KEY,
+  STORE_KEY_MIDDLEWARE,
+  User,
+  Location,
+  Store,
+} from "@/types";
+import {
+  appMetaData,
+  CONTRACT_ID,
+  DEBUG,
+  HEDERA_JSON_RPC,
+  LOCATION_DECIMALS,
+  PROJECT_ID,
+} from "@/utils/constants";
+import { getEvmAddress } from "@/utils/contract-utils";
+import { useStoreStore } from "./store";
 
 type UserStore = {
   accountId: string | null;
@@ -30,28 +48,12 @@ type UserStore = {
     hashconnect: HashConnect;
   };
   userDetails?: BlockchainUser;
+  storeDetails?: Store;
   blockchainError: {
     userNotFound: boolean;
   };
 };
 
-const HEDERA_JSON_RPC = {
-  mainnet: "https://mainnet.hashio.io/api",
-  testnet: "https://testnet.hashio.io/api",
-};
-const CONTRACT_ID = "0.0.4686833";
-const LOCATION_DECIMALS = 18
-const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
-const DEBUG = true;
-const appMetaData = {
-  name: "Finder",
-  description:
-    "Finder is a blockchain application that allows buyers to find the best deals on products they want to buy.",
-  icons: [window.location.origin + "/favicon.ico"],
-  url: window.location.origin,
-};
-
-const STORE_KEY = "@userStore";
 export const useUserStore = defineStore(STORE_KEY, {
   state: (): UserStore => ({
     accountId: null,
@@ -72,18 +74,25 @@ export const useUserStore = defineStore(STORE_KEY, {
   }),
   getters: {
     isConnected: (state) => !!state.accountId,
+    isNotOnboarded: (state) =>
+      !!state.accountId && state.blockchainError.userNotFound,
+    passedSecondaryCheck: (state) => {
+      return state.userDetails?.[5] === AccountType.BUYER
+        ? // buyers only need give access to their location
+          !!state.userDetails?.[3][0]
+        : // sellers need to setup their store
+          !!state?.storeDetails?.name;
+    },
+    username: (state) => state.userDetails?.[1],
+    phone: (state) => state.userDetails?.[2],
+    location: (state) => state.userDetails?.[3],
+    accountType: (state) => state.userDetails?.[5],
   },
   actions: {
     async connectToHashConnect() {
       this.setUpHashConnectEvents();
       await this.contract.hashconnect.init();
       await this.contract.hashconnect.openPairingModal();
-    },
-    async getEvmAddress(account_id: string) {
-      const url = `https://testnet.mirrornode.hedera.com/api/v1/accounts/${account_id}?limit=1`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data?.evm_address;
     },
     async setUpHashConnectEvents() {
       this.contract.hashconnect.pairingEvent.on(async (newPairing) => {
@@ -93,25 +102,13 @@ export const useUserStore = defineStore(STORE_KEY, {
         this.accountId = userId;
 
         const blockchainUser = await this.fetchUser(this.accountId);
+        this.storeUserDetails(blockchainUser)
 
-        // check if the user exists in the blockchain by checking id
-        const hasId = !!blockchainUser[0];
-        if (!!blockchainUser[0]) {
-          this.userDetails = [
-            Number(blockchainUser[0]), // id,
-            blockchainUser[1], // username,
-            blockchainUser[2], // phone,
-            [
-              Number(blockchainUser[3][0]),
-              Number(blockchainUser[3][1])
-            ], // Location,
-            Number(blockchainUser[4]), // createdAt,
-            Number(blockchainUser[5]), // AccountType
-          ];
-          console.log({userDetails: this.userDetails})
-        } else if (!hasId && this.accountId) {
-          this.blockchainError.userNotFound = true;
-        }
+        // if user is a seller, we need to get their store details
+        if (this.accountType !== AccountType.SELLER) return;
+        const storeStore = useStoreStore();
+        const res = await storeStore.getUserStores(this.accountId!);
+        console.log({ getUserStoreIdsRes: res });
       });
 
       this.contract.hashconnect.disconnectionEvent.on((data) => {
@@ -125,14 +122,12 @@ export const useUserStore = defineStore(STORE_KEY, {
         }
       );
     },
-    disconnect() {
-      this.contract.hashconnect.disconnect();
+    async disconnect() {
+      await this.contract.hashconnect.disconnect();
       this.contract.pairingData = null;
       this.accountId = null;
       this.userDetails = undefined;
       this.blockchainError.userNotFound = false;
-      // remove the cookie because sometimes the state persists
-      useCookies().remove(STORE_KEY);
     },
 
     getContract() {
@@ -144,10 +139,54 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
     async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
-      const userAddress = await this.getEvmAddress(account_id);
+      const userAddress = await getEvmAddress(account_id);
 
       const user = await contract.users(userAddress);
       return user;
+    },
+    async storeUserDetails(user: BlockchainUser){
+      const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE); // will be used by middleware
+
+      // check if the user exists in the blockchain by checking id
+      const hasId = !!user[0];
+      if (hasId) {
+        const details = {
+          id: Number(user[0]),
+          username: user[1],
+          phone: user[2],
+          location: {
+            long: Number(user[3][0]),
+            lat: Number(user[3][1]),
+          },
+          createdAt: Number(user[4]),
+          accountType:
+            Number(user[5]) === 0
+              ? AccountType.BUYER
+              : AccountType.SELLER,
+        };
+        const { id, username, phone, location, createdAt, accountType } =
+          details;
+
+        this.userDetails = [
+          id,
+          username,
+          phone,
+          [location.long, location.lat],
+          createdAt,
+          accountType,
+        ];
+
+        userCookie.value = {
+          id: this.accountId!,
+          username,
+          phone,
+          location: [location.long, location.lat],
+          createdAt: new Date(createdAt),
+          accountType,
+        };
+      } else if (!hasId && this.accountId) {
+        this.blockchainError.userNotFound = true;
+      }
     },
 
     // create new user
@@ -162,12 +201,11 @@ export const useUserStore = defineStore(STORE_KEY, {
 
       try {
         const params = new ContractFunctionParameters();
-
         params.addString(username);
         params.addString(phone);
         params.addInt256(lat);
         params.addInt256(long);
-        params.addUint8(account_type == AccountType.BUYER ? 0 : 1);
+        params.addUint8(account_type === AccountType.BUYER ? 0 : 1);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
           .setGas(1000000)
@@ -177,6 +215,15 @@ export const useUserStore = defineStore(STORE_KEY, {
           AccountId.fromString(this.accountId),
           transaction
         );
+
+        // wait a while for the previous contract to properly execute
+        await new Promise(resolve=>setTimeout(resolve, 2000))
+
+        const blockchainUser = await this.fetchUser(this.accountId);
+        this.storeUserDetails(blockchainUser)
+
+        // resets
+        this.blockchainError.userNotFound = false;
         return receipt;
       } catch (error) {
         console.error(error);
@@ -188,7 +235,9 @@ export const useUserStore = defineStore(STORE_KEY, {
       lat,
       long,
       account_type,
-    }: Partial<CreateUserDTO>): Promise<TransactionReceipt | undefined> {
+    }: Partial<CreateUserDTO>): Promise<
+      { receipt: TransactionReceipt; location: Location } | undefined
+    > {
       if (!this.contract.pairingData || !this.accountId) return;
 
       try {
@@ -197,16 +246,23 @@ export const useUserStore = defineStore(STORE_KEY, {
         const payload = {
           username: username || this.userDetails?.[1]!,
           phone: phone || this.userDetails?.[2]!,
-          long: long || this.userDetails?.[3][0]!,
-          lat: lat || this.userDetails?.[3][1]!,
-          account_type: (account_type == AccountType.BUYER ? 0 : 1) || this.userDetails?.[5]!
-        }
+          long: Math.trunc(
+            (long || this.userDetails?.[3][0]!) * 10 ** LOCATION_DECIMALS
+          ),
+          lat: Math.trunc(
+            (lat || this.userDetails?.[3][1]!) * 10 ** LOCATION_DECIMALS
+          ),
+          account_type:
+            (account_type || this.userDetails?.[5]!) === AccountType.BUYER
+              ? 0
+              : 1,
+        };
 
-        params.addString(payload.username)
-        params.addString(payload.phone)
-        params.addInt256(Math.trunc(payload.long * (10**LOCATION_DECIMALS)))
-        params.addInt256(Math.trunc(payload.lat * (10**LOCATION_DECIMALS)))
-        params.addUint8(payload.account_type)
+        params.addString(payload.username);
+        params.addString(payload.phone);
+        params.addInt256(payload.long);
+        params.addInt256(payload.lat);
+        params.addUint8(payload.account_type);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(CONTRACT_ID))
           .setGas(1000000)
@@ -216,18 +272,26 @@ export const useUserStore = defineStore(STORE_KEY, {
           AccountId.fromString(this.accountId),
           transaction
         );
-        return receipt;
+        return { receipt, location: [payload.long, payload.lat] };
       } catch (error) {
         console.error(error);
       }
-    }
+    },
   },
   persist: {
     paths: [
       "accountId",
       "contract.state",
-      "userDetails[0]",
+      "userDetails",
       "blockchainError.userNotFound",
+
+      "storeDetails.name",
+      "storeDetails.description",
+      "storeDetails.location",
     ],
+    async afterRestore(context) {
+      context.store.$state.contract.hashconnect.init();
+      context.store.setUpHashConnectEvents();
+    },
   },
 });

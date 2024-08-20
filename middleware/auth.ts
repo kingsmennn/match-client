@@ -1,11 +1,11 @@
+import { User, AccountType, STORE_KEY_MIDDLEWARE } from '@/types'
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const user = await getCurrentUser()
+  const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
 
   // redirect the user to the login page
-  if (!user) {
-    return
+  if (!userCookie.value?.id) {
     return navigateTo({
-      path: '/login',
+      path: '/',
       query: {
         redirect: to.fullPath,
       },

@@ -27,10 +27,11 @@ export default function () {
     // });
     console.warn(`Error obtaining location: ${error.message}`);
   }
-  const deviceLocationPreference = ({
-    callback, bePrecise = false
+  const getDevicePosition = ({
+    callback, onError, bePrecise = false
   }:{
     callback?:(location: GeolocationPosition)=>void,
+    onError?: (error:PositionError)=>void
     bePrecise?:boolean
   }) => {
     if (navigator.geolocation) {
@@ -43,21 +44,24 @@ export default function () {
       navigator.geolocation.getCurrentPosition((location)=>{
         locationObtained(location)
         callback?.(location)
-      }, errorObtainingLocation, options);
+      }, (error)=>{
+        errorObtainingLocation(error)
+        onError?.(error)
+      }, options);
     } else {
       // toast.error("Geolocation is not supported by this browser.");
       console.warn("Geolocation is not supported by this browser.");
     }
   }
   
-  onMounted(()=>{
-    if(!getCookie('location') || Object.keys(getCookie('location')).length === 0) return
-    // deviceLocationPreference(true) // going behind their back to get precise location
-  })
+  // onMounted(()=>{
+  //   if(!getCookie('location') || Object.keys(getCookie('location')).length === 0) return
+  //   // getDevicePosition(true) // going behind their back to get precise location
+  // })
 
   return {
     location,
-    deviceLocationPreference,
+    getDevicePosition,
     locationWarnNotice,
   }
 }

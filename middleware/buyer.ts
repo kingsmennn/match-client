@@ -1,11 +1,9 @@
-import { User, AccountType } from '@/types'
+import { User, AccountType, STORE_KEY_MIDDLEWARE } from '@/types'
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const userCookie = useCookie<User>('user')
+  const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
 
   // redirect the user to the login page
   if (!userCookie.value?.accountType || userCookie.value?.accountType !== AccountType.BUYER) {
-    console.log('only buyers can access dashboard page')
-    return
     return navigateTo({
       path: '/',
       query: {

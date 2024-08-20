@@ -5,7 +5,7 @@
         <div class="lg:tw-w-1/2 tw-min-h-full tw-bg-white sm:tw-p-6">
           <!-- this Tabs component isn't visually rendered, only used to detect the tab user was
           coming from on the landing page OR the signup form to display -->
-          <Tabs :tab_list="tab_list" query_name="user_type" :value="tab" @model-value="handleInitAccountSelected"></Tabs>
+          <Tabs :tab_list="tab_list" query_name="user_type" :value="tab" @model-value="(value)=>handleInitAccountSelected(value as AccountType)"></Tabs>
 
           <div>
             <h2 class="tw-text-5xl tw-font-bold">Lastly...</h2>
@@ -98,22 +98,17 @@ definePageMeta({
 })
 
 const tab = ref()
-const tab_list:{ slug: string }[] = [
+const tab_list:{ slug: AccountType }[] = [
   { slug: AccountType.BUYER },
   { slug: AccountType.SELLER },
 ]
 
 const form = ref<User>({
-  accountType: '' as AccountType,
-
-  // secondary data to be collected later or generated
-  location: {
-    longitude: 0,
-    latitude: 0
-  },
+  accountType: '' as unknown as AccountType,
   username: '',
+  // secondary data to be collected later or generated
+  location: [ 0, 0 ],
   phone: '',
-  stores: [],
   createdAt: new Date(),
 })
 
@@ -122,9 +117,9 @@ const snackbar = ref({
   text: ''
 })
 
-const handleInitAccountSelected = (value: string) => {
+const handleInitAccountSelected = (value: AccountType) => {
   tab.value = value
-  form.value.accountType = value as AccountType
+  form.value.accountType = value
 }
 
 const options: RandomWordOptions<2> = {
@@ -148,30 +143,11 @@ const handleCompleteOnbaording = async () => {
       username: form.value.username,
       account_type: form.value.accountType,
       phone: '',
-      long: form.value.location.longitude,
-      lat: form.value.location.latitude,
+      long: form.value.location[0],
+      lat: form.value.location[1],
     }
-    const res = await userStore.createUser(payload)
-    if(res?.status._code === 22) {
-      // success
-      console.log({ createUserRes: res })
-      // fetch user data
-      const user = await userStore.fetchUser(userStore.accountId!)
-      if(!user) {
-        throw new Error('User not found in blockchain')
-      }
-      // save user to storage
-      const userCookie = useCookie<User>('user')
-      userCookie.value = {
-        id: userStore.accountId!,
-        accountType: form.value.accountType,
-        username: form.value.username,
-        phone: form.value.phone,
-        location: form.value.location,
-        createdAt: form.value.createdAt,
-      }
-      router.push('/accounts/'+ userStore.accountId)
-    }
+    await userStore.createUser(payload)
+    router.push('/accounts/'+ userStore.accountId)
   } catch(e) {
     // haldle errors
     console.log(e)

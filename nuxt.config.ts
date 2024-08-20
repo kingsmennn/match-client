@@ -9,6 +9,9 @@ export default defineNuxtConfig({
     '@invictus.codes/nuxt-vuetify',
     '@vueuse/nuxt',
   ],
+  build: {
+    transpile: ['vue-sonner']
+  },
   vuefire: {
     // ensures the auth module is enabled
     auth: true,
@@ -26,7 +29,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appName: 'Match',
-      lightHouseApiKey: process.env.LIGHTHOUSE_API_KEY
+      lightHouseApiKey: process.env.LIGHTHOUSE_API_KEY,
+      hederaBaseUrl: process.env.HEDERA_BASE_URL
     }
   },
   vuetify: {

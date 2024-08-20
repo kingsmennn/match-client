@@ -2,7 +2,7 @@
   <div class="tw-max-w-7xl tw-mx-auto">
     <div class="tw-p-6 sm:tw-p-10 tw-text-2xl">
       <NuxtLink
-        :to="'/accounts/'+user?.uid"
+        :to="'/accounts/'+userStore.accountId"
         class="tw-text-xl tw-font-medium tw-inline-flex tw-items-center tw-gap-2">
         <v-icon>mdi-chevron-left</v-icon>
         <span>Back</span>
@@ -36,48 +36,6 @@
                 tw-min-h-[120px] tw-max-h-[120px]">
               </textarea>
             </label>
-
-            <div class="tw-flex tw-bg-gray-100 tw-mt-4 tw-relative tw-rounded-lg">
-              <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What state are you searching?</span>
-              <label for="state" class="tw-block tw-flex-grow sm:tw-max-w-[50%]">
-                <select
-                  v-model="form.state"
-                  class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize 
-                  placeholder:tw-text-gray-700"
-                  name="state" id="state" :required="true">
-                  <option value="">SELECT STATE</option>
-                  <option v-for="(state,i) in stateNames" :key="i" :value="state">{{ state }}</option>
-                </select>
-              </label>
-              <label for="lga" class="tw-block tw-border-l-2 tw-flex-grow sm:tw-max-w-[50%]">
-                <select
-                  v-model="form.lga"
-                  class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize
-                  placeholder:tw-text-gray-700"
-                  name="lga" id="lga" :required="true">
-                  <option value="">SELECT LGA</option>
-                  <option v-for="(lga,i) in activeLgas" :key="i" :value="lga">{{ lga }}</option>
-                </select>
-              </label>
-            </div>
-            
-            <label v-show="!!form.lga" for="lga" class="tw-block tw-mt-4 tw-relative">
-              <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What market should we notify</span>
-              <select
-                v-model="form.market"
-                class="tw-block tw-w-full tw-outline-none tw-p-4 tw-pt-7 tw-capitalize
-                placeholder:tw-text-gray-700 tw-bg-gray-100 tw-rounded-lg"
-                name="lga" id="lga" :required="false">
-                <option value="">SELECT MARKET</option>
-                <option v-for="(market,i) in marketsInActiveLga" :key="i" :value="market">{{ market }}</option>
-              </select>
-            </label>
-            <small
-              v-if="!!form.lga && !marketsInActiveLga.length"
-              class="tw-bg-black tw-text-white tw-px-1 tw-mt-2 tw-leading-tight">
-              <v-icon size="20">mdi-alert-circle</v-icon>
-              Seems like we haven't added markets in this area. Please contact us to add it.
-            </small>
           </div>
 
           <button
@@ -109,10 +67,11 @@
               </v-col>
 
               <!-- image upload progress -->
+               {{ progress }}
               <div class="tw-absolute tw-inset-0 tw-flex tw-items-end tw-pointer-events-none">
                 <div v-show="!readyForAnotherUpload" class="tw-h-4 tw-w-full">
                   <div
-                    :style="`width: ${Number(uploadProgress)*100}%`"
+                    :style="`width: ${Number(progress)*100}%`"
                     class="tw-w-0 tw-h-full tw-bg-black/90 tw-transition-all tw-duration-300">
                   </div>
                 </div>
@@ -168,13 +127,10 @@
 </template>
 
 <script setup lang="ts">
-import { getDatabase, ref as RTDBRef, set, push, serverTimestamp } from "firebase/database";
-import states from '@/nigerian-states.json'
-import { RequestLifecycle } from '@/types'
-
 import { useFileDialog } from '@vueuse/core'
-import { ref as storageRef } from 'firebase/storage'
-import { useFirebaseStorage, useStorageFile, useCurrentUser } from 'vuefire'
+import { useRequestsStore } from '@/pinia/request';
+import { toast } from 'vue-sonner';
+import { useUserStore } from '@/pinia/user';
 
 definePageMeta({
   middleware: ['auth', 'buyer'],
@@ -214,90 +170,9 @@ const resetForm = ()=>{
   }
 }
 
-const statesAndLga = states as {
-  code: string
-  name: string
-  lgas: string[]
-}[]
-const stateNames = computed(()=>{
-  return statesAndLga.map(state=>state.name)
-})
-watch(()=>form.value.state, (value)=>{
-  if(!value) return
-  form.value.lga = ''
-})
-const activeLgas = computed(()=>{
-  const state = statesAndLga.find(state=>state.name === form.value.state)
-  return state?.lgas || []
-})
-// fetch this from firebase later
-const recordedMarkets = {
-  "aba": [
-    "aba main market",
-    "ahia ohuru (new market)",
-    "eziukwu market",
-    "ariaria international market",
-    "cemetery market",
-  ],
-  "nsukka": [
-    "odenigbo market",
-    "orie oba market",
-    "orie iheaka market",
-    "orie ofulonu market",
-    "orie nru market",
-    "orie eha alumona market",
-    "orie opi market",
-    "orie edem market",
-    "orie ibagwa market",
-    "orie ovoko market",
-    "ogige market",
-  ],
-  "onitsha-north": [
-    "onitsha main market",
-    "ogboefere market",
-    "ogbo ogwu market",
-    "ogbo ogwu new market",
-    "ogbo ogwu timber market",
-    "ogbo ogwu motor parts market",
-    "ogbo ogwu building materials market",
-    "ogbo ogwu electrical materials market",
-    "ogbo ogwu auto spare parts market",
-    "ogbo ogwu iron and steel market",
-    "ogbo ogwu plastic market",
-    "ogbo ogwu textile market",
-    "ogbo ogwu foodstuff market",
-    "ogbo ogwu yam market",
-  ],
-  "enugu-east": [
-    "abakpa market",
-    "new haven market",
-  ],
-}
-const marketsInActiveLga = computed(()=>{
-  const markets = recordedMarkets[form.value.lga]
-  return markets || []
-})
-watch(()=>form.value.lga, (value)=>{
-  if(!value) return
-  form.value.market = ''
-})
-
 // IMAGE UPLOAD SECTION
+const { progress, uploadFile } = useLightHouseUpload()
 const { files, open, reset: resetFiles } = useFileDialog()
-const storage = useFirebaseStorage()
-// let mountainFileRef = storageRef(storage, `uploads/${(new Date).toJSON()}`)
-const mountainFileRef = computed(()=>{
-  const num = Number(form.value.images.length + 1)
-  return storageRef(storage, `uploads/${(new Date).toJSON()+num}`)
-})
-const {
-  url,
-  uploadProgress,
-  uploadError,
-  // firebase upload task
-  uploadTask,
-  upload,
-} = useStorageFile(mountainFileRef)
 const uploadingImage = ref(false)
 const readyForAnotherUpload = ref(true)
 const handleAddImaageBtnClick = async () => {
@@ -308,54 +183,45 @@ const handleAddImaageBtnClick = async () => {
     readyForAnotherUpload.value = false
     const data = files.value?.item(0)
     if (data) {
-      await upload(data)
+      const res = await uploadFile(data)
+      form.value.images.push(res)
+      // upload file here
       uploadingImage.value = false
+      carousel.value = 0
+      resetFiles()
     }
     return
   }
   open({ accept: 'image/*', multiple: false })
 }
-// watch till when upload is complete
-// then add image to image list(displayed)
-watch(()=>url.value, (value)=>{
-  if(!value) return
-  form.value.images.push(value)
-  setTimeout(()=>{
-    readyForAnotherUpload.value = true
-    resetFiles()
-  }, 1000)
-})
 
 // SUBMIT REQUEST
 const router = useRouter()
 const successModal = ref(false)
 const submiting = ref(false)
+const requestsStore = useRequestsStore()
+const userStore = useUserStore()
 const handleNewRequest = async () => {
   // because image is required
   if(!form.value.images.length) {
-    snackbar.value = {
-      show: true,
-      text: 'Please add at least one image of the item you want to buy'
-    }
+    toast.warning('Please add at least one image of the item you want to buy')
     return
   }
 
-  submiting.value = true
-  const db = getDatabase();
-  const requestsRef = RTDBRef(db, 'requests')
-  const newRequest = {
-    ...form.value,
-    buyerId: user.value?.uid,
-    lifecycle: RequestLifecycle.PENDING,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  }
-  push(requestsRef, newRequest).then((res)=>{
-    submiting.value = false
-    successModal.value = true
+  try {
+    await requestsStore.createRequest({
+      name: form.value.name,
+      description: form.value.description,
+      images: form.value.images,
+      longitude: userStore.location?.[0]!,
+      latitude: userStore.location?.[1]!,
+    })
     resetForm()
-    resetFiles()
-    setTimeout(()=>router.push('/requests/'+res.key), 3000)
-  })
+    // get request details
+    // setTimeout(()=>router.push('/requests/'+res.key), 3000)
+  } catch (error) {
+    toast.error("an error occured, please try again")
+    console.log({errorCreatingRequest: error})
+  }
 }
 </script>
