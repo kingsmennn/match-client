@@ -5,7 +5,7 @@ const effectiveDate = new Date('2024-08-01')
 
 <template>
   <div>
-    <div class="tw-max-w-7xl tw-mx-auto tw-bg-black">
+    <div class="tw-bg-black">
       <div class="tw-p-6 sm:tw-p-10 tw-h-40 tw-flex tw-items-center tw-justify-center">
         <h1 class="tw-text-3xl tw-font-bold tw-text-white tw-mb-6">Terms of Use</h1>
       </div>
