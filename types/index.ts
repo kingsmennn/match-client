@@ -72,7 +72,7 @@ export type RequestResponse = {
   buyerId: number
   description: string
   requestName: string
-  sellerIds?: string[]
+  sellerIds?: number[]
   lockedSellerId?: number
   longitude: string
   latitude: string
