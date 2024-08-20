@@ -67,8 +67,8 @@ export type RequestResponse = {
   lifecycle: RequestLifecycleIndex
   requestId: string
   signature: string
-  createdAt: string
-  updatedAt: string
+  createdAt: number
+  updatedAt: number
   buyerId: number
   description: string
   requestName: string
