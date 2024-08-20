@@ -126,6 +126,7 @@ import { AccountType, Offer, Request, RequestLifecycleIndex, RequestResponse, Us
 import moment from 'moment'
 import { useRequestsStore } from '@/pinia/request';
 import { useUserStore } from '@/pinia/user';
+import { HashConnectConnectionState } from 'hashconnect';
 
 definePageMeta({
   middleware: 'auth',
@@ -140,12 +141,17 @@ const carousel = ref(0)
 
 const requestDetails = ref<RequestResponse>()
 const requestsStore = useRequestsStore()
+const userStore = useUserStore()
 const fetchUserRequest = async () => {
   const res = await requestsStore.getRequest(route.params.id as unknown as number)
   console.log({getRequestRes: res})
   requestDetails.value = res
 }
-onMounted(fetchUserRequest)
+const unwatch = watch(()=>userStore.contract.state, (val)=>{
+  if(!val || val !== HashConnectConnectionState.Paired ) return
+  fetchUserRequest()
+  unwatch()
+})
 
 const timeAgo = computed<string>(()=>{
   if(!requestDetails.value) return ''
@@ -160,7 +166,6 @@ const previewImage = (src: string) => {
   previewedImage.value = src
 }
 
-const userStore = useUserStore()
 const isSeller = computed(() => userStore.accountType === AccountType.SELLER)
 const isBuyer = computed(() => userStore.accountType === AccountType.BUYER) 
 

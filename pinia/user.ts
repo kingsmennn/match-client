@@ -283,7 +283,6 @@ export const useUserStore = defineStore(STORE_KEY, {
   persist: {
     paths: [
       "accountId",
-      "contract.state",
       "userDetails",
       "blockchainError.userNotFound",
 
