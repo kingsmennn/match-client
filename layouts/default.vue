@@ -89,7 +89,7 @@
         <span class="tw-text-xs tw-text-gray-500">&copy;{{ env.appName }} 2023 | All rights reserved.</span>
         <div class="tw-flex tw-justify-between tw-items-end tw-text-sm">
           <div class="tw-space-x-4 tw-mt-3">
-            <NuxtLink to="/">Terms of use</NuxtLink>
+            <NuxtLink to="/terms">Terms of use</NuxtLink>
           </div>
         </div>
       </div>
