@@ -42,16 +42,16 @@
 </template>
 
 <script setup lang="ts">
-import { RequestLifecycle } from '@/types';
+import { RequestLifecycle, RequestLifecycleIndex } from '@/types';
 import { child, getDatabase, push, ref as RTDBRef, update, serverTimestamp } from 'firebase/database';
 
 interface Props {
   offerId: string
-  requestId: string
-  lifecycle: RequestLifecycle
+  requestId: number
+  lifecycle: RequestLifecycleIndex
   images: string[]
   priceQuote: number | null
-  buyerId: string
+  buyerId: number
   sellerId: string
   storeName: string
 }

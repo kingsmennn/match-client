@@ -100,12 +100,12 @@ import { child, getDatabase, push, ref as RTDBRef, update, serverTimestamp } fro
 import { User, RequestLifecycle } from '@/types';
 
 interface Props {
-  requestId: string
-  sellerIds: string[]
+  requestId: number
+  sellerIds: number[]
   images: string[] | null // used to pass default images for after offer is submitted
   quotePrice: number | null // used to pass default price for after offer is submitted
   offerId: string | null // used to update offer
-  lockedSellerId: string | null // used to check if seller is locked
+  lockedSellerId: number | null // used to check if seller is locked
 }
 const props = defineProps<Props>()
 const carousel = ref(0)

@@ -20,7 +20,7 @@
         </ClientOnly>
       </v-col>
     </div>
-    <div v-if="!!requestDetails?.id" class="tw-max-w-7xl tw-mx-auto tw-p-6 sm:tw-p-10">
+    <div v-if="!!requestDetails?.requestId" class="tw-max-w-7xl tw-mx-auto tw-p-6 sm:tw-p-10">
       <Tabs
         :tab_list="tab_list"
         :value="tab"
@@ -45,7 +45,7 @@
             class="sm:tw-col-span-2 tw-space-y-14">
             <div>
               <h2 class="tw-text-5xl tw-font-bold tw-bg-black tw-text-white">
-                {{ requestDetails.name }}
+                {{ requestDetails.requestName }}
               </h2>
               <p>{{ timeAgo }}</p>
             </div>
@@ -55,13 +55,13 @@
               <p class="tw-mt-2 tw-text-2xl">{{ requestDetails.description }}</p>
             </div>
 
-            <div class="">
+            <!-- <div class="">
               <h3 class="tw-text-5xl tw-font-bold">Target Market</h3>
               <p class="tw-mt-2 tw-text-2xl tw-capitalize">
                 {{ !!requestDetails?.market ? `${requestDetails?.market}, ` : '' }}
                 {{ `${requestDetails?.lga}, ${requestDetails?.state}` }}
               </p>
-            </div>
+            </div> -->
           </div>
 
           <div
@@ -73,7 +73,7 @@
                   v-for="(offer,n) in renderedOffers"
                   :key="n"
                   :offer-id="offer.id!"
-                  :request-id="requestDetails.id"
+                  :request-id="requestDetails.requestId"
                   :store-name="offer.storeName"
                   :buyer-id="requestDetails.buyerId"
                   :seller-id="offer.sellerId"
@@ -91,7 +91,7 @@
 
             <template v-else>
               <SellerQuoteRequestor
-                :request-id="requestDetails.id"
+                :request-id="requestDetails.requestId"
                 :seller-ids="requestDetails?.sellerIds || []"
                 :locked-seller-id="requestDetails?.lockedSellerId || null"
                 :images="sellerExistingOffer?.images || []"
@@ -122,7 +122,7 @@
 import SellerOffer from '@/components/SellerOffer.vue';
 import SellerQuoteRequestor from '@/components/SellerQuoteRequestor.vue';
 import { getDatabase, onValue, ref as RTDBRef, query, orderByChild, equalTo } from 'firebase/database';
-import { AccountType, Offer, Request, RequestLifecycle, User } from '@/types';
+import { AccountType, Offer, Request, RequestLifecycleIndex, RequestResponse, User } from '@/types';
 import moment from 'moment'
 import { useRequestsStore } from '@/pinia/request';
 
@@ -137,32 +137,18 @@ if(!route.params.id) router.push('/')
 
 const carousel = ref(0)
 
-const requestDetails = ref<Request>()
+const requestDetails = ref<RequestResponse>()
 const requestsStore = useRequestsStore()
-const fetchUserRequests = async () => {
+const fetchUserRequest = async () => {
   const res = await requestsStore.getRequest(route.params.id as unknown as number)
-  console.log({res})
-  // const db = getDatabase();
-  // const myRequestsRef = RTDBRef(db, 'requests/'+route.params.id)
-  // onValue(myRequestsRef, (snapshot) => {
-
-  //   const data = {
-  //     ...snapshot.val(),
-  //     id: snapshot.key
-  //   }
-  //   // if user is not a seller and not the current user, they shouldn't
-  //   // be able to view this request
-  //   if((data.buyerId !== userCookie.value?.id) && !isSeller.value){
-  //     router.push('/')
-  //     return
-  //   }
-  //   requestDetails.value = data
-  // });
+  console.log({getRequestRes: res})
+  requestDetails.value = res
 }
-onMounted(fetchUserRequests)
+onMounted(fetchUserRequest)
+
 const timeAgo = computed<string>(()=>{
   if(!requestDetails.value) return ''
-  return moment(new Date(requestDetails.value.createdAt)).fromNow()
+  return moment(new Date(requestDetails.value.createdAt * 1000)).fromNow()
 })
 
 
@@ -217,9 +203,9 @@ onMounted(()=>fetchAllOffers())
 
 const renderedOffers = computed(()=>{
   return (
-    requestDetails.value?.lifecycle === RequestLifecycle.ACCEPTED_BY_BUYER ||
-    requestDetails.value?.lifecycle === RequestLifecycle.REQUEST_LOCKED ||
-    requestDetails.value?.lifecycle === RequestLifecycle.COMPLETED
+    requestDetails.value?.lifecycle === RequestLifecycleIndex.ACCEPTED_BY_BUYER ||
+    requestDetails.value?.lifecycle === RequestLifecycleIndex.REQUEST_LOCKED ||
+    requestDetails.value?.lifecycle === RequestLifecycleIndex.COMPLETED
   )
     ? allOffers.value.filter(offer => offer.isAccepted)
     : allOffers.value

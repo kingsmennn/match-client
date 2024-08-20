@@ -58,6 +58,52 @@ export const useRequestsStore = defineStore('requests', {
       } catch (error) {
         console.log({error})
       }
+    },
+    async getRequest(requestId: number) {
+      const userStore = useUserStore();
+      if (!userStore.contract.pairingData) return;
+
+      try {
+        const contract = userStore.getContract();
+        const res = await contract.requests(requestId);
+  
+        const request: RequestResponse = {
+          requestId: Number(res[0]),
+          requestName: res[1],
+          buyerId: Number(res[2]),
+          sellersPriceQuote: Number(res[3]),
+          lockedSellerId: Number(res[4]),
+          description: res[5],
+          lifecycle: Number(res[7]),
+          longitude: Number(res[8][0]),
+          latitude: Number(res[8][1]),
+          createdAt: Number(res[6]),
+          updatedAt: Number(res[9]),
+          images: [],
+        }
+        const images = await this.getRequestImages(request.requestId)
+        request.images = images || []
+        return request;
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async getRequestImages(
+      request_id: number
+    ): Promise<string[] | undefined> {
+      const userStore = useUserStore();
+      if (!userStore.contract.pairingData) return;
+
+      const contract = userStore.getContract();
+      const length = await contract.getRequestImagesLength(request_id);
+    
+      const images = [];
+      for (let i = 0; i < length; i++) {
+        const image = await contract.getRequestImageByIndex(request_id, i);
+        images.push(image);
+      }
+      return images;
     }
   }
 });

@@ -46,7 +46,7 @@
           <div v-show="tab===tab_list[0].slug" class="tw-grid sm:tw-grid-cols-2 tw-gap-3">
             <RequestItem
               v-for="request in activeRequestList" :key="request._id"
-              :requestId="request._id"
+              :requestId="request.requestId"
               :lifecycle="request.lifecycle"
               :itemName="request.requestName"
               :thumbnail="request.images[0]"
@@ -62,7 +62,7 @@
           <div v-show="tab===tab_list[1].slug" class="tw-grid tw-gap-3">
             <RequestItem
               v-for="request in completedRequestList" :key="request._id"
-              :requestId="request._id"
+              :requestId="request.requestId"
               :lifecycle="request.lifecycle"
               :itemName="request.requestName"
               :thumbnail="request.images[0]"
