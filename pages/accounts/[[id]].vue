@@ -77,12 +77,12 @@
           </div>
 
           <!-- show empty state UI when either tab has no content -->
-          <!-- <div
+          <div
             v-show="(tab===tab_list[0].slug && activeRequestList.length===0) || (tab===tab_list[1].slug && completedRequestList.length===0)"
             class="tw-p-6 tw-py-10 tw-text-center tw-border-4 tw-border-gray-400/5 tw-rounded-2xl
             tw-bg-gray-300/5 tw-my-10 tw-text-2xl tw-text-gray-500">
             <p>All {{ tab }} requests will be listed here...</p>
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
