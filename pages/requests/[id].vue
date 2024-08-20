@@ -144,14 +144,12 @@ const requestsStore = useRequestsStore()
 const userStore = useUserStore()
 const fetchUserRequest = async () => {
   const res = await requestsStore.getRequest(route.params.id as unknown as number)
-  console.log({getRequestRes: res})
   requestDetails.value = res
 }
 const unwatch = watch(()=>userStore.contract.state, (val)=>{
   if(!val || val !== HashConnectConnectionState.Paired ) return
   fetchUserRequest()
-  unwatch()
-})
+}, { immediate: true })
 
 const timeAgo = computed<string>(()=>{
   if(!requestDetails.value) return ''

@@ -88,7 +88,6 @@ export const useRequestsStore = defineStore('requests', {
         console.log(error)
       }
     },
-
     async getRequestImages(
       request_id: number
     ): Promise<string[] | undefined> {
@@ -104,6 +103,30 @@ export const useRequestsStore = defineStore('requests', {
         images.push(image);
       }
       return images;
+    },
+    
+    // SELLERS
+    async fetchNearbyRequestsForSellers({lat, long}: { lat: number, long: number}) {
+      const env = useRuntimeConfig().public
+
+      try {
+        const res = await $fetch<RequestResponse[]>(
+          `${env.matchApiUrl}/requests`,
+          {
+            method: 'POST',
+            body: {
+              sellerLat: lat,
+              sellerLong: long
+            }
+          }
+        )
+        
+        this.list = res
+        return res
+      } catch (error) {
+        console.log({error})
+      }
+
     }
   }
 });
