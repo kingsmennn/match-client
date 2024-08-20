@@ -19,7 +19,7 @@
               <h3 class="tw-text-xl tw-truncate tw-font-semibold">{{ itemName }}</h3>
               <p class="tw-text-sm">ID: {{ requestId }}</p>
 
-              <template v-if="lifecycle===RequestLifecycle.REQUEST_LOCKED || lifecycle===RequestLifecycle.COMPLETED">
+              <template v-if="lifecycle===RequestLifecycleIndex.REQUEST_LOCKED || lifecycle===RequestLifecycleIndex.COMPLETED">
                 <p class="tw-text-sm">Buyer: {{ buyer?.username }}</p>
                 <p class="tw-text-sm">Seller: {{ lockedSeller?.username }}</p>
                 <p class="tw-text-sm">Price: ₦{{ Number(sellersPriceQuote).toLocaleString() }}</p>
@@ -44,7 +44,7 @@
             <template v-if="accountType === AccountType.BUYER">
               <v-icon>
                 {{
-                  (lifecycle!==RequestLifecycle.PENDING) ?
+                  (lifecycle!==RequestLifecycleIndex.PENDING) ?
                   'mdi-checkbox-marked-circle' : 'mdi-timelapse'
                 }}
                 </v-icon>
@@ -59,9 +59,9 @@
             <template v-if="accountType === AccountType.SELLER">
               <v-icon>
                 {{
-                  lifecycle===RequestLifecycle.ACCEPTED_BY_BUYER ||
-                  lifecycle===RequestLifecycle.REQUEST_LOCKED ||
-                  lifecycle===RequestLifecycle.COMPLETED ?
+                  lifecycle===RequestLifecycleIndex.ACCEPTED_BY_BUYER ||
+                  lifecycle===RequestLifecycleIndex.REQUEST_LOCKED ||
+                  lifecycle===RequestLifecycleIndex.COMPLETED ?
                   'mdi-checkbox-marked-circle' : 'mdi-timelapse'
                 }}
               </v-icon>
@@ -75,15 +75,15 @@
           <div class="tw-flex tw-justify-center tw-items-center tw-gap-1">
             <v-icon>
               {{
-                lifecycle===RequestLifecycle.REQUEST_LOCKED ||
-                lifecycle===RequestLifecycle.COMPLETED ?
+                lifecycle===RequestLifecycleIndex.REQUEST_LOCKED ||
+                lifecycle===RequestLifecycleIndex.COMPLETED ?
                 'mdi-lock' : 'mdi-timelapse'
               }}
             </v-icon>
             <span>
               {{
-                lifecycle===RequestLifecycle.REQUEST_LOCKED ||
-                lifecycle===RequestLifecycle.COMPLETED ?
+                lifecycle===RequestLifecycleIndex.REQUEST_LOCKED ||
+                lifecycle===RequestLifecycleIndex.COMPLETED ?
                 'locked' : 'locks in 15mins'
               }}
             </span>
@@ -106,7 +106,7 @@
     </div>
 
     <div
-      v-if="lifecycle===RequestLifecycle.REQUEST_LOCKED"
+      v-if="lifecycle===RequestLifecycleIndex.REQUEST_LOCKED"
       class="tw-absolute tw-inset-0 tw-bg-black/20 tw-animate-ping tw-pointer-events-none">
     </div>
   </div>
@@ -114,21 +114,21 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { AccountType, RequestLifecycle, User } from '@/types'
+import { AccountType, RequestLifecycleIndex, User } from '@/types'
 import { collection, where, query, limit, getDocs } from 'firebase/firestore';
 import moment from 'moment'
 
 interface Props {
   requestId: string
   isCompleted?: boolean
-  lifecycle: RequestLifecycle
+  lifecycle: RequestLifecycleIndex
   itemName: string
   thumbnail: string
   createdAt: Date
   accountType: AccountType
   sellersPriceQuote: number | null
-  buyerId: string
-  lockedSellerId: string | null
+  buyerAddress: string
+  lockedSellerAddress: string | null
 }
 
 const props = defineProps<Props>()
@@ -136,15 +136,15 @@ const completed = ref(!!props?.isCompleted)
 
 const lifecycleProgress = computed<number>(()=>{
   switch (props.lifecycle) {
-    case RequestLifecycle.PENDING:
+    case RequestLifecycleIndex.PENDING:
       return (100/3)
-    case RequestLifecycle.ACCEPTED_BY_SELLER:
+    case RequestLifecycleIndex.ACCEPTED_BY_SELLER:
       return props.accountType === AccountType.BUYER ? (100/3) : (100/3)*2
-    case RequestLifecycle.ACCEPTED_BY_BUYER:
+    case RequestLifecycleIndex.ACCEPTED_BY_BUYER:
       return props.accountType === AccountType.BUYER ? (100/3)*2 : (100/3)*2
-    case RequestLifecycle.REQUEST_LOCKED:
+    case RequestLifecycleIndex.REQUEST_LOCKED:
       return 100
-    case RequestLifecycle.COMPLETED:
+    case RequestLifecycleIndex.COMPLETED:
       return 100
     default:
       return 0
@@ -169,8 +169,8 @@ const buyer = ref<User | null>(null)
 const lockedSeller = ref<User | null>(null)
 onMounted(()=>{
   Promise.all([
-    getUserDetails({ uId: props.buyerId }),
-    getUserDetails({ uId: props.lockedSellerId || null }),
+    getUserDetails({ uId: props.buyerAddress }),
+    getUserDetails({ uId: props.lockedSellerAddress || null }),
   ]).then(([buyerDetails, lockedSellerDetails]) => {
     buyer.value = buyerDetails
     lockedSeller.value = lockedSellerDetails

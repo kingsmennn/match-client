@@ -68,21 +68,15 @@ export type RequestResponse = {
   requestId: string
   signature: string
   createdAt: string
-  updated_at: string
+  updatedAt: string
   buyerId: number
   description: string
   requestName: string
   sellerIds?: string[]
-  lockedSellerId?: 0
-
-  {
-    "latitude": 6461710096179115000,
-    "longitude": 7473966214619183000,
-    "sellersPriceQuote": 0,
-    "signature": "0x56ca0afdd5f54238e27cf178a4bd73abd99ea55a21defd28381b76d0761993ae",
-    "updatedAt": 1724169044,
-    "updated_at": "2024-08-20T16:08:28.207Z"
-  }
+  lockedSellerId?: number
+  longitude: string
+  latitude: string
+  sellersPriceQuote?: number
 }
 
 export type Offer = {
