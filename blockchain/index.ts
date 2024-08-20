@@ -308,45 +308,49 @@ export async function getOfferImageByIndex(offerId: number, index: number) {
   return image;
 }
 
-export async function getOfferImagesLength(offerId: number) {
+export async function getOfferImages(
+  offerId: number
+): Promise<string[] | undefined> {
   if (!pairingData) return;
   const contract = getContract();
   const length = await contract.getOfferImagesLength(offerId);
+  const images = [];
 
-  return length;
+  for (let i = 0; i < length; i++) {
+    const image = await contract.getOfferImageByIndex(offerId, i);
+    images.push(image);
+  }
+
+  return images;
 }
 
-export async function getRequestImageByIndex(requestId: number, index: number) {
+export async function getRequestImages(
+  request_id: number
+): Promise<string[] | undefined> {
   if (!pairingData) return;
   const contract = getContract();
-  const image = await contract.getRequestImageByIndex(requestId, index);
+  const length = await contract.getRequestImagesLength(request_id);
 
-  return image;
+  const images = [];
+  for (let i = 0; i < length; i++) {
+    const image = await contract.getRequestImageByIndex(request_id, i);
+    images.push(image);
+  }
+  return images;
 }
 
-export async function getRequestImagesLength(requestId: number) {
+export async function getRequestSellerIds(
+  requestId: number
+): Promise<string[] | undefined> {
   if (!pairingData) return;
   const contract = getContract();
-  const length = await contract.getRequestImagesLength(requestId);
+  const sellerIdsLength = await contract.getRequestSellerIdsLength(requestId);
+  const sellerIds = [];
 
-  return length;
-}
+  for (let i = 0; i < sellerIdsLength; i++) {
+    const sellerId = await contract.getRequestSellerIdByIndex(requestId, i);
+    sellerIds.push(sellerId);
+  }
 
-export async function getRequestSellerIdByIndex(
-  requestId: number,
-  index: number
-) {
-  if (!pairingData) return;
-  const contract = getContract();
-  const sellerId = await contract.getRequestSellerIdByIndex(requestId, index);
-
-  return sellerId;
-}
-
-export async function getRequestSellerIdsLength(requestId: number) {
-  if (!pairingData) return;
-  const contract = getContract();
-  const length = await contract.getRequestSellerIdsLength(requestId);
-
-  return length;
+  return sellerIds;
 }
