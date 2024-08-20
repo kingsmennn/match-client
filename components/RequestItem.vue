@@ -119,7 +119,7 @@ import { collection, where, query, limit, getDocs } from 'firebase/firestore';
 import moment from 'moment'
 
 interface Props {
-  requestId: string
+  requestId: number
   isCompleted?: boolean
   lifecycle: RequestLifecycleIndex
   itemName: string
