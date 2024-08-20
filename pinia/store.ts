@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { CreateStoreDTO, STORE_STORE_KEY } from "@/types";
+import { CreateStoreDTO, Store, STORE_STORE_KEY } from "@/types";
 import {
   AccountId,
   ContractExecuteTransaction,
@@ -51,17 +51,17 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
           transaction
         );
         // save to store
-        userStore.storeDetails = {
+        userStore.storeDetails = [{
           name: payload.name,
           description: payload.description,
           location: [payload.long, payload.lat],
-        };
+        }];
         return receipt;
       } catch (error) {
         console.error(error);
       }
     },
-    async getUserStores(accountId: string) {
+    async getUserStores(accountId: string): Promise<Store[] | undefined> {
       const userStore = useUserStore();
       if (!userStore.contract.pairingData) return;
 

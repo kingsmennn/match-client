@@ -20,7 +20,7 @@
           <div class="tw-absolute tw-inset-0 tw-flex tw-items-end tw-pointer-events-none">
             <div v-show="!readyForAnotherUpload" class="tw-h-4 tw-w-full">
               <div
-                :style="`width: ${Number(uploadProgress)*100}%`"
+                :style="`width: ${Number(progress)*100}%`"
                 class="tw-w-0 tw-h-full tw-bg-black/90 tw-transition-all tw-duration-300">
               </div>
             </div>
@@ -71,7 +71,7 @@
             class="tw-w-full tw-bg-black tw-text-white tw-py-4 tw-rounded-md tw-font-medium
             tw-row-start-4 sm:tw-row-start-2 tw-col-start-1 tw-col-span-full sm:tw-col-span-2
             disabled:tw-bg-black/20"
-            :disabled="submiting || uploadingImage || !!uploadTask">
+            :disabled="submiting || uploadingImage">
             <template v-if="!submiting">
               {{ hasSubmittedOffer ? 'Update' : 'Submit' }} offer
             </template>
@@ -85,14 +85,89 @@
         </div>
       </form>
     </div>
-    <v-snackbar
-      v-model="snackbar.show">
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '@/pinia/user';
+import { useRequestsStore } from '@/pinia/request';
+import { toast } from 'vue-sonner';
+
+type Props = {
+  requestId: number
+  sellerIds: number[]
+  images: string[] | null // used to pass default images for after offer is submitted
+  quotePrice: number | null // used to pass default price for after offer is submitted
+  offerId: string | null // used to update offer
+  lockedSellerId: number | null // used to check if seller is locked
+}
+const props = defineProps<Props>()
+const carousel = ref(0)
+
+// IMAGE UPLOAD SECTION
+const { progress, uploadFile } = useLightHouseUpload()
+const { files, open, reset: resetFiles } = useFileDialog()
+const uploadingImage = ref(false)
+const readyForAnotherUpload = ref(true)
+const images = ref<string[]>([])
+const handleAddImageBtnClick = async () => {
+  // if a file has been selected
+  if(files.value?.length === 1) {
+    // start upload
+    uploadingImage.value = true
+    readyForAnotherUpload.value = false
+    const data = files.value?.item(0)
+    if (data) {
+      const res = await uploadFile(data)
+      images.value.push(res)
+      // upload file here
+      uploadingImage.value = false
+      carousel.value = 0
+      resetFiles()
+    }
+    return
+  }
+  open({ accept: 'image/*', multiple: false })
+}
+
+// SUBMIT OFFER
+const form = ref({
+  price: null as number | null,
+})
+const userStore = useUserStore()
+const requestsStore = useRequestsStore()
+const hasSubmittedOffer = computed(()=>props.sellerIds.includes(userStore.userDetails?.[0]!))
+const submiting = ref(false)
+const handleFormSubmit = async () => {
+  if(!images.value.length) {
+    toast.warning('Please add proof image')
+    return
+  }
+  submiting.value = true
+  try {
+    await requestsStore.createOffer({
+      price: form.value.price!,
+      requestId: props.requestId,
+      storeName: userStore.storeDetails?.[0].name!,
+      sellerId: userStore.userDetails?.[0]!,
+      images: images.value
+    })
+    toast.success(`You have successfully ${ hasSubmittedOffer.value ? 'updated your' : 'made an' } offer!`)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    submiting.value = false
+  }
+}
+
+const unwatch = watch(()=>props.offerId, ()=>{
+  form.value.price = props.quotePrice
+  images.value = props.images || []
+  unwatch()
+})
+</script>
+
+<!-- <script setup lang="ts">
 import { useFileDialog } from '@vueuse/core'
 import { ref as storageRef } from 'firebase/storage'
 import { useFirebaseStorage, useStorageFile, useCurrentUser } from 'vuefire'
@@ -125,6 +200,7 @@ const {
   uploadTask,
   upload,
 } = useStorageFile(imageFileRef)
+
 const uploadingImage = ref(false)
 const readyForAnotherUpload = ref(true)
 const handleAddImageBtnClick = async () => {
@@ -212,4 +288,4 @@ const handleFormSubmit = async () => {
 }
 
 const hasSubmittedOffer = computed(()=>props.sellerIds.includes(user.value?.uid!))
-</script>
+</script> -->

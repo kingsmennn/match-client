@@ -24,7 +24,7 @@
       <Tabs
         :tab_list="tab_list"
         :value="tab"
-        @model-value="($event) => tab = $event"
+        @model-value="($event: any) => tab = $event"
         class="tw-inline-flex tw-gap-x-1 sm:tw-gap-x-2 tw-justify-between
         tw-rounded-sm tw-w-full [&>*]:tw-flex-grow [&>*]:tw-max-w-[50%] sm:tw-hidden">
         <template v-slot:tab="{ tab, index: i, is_active }">
@@ -218,7 +218,7 @@ const sellerExistingOffer = computed(()=>{
   if(!allOffers.value.length) return null as unknown as Offer
   let res: Offer = null as unknown as Offer
   allOffers.value.forEach((offer)=>{
-    if(offer.sellerId === userCookie.value?.id){
+    if(offer.sellerId === userStore.accountId){
       res = offer
     }
   })

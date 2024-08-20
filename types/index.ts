@@ -21,6 +21,7 @@ export type User = {
   stores?: Store[];
 };
 export type Store = {
+  id?: number
   name: string;
   description?: string;
   location: Location;
@@ -131,9 +132,9 @@ export type CreateRequestDTO = {
 export type CreateOfferDTO = {
   price: number;
   images: string[];
-  requestId: string;
+  requestId: number;
   storeName: string;
-  sellerId: string;
+  sellerId: number;
 };
 
 export const STORE_KEY = "@userStore";

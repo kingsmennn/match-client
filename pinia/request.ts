@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { CreateRequestDTO, RequestResponse } from '@/types';
+import { CreateOfferDTO, CreateRequestDTO, RequestResponse } from '@/types';
 import { AccountId, ContractExecuteTransaction, ContractFunctionParameters, ContractId, TransactionReceipt } from '@hashgraph/sdk';
 import { useUserStore } from './user';
 
@@ -127,6 +127,37 @@ export const useRequestsStore = defineStore('requests', {
         console.log({error})
       }
 
+    },
+    async createOffer({
+      price,
+      images,
+      requestId,
+      storeName,
+      sellerId,
+    }: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
+      const userStore = useUserStore();
+      if (!userStore.contract.pairingData) return;
+      const env = useRuntimeConfig().public
+    
+      try {
+        let accountId = AccountId.fromString(userStore.accountId!);
+    
+        const params = new ContractFunctionParameters();
+        params.addInt256(price);
+        params.addStringArray(images);
+        params.addUint256(requestId);
+        params.addString(storeName);
+        params.addUint256(sellerId);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("createOffer", params);
+    
+        const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
+        return receipt;
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 });

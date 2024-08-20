@@ -12,14 +12,6 @@ import {
   HashConnectConnectionState,
   SessionData,
 } from "hashconnect";
-import {
-  AccountType,
-  CreateOfferDTO,
-  CreateRequestDTO,
-  CreateStoreDTO,
-  CreateUserDTO,
-} from "@/types";
-
 import { ethers } from "ethers";
 import { marketAbi } from "./abi";
 
@@ -28,49 +20,10 @@ const HEDERA_JSON_RPC = {
   testnet: "https://testnet.hashio.io/api",
 };
 
-const appMetaData = {
-  name: "Finder",
-  description:
-    "Finder is a blockchain application that allows buyers to find the best deals on products they want to buy.",
-  icons: [window.location.origin + "/favicon.ico"],
-  url: window.location.origin,
-};
-
 const CONTRACT_ID = "0.0.4699855";
 
 let hashconnect: HashConnect;
-let state: HashConnectConnectionState = HashConnectConnectionState.Disconnected;
 let pairingData: SessionData | null;
-
-export async function createOffer({
-  price,
-  images,
-  requestId,
-  storeName,
-  sellerId,
-}: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
-  if (!pairingData) return;
-
-  try {
-    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
-
-    const params = new ContractFunctionParameters();
-    params.addInt256(price);
-    params.addStringArray(images);
-    params.addString(requestId);
-    params.addString(storeName);
-    params.addString(sellerId);
-    let transaction = new ContractExecuteTransaction()
-      .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000000)
-      .setFunction("createOffer", params);
-
-    const receipt = await hashconnect.sendTransaction(accountId, transaction);
-    return receipt;
-  } catch (error) {
-    console.error(error);
-  }
-}
 
 export async function acceptOffer(
   offerId: string
