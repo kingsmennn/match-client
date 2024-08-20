@@ -128,7 +128,7 @@ interface Props {
   accountType: AccountType
   sellersPriceQuote: number | null
   buyerAddress: string
-  lockedSellerAddress: string | null
+  lockedSellerAddress: number | null
 }
 
 const props = defineProps<Props>()

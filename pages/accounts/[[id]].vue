@@ -44,7 +44,7 @@
 
         <div class="tw-mt-6">
           <div v-show="tab===tab_list[0].slug" class="tw-grid sm:tw-grid-cols-2 tw-gap-3">
-            <!-- <RequestItem
+            <RequestItem
               v-for="request in activeRequestList" :key="request._id"
               :requestId="request._id"
               :lifecycle="request.lifecycle"
@@ -52,26 +52,28 @@
               :thumbnail="request.images[0]"
               :created-at="new Date(request.createdAt)"
               :buyerId="request.buyerAddress"
-              :locked-seller-address="request ?? null"
+              :buyer-address="request.buyerAddress"
+              :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
-              :account-type="userStore?.accountType"
-            /> -->
+              :account-type="userStore.accountType!"
+            />
           </div>
           
           <div v-show="tab===tab_list[1].slug" class="tw-grid tw-gap-3">
-            <!-- <RequestItem
-              v-for="request in completedRequestList" :key="request.id"
-              :requestId="request.id!"
+            <RequestItem
+              v-for="request in completedRequestList" :key="request._id"
+              :requestId="request._id"
               :lifecycle="request.lifecycle"
-              :itemName="request.name"
+              :itemName="request.requestName"
               :thumbnail="request.images[0]"
-              :created-at="request.createdAt"
-              :buyerId="request.buyerId"
-              :locked-seller-id="request.lockedSellerId ?? null"
+              :created-at="new Date(request.createdAt)"
+              :buyerId="request.buyerAddress"
+              :buyer-address="request.buyerAddress"
+              :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
-              :account-type="userCookie?.accountType"
-              :is-completed="true"
-            /> -->
+              :account-type="userStore.accountType!"
+              is-completed
+            />
           </div>
 
           <!-- show empty state UI when either tab has no content -->
@@ -148,15 +150,18 @@ const activeRequestList = computed(() => {
     // return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
   }
   return requestsStore.list.filter(request=>{
-    request.lifecycle !== RequestLifecycleIndex.COMPLETED
+    return request.lifecycle !== RequestLifecycleIndex.COMPLETED
   })
 })
-// const completedRequestList = computed(() => {
-//   if (isSeller.value) {
-//     return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
-//   }
-//   return userRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
-// })
+
+const completedRequestList = computed(() => {
+  if (isSeller.value) {
+    // return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
+  }
+  return requestsStore.list.filter(request=>{
+    return request.lifecycle === RequestLifecycleIndex.COMPLETED
+  })
+})
 
 // const userRequestList = ref<Request[]>([])
 
