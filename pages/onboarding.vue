@@ -137,7 +137,6 @@ const router = useRouter()
 const userStore = useUserStore()
 const submiting = ref(false)
 const handleCompleteOnbaording = async () => {
-  console.log("Called")
   submiting.value = true
   try {
     const payload: CreateUserDTO = {
@@ -147,26 +146,8 @@ const handleCompleteOnbaording = async () => {
       long: form.value.location[0],
       lat: form.value.location[1],
     }
-    const res = await userStore.createUser(payload)
-    if(res?.status._code === 22) {
-      // success
-      // fetch user data
-      const user = await userStore.fetchUser(userStore.accountId!)
-      if(!user) {
-        throw new Error('User not found in blockchain')
-      }
-      // save user to storage
-      const userCookie = useCookie<User>('user')
-      userCookie.value = {
-        id: userStore.accountId!,
-        accountType: form.value.accountType,
-        username: form.value.username,
-        phone: form.value.phone,
-        location: form.value.location,
-        createdAt: new Date(form.value.createdAt),
-      }
-      router.push('/accounts/'+ userStore.accountId)
-    }
+    await userStore.createUser(payload)
+    router.push('/accounts/'+ userStore.accountId)
   } catch(e) {
     // haldle errors
     console.log(e)

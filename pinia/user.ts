@@ -95,8 +95,6 @@ export const useUserStore = defineStore(STORE_KEY, {
       await this.contract.hashconnect.openPairingModal();
     },
     async setUpHashConnectEvents() {
-      const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE); // will be used by middleware
-
       this.contract.hashconnect.pairingEvent.on(async (newPairing) => {
         this.contract.pairingData = newPairing;
         // set the account id of the user
@@ -104,53 +102,13 @@ export const useUserStore = defineStore(STORE_KEY, {
         this.accountId = userId;
 
         const blockchainUser = await this.fetchUser(this.accountId);
+        this.storeUserDetails(blockchainUser)
 
-        // check if the user exists in the blockchain by checking id
-        const hasId = !!blockchainUser[0];
-        if (hasId) {
-          const details = {
-            id: Number(blockchainUser[0]),
-            username: blockchainUser[1],
-            phone: blockchainUser[2],
-            location: {
-              long: Number(blockchainUser[3][0]),
-              lat: Number(blockchainUser[3][1]),
-            },
-            createdAt: Number(blockchainUser[4]),
-            accountType:
-              Number(blockchainUser[5]) === 0
-                ? AccountType.BUYER
-                : AccountType.SELLER,
-          };
-          const { id, username, phone, location, createdAt, accountType } =
-            details;
-
-          this.userDetails = [
-            id,
-            username,
-            phone,
-            [location.long, location.lat],
-            createdAt,
-            accountType,
-          ];
-
-          userCookie.value = {
-            id: this.accountId,
-            username,
-            phone,
-            location: [location.long, location.lat],
-            createdAt: new Date(createdAt),
-            accountType,
-          };
-
-          // if user is a seller, we need to get their store details
-          if (this.accountType !== AccountType.SELLER) return;
-          const storeStore = useStoreStore();
-          const res = await storeStore.getUserStores(this.accountId);
-          console.log({ getUserStoreIdsRes: res });
-        } else if (!hasId && this.accountId) {
-          this.blockchainError.userNotFound = true;
-        }
+        // if user is a seller, we need to get their store details
+        if (this.accountType !== AccountType.SELLER) return;
+        const storeStore = useStoreStore();
+        const res = await storeStore.getUserStores(this.accountId!);
+        console.log({ getUserStoreIdsRes: res });
       });
 
       this.contract.hashconnect.disconnectionEvent.on((data) => {
@@ -186,6 +144,50 @@ export const useUserStore = defineStore(STORE_KEY, {
       const user = await contract.users(userAddress);
       return user;
     },
+    async storeUserDetails(user: BlockchainUser){
+      const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE); // will be used by middleware
+
+      // check if the user exists in the blockchain by checking id
+      const hasId = !!user[0];
+      if (hasId) {
+        const details = {
+          id: Number(user[0]),
+          username: user[1],
+          phone: user[2],
+          location: {
+            long: Number(user[3][0]),
+            lat: Number(user[3][1]),
+          },
+          createdAt: Number(user[4]),
+          accountType:
+            Number(user[5]) === 0
+              ? AccountType.BUYER
+              : AccountType.SELLER,
+        };
+        const { id, username, phone, location, createdAt, accountType } =
+          details;
+
+        this.userDetails = [
+          id,
+          username,
+          phone,
+          [location.long, location.lat],
+          createdAt,
+          accountType,
+        ];
+
+        userCookie.value = {
+          id: this.accountId!,
+          username,
+          phone,
+          location: [location.long, location.lat],
+          createdAt: new Date(createdAt),
+          accountType,
+        };
+      } else if (!hasId && this.accountId) {
+        this.blockchainError.userNotFound = true;
+      }
+    },
 
     // create new user
     async createUser({
@@ -213,6 +215,13 @@ export const useUserStore = defineStore(STORE_KEY, {
           AccountId.fromString(this.accountId),
           transaction
         );
+
+        // wait a while for the previous contract to properly execute
+        await new Promise(resolve=>setTimeout(resolve, 2000))
+
+        const blockchainUser = await this.fetchUser(this.accountId);
+        this.storeUserDetails(blockchainUser)
+
         // resets
         this.blockchainError.userNotFound = false;
         return receipt;
