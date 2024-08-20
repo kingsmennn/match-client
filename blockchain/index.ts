@@ -42,130 +42,6 @@ let hashconnect: HashConnect;
 let state: HashConnectConnectionState = HashConnectConnectionState.Disconnected;
 let pairingData: SessionData | null;
 
-const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
-const DEBUG = true;
-export async function connectToHashConnect() {
-  hashconnect = new HashConnect(
-    LedgerId.TESTNET,
-    PROJECT_ID,
-    appMetaData,
-    DEBUG
-  );
-  setUpHashConnectEvents();
-
-  await hashconnect.init();
-
-  await hashconnect.openPairingModal();
-}
-
-async function disconnect() {
-  hashconnect.disconnect();
-  pairingData = null;
-}
-
-async function setUpHashConnectEvents() {
-  hashconnect.pairingEvent.on((newPairing) => {
-    pairingData = newPairing;
-  });
-
-  hashconnect.disconnectionEvent.on((data) => {
-    pairingData = null;
-  });
-
-  hashconnect.connectionStatusChangeEvent.on((connectionStatus) => {
-    state = connectionStatus;
-  });
-}
-
-export async function createUser({
-  username,
-  phone,
-  lat,
-  long,
-  account_type,
-}: CreateUserDTO): Promise<TransactionReceipt | undefined> {
-  if (!pairingData) return;
-
-  try {
-    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
-
-    const params = new ContractFunctionParameters();
-
-    params.addString(username);
-    params.addString(phone);
-    params.addInt256(lat);
-    params.addInt256(long);
-    params.addUint8(account_type == AccountType.BUYER ? 0 : 1);
-    let transaction = new ContractExecuteTransaction()
-      .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000000)
-      .setFunction("createUser", params);
-
-    const receipt = await hashconnect.sendTransaction(accountId, transaction);
-    return receipt;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function createStore({
-  name,
-  description,
-  latitude,
-  longitude,
-}: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
-  if (!pairingData) return;
-
-  try {
-    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
-
-    const params = new ContractFunctionParameters();
-    params.addString(name);
-    params.addString(description);
-    params.addInt256(latitude);
-    params.addInt256(longitude);
-    let transaction = new ContractExecuteTransaction()
-      .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000000)
-      .setFunction("createStore", params);
-
-    const receipt = await hashconnect.sendTransaction(accountId, transaction);
-    return receipt;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function createRequest({
-  name,
-  description,
-  images,
-  latitude,
-  longitude,
-}: CreateRequestDTO): Promise<TransactionReceipt | undefined> {
-  if (!pairingData) return;
-
-  try {
-    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
-
-    const params = new ContractFunctionParameters();
-    params.addString(name);
-    params.addString(description);
-    params.addStringArray(images);
-    params.addInt256(latitude);
-    params.addInt256(longitude);
-    let transaction = new ContractExecuteTransaction()
-      .setContractId(ContractId.fromString(CONTRACT_ID))
-      .setGas(1000000)
-      .setFunction("createRequest", params);
-
-    const receipt = await hashconnect.sendTransaction(accountId, transaction);
-    return receipt;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export async function createOffer({
   price,
   images,
@@ -247,19 +123,6 @@ function getContract() {
   return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
 }
 
-export async function getUser(account_id: string) {
-  if (!pairingData) return;
-  const contract = getContract();
-  const userAddress = AccountId.fromString(account_id).toSolidityAddress();
-  // const userAddress = AccountId.fromString(
-  //   pairingData.accountIds[0]
-  // ).toSolidityAddress();
-
-  const user = await contract.users(`0x${userAddress}`);
-
-  return user;
-}
-
 export async function getOffer(id: number) {
   if (!pairingData) return;
   const contract = getContract();
@@ -321,21 +184,6 @@ export async function getOfferImages(
     images.push(image);
   }
 
-  return images;
-}
-
-export async function getRequestImages(
-  request_id: number
-): Promise<string[] | undefined> {
-  if (!pairingData) return;
-  const contract = getContract();
-  const length = await contract.getRequestImagesLength(request_id);
-
-  const images = [];
-  for (let i = 0; i < length; i++) {
-    const image = await contract.getRequestImageByIndex(request_id, i);
-    images.push(image);
-  }
   return images;
 }
 
