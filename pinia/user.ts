@@ -282,6 +282,7 @@ export const useUserStore = defineStore(STORE_KEY, {
     ],
     async afterRestore(context) {
       context.store.$state.contract.hashconnect.init();
+      context.store.setUpHashConnectEvents();
     },
   },
 });
