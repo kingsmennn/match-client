@@ -44,43 +44,45 @@
 
         <div class="tw-mt-6">
           <div v-show="tab===tab_list[0].slug" class="tw-grid sm:tw-grid-cols-2 tw-gap-3">
-            <!-- <RequestItem
-              v-for="request in activeRequestList" :key="request.id"
-              :requestId="request.id!"
+            <RequestItem
+              v-for="request in activeRequestList" :key="request._id"
+              :requestId="request._id"
               :lifecycle="request.lifecycle"
-              :itemName="request.name"
+              :itemName="request.requestName"
               :thumbnail="request.images[0]"
-              :created-at="request.createdAt"
-              :buyerId="request.buyerId"
-              :locked-seller-id="request.lockedSellerId ?? null"
+              :created-at="new Date(request.createdAt * 1000)"
+              :buyerId="request.buyerAddress"
+              :buyer-address="request.buyerAddress"
+              :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
-              :account-type="userCookie?.accountType"
-            /> -->
+              :account-type="userStore.accountType!"
+            />
           </div>
           
           <div v-show="tab===tab_list[1].slug" class="tw-grid tw-gap-3">
-            <!-- <RequestItem
-              v-for="request in completedRequestList" :key="request.id"
-              :requestId="request.id!"
+            <RequestItem
+              v-for="request in completedRequestList" :key="request._id"
+              :requestId="request._id"
               :lifecycle="request.lifecycle"
-              :itemName="request.name"
+              :itemName="request.requestName"
               :thumbnail="request.images[0]"
-              :created-at="request.createdAt"
-              :buyerId="request.buyerId"
-              :locked-seller-id="request.lockedSellerId ?? null"
+              :created-at="new Date(request.createdAt * 1000)"
+              :buyerId="request.buyerAddress"
+              :buyer-address="request.buyerAddress"
+              :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
-              :account-type="userCookie?.accountType"
-              :is-completed="true"
-            /> -->
+              :account-type="userStore.accountType!"
+              is-completed
+            />
           </div>
 
           <!-- show empty state UI when either tab has no content -->
-          <!-- <div
+          <div
             v-show="(tab===tab_list[0].slug && activeRequestList.length===0) || (tab===tab_list[1].slug && completedRequestList.length===0)"
             class="tw-p-6 tw-py-10 tw-text-center tw-border-4 tw-border-gray-400/5 tw-rounded-2xl
             tw-bg-gray-300/5 tw-my-10 tw-text-2xl tw-text-gray-500">
             <p>All {{ tab }} requests will be listed here...</p>
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
@@ -93,11 +95,13 @@ import Tabs from '@/components/Tabs.vue';
 import RequestItem from '@/components/RequestItem.vue';
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { RequestLifecycle, AccountType, User, Request, Offer } from '@/types'
+import { RequestLifecycle, AccountType, User, Request, Offer, RequestLifecycleIndex } from '@/types'
 import { useUserStore } from '@/pinia/user';
+import { useRequestsStore } from '@/pinia/request';
 
+const env = useRuntimeConfig().public
 useHead({
-  title: 'iMarket Finder - Your account',
+  title: env.appName+' - Your account',
 })
 definePageMeta({
   middleware: 'auth',
@@ -127,23 +131,45 @@ onBeforeMount(()=>{
   ]
 })
 
-const userRequestList = ref<Request[]>([])
-const fetchUserRequests = async () => {
-}
+const requestsStore = useRequestsStore()
+onMounted(()=>{
+  requestsStore.fetchAllUserRequests(userStore.accountId!)
+})
 
-const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
-const fetchSellersAcceptedOfferIds = async () => {
-}
-const sellerRequestList = ref<Request[]>([])
 onMounted(()=>{
   if (isSeller.value) {
-    fetchSellersAcceptedOfferIds()
+    // fetchSellersAcceptedOfferIds()
     return
   }
-  fetchUserRequests()
+
+  requestsStore.fetchAllUserRequests(userStore.accountId!)
 })
+
 const activeRequestList = computed(() => {
+  if (isSeller.value) {
+    return []
+    // return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
+  }
+  return requestsStore.list.filter(request=>{
+    return request.lifecycle !== RequestLifecycleIndex.COMPLETED
+  })
 })
+
+const completedRequestList = computed(() => {
+  if (isSeller.value) {
+    // return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
+  }
+  return requestsStore.list.filter(request=>{
+    return request.lifecycle === RequestLifecycleIndex.COMPLETED
+  })
+})
+
+// const userRequestList = ref<Request[]>([])
+
+// const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
+// const fetchSellersAcceptedOfferIds = async () => {
+// }
+// const sellerRequestList = ref<Request[]>([])
 </script>
 
 <!-- <script setup lang="ts">
@@ -212,27 +238,5 @@ watch(()=>requestIdsWithAcceptedOffersFromSeller.value, (value)=>{
     // using once here because of a duplication bug when updates trigger this function
     }, { onlyOnce: true });
   })
-})
-
-onMounted(()=>{
-  if (isSeller.value) {
-    fetchSellersAcceptedOfferIds()
-    return
-  }
-
-  fetchUserRequests()
-})
-
-const activeRequestList = computed(() => {
-  if (isSeller.value) {
-    return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
-  }
-  return userRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
-})
-const completedRequestList = computed(() => {
-  if (isSeller.value) {
-    return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
-  }
-  return userRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
 })
 </script> -->

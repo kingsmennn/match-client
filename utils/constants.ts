@@ -2,7 +2,6 @@ export const HEDERA_JSON_RPC = {
   mainnet: "https://mainnet.hashio.io/api",
   testnet: "https://testnet.hashio.io/api",
 };
-export const CONTRACT_ID = "0.0.4690191";
 export const LOCATION_DECIMALS = 18
 export const PROJECT_ID = "73801621aec60dfaa2197c7640c15858";
 export const DEBUG = true;

@@ -31,7 +31,6 @@ import {
 } from "@/types";
 import {
   appMetaData,
-  CONTRACT_ID,
   DEBUG,
   HEDERA_JSON_RPC,
   LOCATION_DECIMALS,
@@ -131,8 +130,9 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
 
     getContract() {
+      const env = useRuntimeConfig().public
       const contractAddress =
-        AccountId.fromString(CONTRACT_ID).toSolidityAddress();
+        AccountId.fromString(env.contractId).toSolidityAddress();
       const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
 
       return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
@@ -198,6 +198,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       account_type,
     }: CreateUserDTO): Promise<TransactionReceipt | undefined> {
       if (!this.contract.pairingData || !this.accountId) return;
+      const env = useRuntimeConfig().public
 
       try {
         const params = new ContractFunctionParameters();
@@ -207,7 +208,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         params.addInt256(long);
         params.addUint8(account_type === AccountType.BUYER ? 0 : 1);
         let transaction = new ContractExecuteTransaction()
-          .setContractId(ContractId.fromString(CONTRACT_ID))
+          .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
           .setFunction("createUser", params);
 
@@ -239,6 +240,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       { receipt: TransactionReceipt; location: Location } | undefined
     > {
       if (!this.contract.pairingData || !this.accountId) return;
+      const env = useRuntimeConfig().public
 
       try {
         const params = new ContractFunctionParameters();
@@ -264,7 +266,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         params.addInt256(payload.lat);
         params.addUint8(payload.account_type);
         let transaction = new ContractExecuteTransaction()
-          .setContractId(ContractId.fromString(CONTRACT_ID))
+          .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
           .setFunction("createUser", params);
 

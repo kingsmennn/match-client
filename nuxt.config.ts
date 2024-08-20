@@ -33,6 +33,7 @@ export default defineNuxtConfig({
       matchApiUrl: process.env.MATCH_API_URL,
       lightHouseApiKey: process.env.LIGHTHOUSE_API_KEY,
       hederaBaseUrl: process.env.HEDERA_BASE_URL,
+      contractId: process.env.CONTRACT_ID,
     }
   },
   vuetify: {

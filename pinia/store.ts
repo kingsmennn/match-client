@@ -8,7 +8,7 @@ import {
   TransactionReceipt,
 } from "@hashgraph/sdk";
 import { useUserStore } from "./user";
-import { CONTRACT_ID, LOCATION_DECIMALS } from "@/utils/constants";
+import { LOCATION_DECIMALS } from "@/utils/constants";
 import { getEvmAddress } from "@/utils/contract-utils";
 
 export const useStoreStore = defineStore(STORE_STORE_KEY, {
@@ -23,6 +23,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     }: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
       if (!userStore.contract.pairingData) return;
+      const env = useRuntimeConfig().public
 
       try {
         let accountId = AccountId.fromString(userStore.accountId!);
@@ -41,7 +42,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         params.addInt256(payload.lat);
         params.addInt256(payload.long);
         let transaction = new ContractExecuteTransaction()
-          .setContractId(ContractId.fromString(CONTRACT_ID))
+          .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
           .setFunction("createStore", params);
 

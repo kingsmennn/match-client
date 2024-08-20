@@ -33,6 +33,13 @@ export enum RequestLifecycle {
   REQUEST_LOCKED = "request_locked",
   COMPLETED = "completed",
 }
+export enum RequestLifecycleIndex {
+  PENDING,
+  ACCEPTED_BY_SELLER,
+  ACCEPTED_BY_BUYER,
+  REQUEST_LOCKED,
+  COMPLETED,
+}
 
 export type Request = {
   id?: string;
@@ -50,6 +57,27 @@ export type Request = {
   state: string;
   updatedAt: Date;
 };
+
+export type RequestResponse = {
+  _id: string
+  transactionHash: string
+  address: string
+  buyerAddress: string
+  images: string[]
+  lifecycle: RequestLifecycleIndex
+  requestId: string
+  signature: string
+  createdAt: number
+  updatedAt: number
+  buyerId: number
+  description: string
+  requestName: string
+  sellerIds?: number[]
+  lockedSellerId?: number
+  longitude: string
+  latitude: string
+  sellersPriceQuote?: number
+}
 
 export type Offer = {
   id?: string;
