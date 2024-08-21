@@ -105,7 +105,7 @@ const complete = async () => {
               </label>
 
               <label class="tw-relative tw-block tw-mt-4">
-                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your stores name?</span>
+                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your stores description?</span>
                 <textarea
                   v-model="form.description"
                   placeholder="We sell the best cosplay clothes in the universe"
