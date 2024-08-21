@@ -46,6 +46,27 @@ export async function removeOffer(
     console.error(error);
   }
 }
+export async function acceptOffer(
+  offerId: string
+): Promise<TransactionReceipt | undefined> {
+  if (!pairingData) return;
+
+  try {
+    let accountId = AccountId.fromString(pairingData!.accountIds[0]);
+
+    const params = new ContractFunctionParameters();
+    params.addAddress(offerId);
+    let transaction = new ContractExecuteTransaction()
+      .setContractId(ContractId.fromString(CONTRACT_ID))
+      .setGas(1000000)
+      .setFunction("acceptOffer", params);
+
+    const receipt = await hashconnect.sendTransaction(accountId, transaction);
+    return receipt;
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function getContract() {
   const contractAddress = AccountId.fromString(CONTRACT_ID).toSolidityAddress();
