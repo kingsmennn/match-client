@@ -156,6 +156,29 @@ export const useRequestsStore = defineStore('requests', {
       } catch (error) {
         console.error(error);
       }
+    },
+    async acceptOffer(
+      offerId: string
+    ): Promise<TransactionReceipt | undefined> {
+      const userStore = useUserStore();
+      if (!userStore.contract.pairingData) return;
+      const env = useRuntimeConfig().public
+    
+      try {
+        let accountId = AccountId.fromString(userStore.accountId!);
+    
+        const params = new ContractFunctionParameters();
+        params.addString(offerId);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("acceptOffer", params);
+    
+        const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
+        return receipt;
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 });
