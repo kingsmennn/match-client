@@ -146,7 +146,7 @@ const handleFormSubmit = async () => {
   submiting.value = true
   try {
     await requestsStore.createOffer({
-      price: form.value.price!,
+      price: Math.trunc(form.value.price!),
       requestId: props.requestId,
       storeName: userStore.storeDetails?.[0]?.name! || 'default store',
       images: [...images.value]
