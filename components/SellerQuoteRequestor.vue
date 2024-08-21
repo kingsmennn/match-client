@@ -149,7 +149,6 @@ const handleFormSubmit = async () => {
       price: form.value.price!,
       requestId: props.requestId,
       storeName: userStore.storeDetails?.[0].name!,
-      sellerId: userStore.userDetails?.[0]!,
       images: images.value
     })
     toast.success(`You have successfully ${ hasSubmittedOffer.value ? 'updated your' : 'made an' } offer!`)

@@ -134,7 +134,6 @@ export type CreateOfferDTO = {
   images: string[];
   requestId: number;
   storeName: string;
-  sellerId: number;
 };
 
 export const STORE_KEY = "@userStore";

@@ -133,7 +133,6 @@ export const useRequestsStore = defineStore('requests', {
       images,
       requestId,
       storeName,
-      sellerId,
     }: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
       if (!userStore.contract.pairingData) return;
@@ -147,7 +146,6 @@ export const useRequestsStore = defineStore('requests', {
         params.addStringArray(images);
         params.addUint256(requestId);
         params.addString(storeName);
-        params.addUint256(sellerId);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
