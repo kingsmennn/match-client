@@ -88,6 +88,12 @@
 - **Accepting Offers:** Buyers can browse offers related to their requests, accept the most suitable ones, and initiate transactions.
 - **Managing Stores:** Sellers can manage their stores, view store details, and retrieve all their store IDs.
 
+### Indexer
+- https://github.com/Kingsmen-hackers/finder-backend
+
+### Contracts
+- https://github.com/Kingsmen-hackers/match-contracts
+
 ### Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request with your changes. Ensure that your code adheres to the existing code style and includes appropriate test coverage.
