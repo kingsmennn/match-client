@@ -21,6 +21,7 @@ export type User = {
   stores?: Store[];
 };
 export type Store = {
+  id?: number
   name: string;
   description?: string;
   location: Location;
@@ -59,14 +60,14 @@ export type Request = {
 };
 
 export type RequestResponse = {
-  _id: string
-  transactionHash: string
-  address: string
-  buyerAddress: string
+  _id?: string
+  transactionHash?: string
+  address?: string
+  buyerAddress?: string
   images: string[]
   lifecycle: RequestLifecycleIndex
-  requestId: string
-  signature: string
+  requestId: number
+  signature?: string
   createdAt: number
   updatedAt: number
   buyerId: number
@@ -74,8 +75,8 @@ export type RequestResponse = {
   requestName: string
   sellerIds?: number[]
   lockedSellerId?: number
-  longitude: string
-  latitude: string
+  longitude: number
+  latitude: number
   sellersPriceQuote?: number
 }
 
@@ -131,9 +132,8 @@ export type CreateRequestDTO = {
 export type CreateOfferDTO = {
   price: number;
   images: string[];
-  requestId: string;
+  requestId: number;
   storeName: string;
-  sellerId: string;
 };
 
 export const STORE_KEY = "@userStore";

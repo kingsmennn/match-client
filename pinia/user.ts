@@ -47,7 +47,7 @@ type UserStore = {
     hashconnect: HashConnect;
   };
   userDetails?: BlockchainUser;
-  storeDetails?: Store;
+  storeDetails?: Store[];
   blockchainError: {
     userNotFound: boolean;
   };
@@ -80,7 +80,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         ? // buyers only need give access to their location
           !!state.userDetails?.[3][0]
         : // sellers need to setup their store
-          !!state?.storeDetails?.name;
+          !!state?.storeDetails?.[0].name;
     },
     username: (state) => state.userDetails?.[1],
     phone: (state) => state.userDetails?.[2],
@@ -107,7 +107,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         if (this.accountType !== AccountType.SELLER) return;
         const storeStore = useStoreStore();
         const res = await storeStore.getUserStores(this.accountId!);
-        console.log({ getUserStoreIdsRes: res });
+        this.storeDetails = res || []
       });
 
       this.contract.hashconnect.disconnectionEvent.on((data) => {
@@ -283,7 +283,6 @@ export const useUserStore = defineStore(STORE_KEY, {
   persist: {
     paths: [
       "accountId",
-      "contract.state",
       "userDetails",
       "blockchainError.userNotFound",
 

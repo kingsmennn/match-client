@@ -46,13 +46,13 @@
           <div v-show="tab===tab_list[0].slug" class="tw-grid sm:tw-grid-cols-2 tw-gap-3">
             <RequestItem
               v-for="request in activeRequestList" :key="request._id"
-              :requestId="request._id"
+              :requestId="request.requestId"
               :lifecycle="request.lifecycle"
               :itemName="request.requestName"
               :thumbnail="request.images[0]"
               :created-at="new Date(request.createdAt * 1000)"
               :buyerId="request.buyerAddress"
-              :buyer-address="request.buyerAddress"
+              :buyer-address="request.buyerAddress!"
               :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
               :account-type="userStore.accountType!"
@@ -62,13 +62,13 @@
           <div v-show="tab===tab_list[1].slug" class="tw-grid tw-gap-3">
             <RequestItem
               v-for="request in completedRequestList" :key="request._id"
-              :requestId="request._id"
+              :requestId="request.requestId"
               :lifecycle="request.lifecycle"
               :itemName="request.requestName"
               :thumbnail="request.images[0]"
               :created-at="new Date(request.createdAt * 1000)"
               :buyerId="request.buyerAddress"
-              :buyer-address="request.buyerAddress"
+              :buyer-address="request.buyerAddress!"
               :locked-seller-address="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
               :account-type="userStore.accountType!"

@@ -42,14 +42,14 @@ const userStore = useUserStore()
 const storesStore = useStoreStore()
 const submiting = ref(false)
 const complete = async () => {
-  if(!form.value.locationObtained) return toast.error(locationWarnNotice)
+  // if(!form.value.locationObtained) return toast.error(locationWarnNotice)
   submiting.value = true
   try {
     await storesStore.createStore({
       name: form.value.storeName,
       description: form.value.description,
-      longitude: location.value.lng,
-      latitude: location.value.lat,
+      longitude: location.value.lng || 0,
+      latitude: location.value.lat || 0,
     })
     // redirect back to accounts page
     toast.success("Your store's successfully created!")
@@ -105,7 +105,7 @@ const complete = async () => {
               </label>
 
               <label class="tw-relative tw-block tw-mt-4">
-                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your stores name?</span>
+                <span class="tw-absolute tw-text-base tw-pl-4 tw-pt-1">What is your stores description?</span>
                 <textarea
                   v-model="form.description"
                   placeholder="We sell the best cosplay clothes in the universe"

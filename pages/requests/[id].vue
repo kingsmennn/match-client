@@ -20,11 +20,11 @@
         </ClientOnly>
       </v-col>
     </div>
-    <div v-if="!!requestDetails?.id" class="tw-max-w-7xl tw-mx-auto tw-p-6 sm:tw-p-10">
+    <div v-if="!!requestDetails?.requestId" class="tw-max-w-7xl tw-mx-auto tw-p-6 sm:tw-p-10">
       <Tabs
         :tab_list="tab_list"
         :value="tab"
-        @model-value="($event) => tab = $event"
+        @model-value="($event: any) => tab = $event"
         class="tw-inline-flex tw-gap-x-1 sm:tw-gap-x-2 tw-justify-between
         tw-rounded-sm tw-w-full [&>*]:tw-flex-grow [&>*]:tw-max-w-[50%] sm:tw-hidden">
         <template v-slot:tab="{ tab, index: i, is_active }">
@@ -45,7 +45,7 @@
             class="sm:tw-col-span-2 tw-space-y-14">
             <div>
               <h2 class="tw-text-5xl tw-font-bold tw-bg-black tw-text-white">
-                {{ requestDetails.name }}
+                {{ requestDetails.requestName }}
               </h2>
               <p>{{ timeAgo }}</p>
             </div>
@@ -55,13 +55,13 @@
               <p class="tw-mt-2 tw-text-2xl">{{ requestDetails.description }}</p>
             </div>
 
-            <div class="">
+            <!-- <div class="">
               <h3 class="tw-text-5xl tw-font-bold">Target Market</h3>
               <p class="tw-mt-2 tw-text-2xl tw-capitalize">
                 {{ !!requestDetails?.market ? `${requestDetails?.market}, ` : '' }}
                 {{ `${requestDetails?.lga}, ${requestDetails?.state}` }}
               </p>
-            </div>
+            </div> -->
           </div>
 
           <div
@@ -73,7 +73,7 @@
                   v-for="(offer,n) in renderedOffers"
                   :key="n"
                   :offer-id="offer.id!"
-                  :request-id="requestDetails.id"
+                  :request-id="requestDetails.requestId"
                   :store-name="offer.storeName"
                   :buyer-id="requestDetails.buyerId"
                   :seller-id="offer.sellerId"
@@ -91,7 +91,7 @@
 
             <template v-else>
               <SellerQuoteRequestor
-                :request-id="requestDetails.id"
+                :request-id="requestDetails.requestId"
                 :seller-ids="requestDetails?.sellerIds || []"
                 :locked-seller-id="requestDetails?.lockedSellerId || null"
                 :images="sellerExistingOffer?.images || []"
@@ -122,9 +122,11 @@
 import SellerOffer from '@/components/SellerOffer.vue';
 import SellerQuoteRequestor from '@/components/SellerQuoteRequestor.vue';
 import { getDatabase, onValue, ref as RTDBRef, query, orderByChild, equalTo } from 'firebase/database';
-import { AccountType, Offer, Request, RequestLifecycle, User } from '@/types';
+import { AccountType, Offer, Request, RequestLifecycleIndex, RequestResponse, User } from '@/types';
 import moment from 'moment'
 import { useRequestsStore } from '@/pinia/request';
+import { useUserStore } from '@/pinia/user';
+import { HashConnectConnectionState } from 'hashconnect';
 
 definePageMeta({
   middleware: 'auth',
@@ -137,32 +139,21 @@ if(!route.params.id) router.push('/')
 
 const carousel = ref(0)
 
-const requestDetails = ref<Request>()
+const requestDetails = ref<RequestResponse>()
 const requestsStore = useRequestsStore()
-const fetchUserRequests = async () => {
+const userStore = useUserStore()
+const fetchUserRequest = async () => {
   const res = await requestsStore.getRequest(route.params.id as unknown as number)
-  console.log({res})
-  // const db = getDatabase();
-  // const myRequestsRef = RTDBRef(db, 'requests/'+route.params.id)
-  // onValue(myRequestsRef, (snapshot) => {
-
-  //   const data = {
-  //     ...snapshot.val(),
-  //     id: snapshot.key
-  //   }
-  //   // if user is not a seller and not the current user, they shouldn't
-  //   // be able to view this request
-  //   if((data.buyerId !== userCookie.value?.id) && !isSeller.value){
-  //     router.push('/')
-  //     return
-  //   }
-  //   requestDetails.value = data
-  // });
+  requestDetails.value = res
 }
-onMounted(fetchUserRequests)
+const unwatch = watch(()=>userStore.contract.state, (val)=>{
+  if(!val || val !== HashConnectConnectionState.Paired ) return
+  fetchUserRequest()
+}, { immediate: true })
+
 const timeAgo = computed<string>(()=>{
   if(!requestDetails.value) return ''
-  return moment(new Date(requestDetails.value.createdAt)).fromNow()
+  return moment(new Date(requestDetails.value.createdAt * 1000)).fromNow()
 })
 
 
@@ -173,10 +164,8 @@ const previewImage = (src: string) => {
   previewedImage.value = src
 }
 
-const user = useCurrentUser()
-const userCookie = useCookie<User>('user')
-const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
-const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER) 
+const isSeller = computed(() => userStore.accountType === AccountType.SELLER)
+const isBuyer = computed(() => userStore.accountType === AccountType.BUYER) 
 
 const tab = ref()
 const tab_list = ref<{ name: string, slug: string }[]>([])
@@ -196,30 +185,29 @@ onBeforeMount(()=>{
 })
 
 const allOffers = ref<Offer[]>([])
-const fetchAllOffers = () => {
-  const db = getDatabase();
-  const offersRef = query(RTDBRef(db, 'offers/'), orderByChild('requestId'), equalTo(route.params.id as string))
-  onValue(offersRef, (snapshot) => {
-    const offerList: Offer[] = []
-    snapshot.forEach((childSnapshot) => {
-      const childKey = childSnapshot.key;
-      const childData = childSnapshot.val();
-      offerList.push({
-        id: childKey,
-        ...childData,
-        // createdAt: new Date(childData.createdAt.seconds*1000),
-      } as Offer)
-    });
-    allOffers.value = offerList
-  });
+const fetchingOffers = ref(false)
+const fetchAllOffers = async () => {
+  fetchingOffers.value = true
+  try {
+    const res = await requestsStore.fetchAllOffers(requestDetails.value?.requestId!)
+    allOffers.value = res || []
+  } catch (error) {
+    
+  } finally {
+    fetchingOffers.value = false
+  }
+  // allOffers.value = offerList
 }
-onMounted(()=>fetchAllOffers())
+watch(()=>requestDetails.value?.requestId, (val)=>{
+  if(!val) return
+  fetchAllOffers()
+}, { immediate: true })
 
 const renderedOffers = computed(()=>{
   return (
-    requestDetails.value?.lifecycle === RequestLifecycle.ACCEPTED_BY_BUYER ||
-    requestDetails.value?.lifecycle === RequestLifecycle.REQUEST_LOCKED ||
-    requestDetails.value?.lifecycle === RequestLifecycle.COMPLETED
+    requestDetails.value?.lifecycle === RequestLifecycleIndex.ACCEPTED_BY_BUYER ||
+    requestDetails.value?.lifecycle === RequestLifecycleIndex.REQUEST_LOCKED ||
+    requestDetails.value?.lifecycle === RequestLifecycleIndex.COMPLETED
   )
     ? allOffers.value.filter(offer => offer.isAccepted)
     : allOffers.value
@@ -229,7 +217,7 @@ const sellerExistingOffer = computed(()=>{
   if(!allOffers.value.length) return null as unknown as Offer
   let res: Offer = null as unknown as Offer
   allOffers.value.forEach((offer)=>{
-    if(offer.sellerId === userCookie.value?.id){
+    if(offer.sellerId === userStore.accountId){
       res = offer
     }
   })

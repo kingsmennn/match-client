@@ -2,26 +2,26 @@
   <div class="tw-max-w-7xl tw-mx-auto">
     <div class="tw-p-6 sm:tw-p-10">
       <h1 class="tw-text-5xl tw-font-bold tw-mt-4">
-        List of requests made in <span class="tw-capitalize">{{ userCookie?.stores?.[0]?.location.lga! || '???' }}</span>
+        List of requests made around your store
       </h1>
-      <p
+      <!-- <p
         v-if="!(!!userCookie?.stores?.[0]?.location.lga!)"
         class="tw-text-white tw-bg-black">
         Please complete your profile in your account page to be able to view requests.
-      </p>
+      </p> -->
       
       <div v-if="!loading" class="tw-grid sm:tw-grid-cols-2 tw-gap-3 tw-mt-10">
         <RequestItem
-          v-for="request in userRequestList" :key="request.id"
-          :requestId="request.id!"
+          v-for="request in userRequestList" :key="request.requestId"
+          :requestId="request.requestId!"
           :lifecycle="request.lifecycle"
-          :itemName="request.name"
+          :itemName="request.requestName"
           :thumbnail="request.images[0]"
-          :created-at="request.createdAt"
+          :created-at="new Date(request.createdAt * 1000)"
           :buyerId="request.buyerId"
           :locked-seller-id="request.lockedSellerId ?? null"
           :sellers-price-quote="request.sellersPriceQuote ?? null"
-          :account-type="userCookie?.accountType"
+          :account-type="userStore?.accountType"
         />
       </div>
 
@@ -43,37 +43,36 @@
 </template>
 
 <script setup lang="ts">
-import { getDatabase, query, ref as RTDBRef, orderByChild, equalTo, onValue } from 'firebase/database';
-import { User, Request } from '@/types';
+import { User, Request, RequestResponse } from '@/types';
+import { useRequestsStore } from '@/pinia/request';
+import { useUserStore } from '@/pinia/user';
+import { HashConnectConnectionState } from 'hashconnect';
 
 definePageMeta({
   middleware: ['auth', 'seller'],
   requiresAuth: true,
 })
 
-// const user = useCurrentUser()
-const userCookie = useCookie<User>('user')
-const userRequestList = ref<Request[]>([])
+const requestsStore = useRequestsStore()
+const userStore = useUserStore()
 const loading = ref(true)
-// fetching from firebase RTDB
 const fetchUserRequests = async () => {
   loading.value = true
-  const db = getDatabase();
-  const myRequestsRef = query(RTDBRef(db, 'requests/'), orderByChild('lga'), equalTo(userCookie.value?.stores?.[0]?.location.lga!))
-
-  onValue(myRequestsRef, (snapshot) => {
-    const newRequestList: Request[] = []
-    snapshot.forEach((childSnapshot) => {
-      const childKey = childSnapshot.key;
-      const childData = childSnapshot.val();
-      newRequestList.push({
-        id: childKey,
-        ...childData,
-      } as Request)
-    });
-    userRequestList.value = newRequestList
+  try {
+    const res = await requestsStore.fetchNearbyRequestsForSellers({
+      lat: userStore.location?.[1]!,
+      long: userStore.location?.[0]!,
+    })
+    console.log({fetchUserRequestsRes: res})
+  } catch (error) {
+    console.log(error)
+  } finally {
     loading.value = false
-  });
+  }
 }
-fetchUserRequests()
+const unwatch = watch(()=>userStore.contract.state, async (val)=>{
+  if(!val || val !== HashConnectConnectionState.Paired) return
+  fetchUserRequests()
+}, { immediate: true })
+const userRequestList = computed(()=>requestsStore.list)
 </script>
