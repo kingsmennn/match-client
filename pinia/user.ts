@@ -80,7 +80,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         ? // buyers only need give access to their location
           !!state.userDetails?.[3][0]
         : // sellers need to setup their store
-          !!state?.storeDetails?.[0].name;
+          !!state?.storeDetails?.[0]?.name;
     },
     username: (state) => state.userDetails?.[1],
     phone: (state) => state.userDetails?.[2],
