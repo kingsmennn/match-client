@@ -158,7 +158,7 @@ export const useRequestsStore = defineStore('requests', {
       }
     },
     async acceptOffer(
-      offerId: string
+      offerId: number
     ): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
       if (!userStore.contract.pairingData) return;
@@ -168,7 +168,7 @@ export const useRequestsStore = defineStore('requests', {
         let accountId = AccountId.fromString(userStore.accountId!);
     
         const params = new ContractFunctionParameters();
-        params.addString(offerId);
+        params.addUint256(offerId);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)

@@ -23,7 +23,7 @@
         disabled:tw-bg-black/20 disabled:tw-cursor-not-allowed"
         @click="handleAcceptBtnClick"
         :disabled="
-          (lifecycle === RequestLifecycle.REQUEST_LOCKED || lifecycle === RequestLifecycle.COMPLETED) ||
+          (lifecycle === RequestLifecycleIndex.REQUEST_LOCKED || lifecycle === RequestLifecycleIndex.COMPLETED) ||
           submiting
         ">
         <template v-if="!submiting">
@@ -42,8 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import { RequestLifecycle, RequestLifecycleIndex } from '@/types';
-import { child, getDatabase, push, ref as RTDBRef, update, serverTimestamp } from 'firebase/database';
+import { RequestLifecycleIndex } from '@/types';
+import { useRequestsStore } from '@/pinia/request';
+import { toast } from 'vue-sonner';
 
 interface Props {
   offerId: string
@@ -64,20 +65,17 @@ const displayedPrice = computed<string>(()=>{
 })
 
 const submiting = ref(false)
+const requestStore = useRequestsStore()
 const handleAcceptBtnClick = async () =>{
   submiting.value = true
-  const db = getDatabase();
-
-  const updates:any = {};
-  updates[`/offers/${props.offerId}/isAccepted`] = true
-  // updates[`/requests/${props.requestId}/lifecycle`] = RequestLifecycle.ACCEPTED_BY_BUYER;
-  updates[`/requests/${props.requestId}/lifecycle`] = RequestLifecycle.REQUEST_LOCKED;
-  updates[`/requests/${props.requestId}/updatedAt`] = serverTimestamp();
-  // I ideally needed to wait for 15mins before locking the request
-  // but I'm not sure how to do that with firebase cloud functions yet
-  updates[`/requests/${props.requestId}/lockedSellerId`] = props.sellerId;
-  updates[`/requests/${props.requestId}/sellersPriceQuote`] = props.priceQuote;
-  await update(RTDBRef(db), updates);
-  submiting.value = false
+  try {
+    await requestStore.acceptOffer(props.requestId)
+    toast.success("offer accepted!")
+  } catch (error) {
+    console.log(error)
+  } finally {
+    submiting.value = false
+  }
+  
 }
 </script>
