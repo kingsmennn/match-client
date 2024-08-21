@@ -4,6 +4,24 @@
 
 **Match** is a decentralized application (dApp) built on the Hedera Hashgraph platform that connects buyers with sellers, allowing them to find the best deals on products and services. Using smart contracts on Hedera, Match ensures secure, transparent, and efficient transactions between parties.
 
+### Team and Project Introduction
+
+Our team consists of **Favour**, a Frontend Developer, and **David (DavyKing)**, a Blockchain Developer. With extensive experience in blockchain development, we've worked on various projects that leverage distributed ledger technologies to create secure and scalable applications. **Match** is our latest innovation, designed to address the challenges of connecting buyers and sellers in a decentralized, trustless environment using the unique capabilities of Hedera Hashgraph.
+
+### Project Summary
+
+**Match** aims to create a seamless, secure, and efficient marketplace on the Hedera network. By utilizing Hedera's fast, fair, and secure consensus mechanism, Match allows sellers to create and manage offers for products or services, while buyers can easily browse, accept, and complete transactions. The dApp leverages smart contracts to ensure that all interactions are transparent and tamper-proof. This approach addresses the issues of trust and security that often plague traditional online marketplaces.
+
+Our solution is evaluated based on the following criteria:
+
+1. **Innovation:** Match introduces a novel way of connecting buyers and sellers through a decentralized platform.
+2. **Technical Complexity:** The use of smart contracts on Hedera and integration with HashConnect and Ethers.js demonstrates a high level of technical expertise.
+3. **Usability:** The user interface built with Nuxt ensures a smooth user experience.
+4. **Impact:** By decentralizing the marketplace, Match reduces the risk of fraud and increases transparency.
+5. **Scalability:** Built on Hedera, Match can handle a high volume of transactions with minimal latency.
+6. **Security:** Hedera's consensus mechanism ensures that all transactions are secure and immutable.
+7. **Sustainability:** Match is designed to be energy-efficient, leveraging Hedera's low power consumption.
+
 ### Key Features
 
 - **Create Offers:** Sellers can create offers for products or services, specifying price, images, and related details.
@@ -13,19 +31,10 @@
 - **Get Request Details:** Users can retrieve detailed information about requests, including seller IDs and offer images.
 - **Store Management:** Sellers can manage their stores, including viewing store details and retrieving store IDs.
 
-### Technologies Used
-
-- **Hedera Hashgraph:** A next-generation distributed ledger technology that provides fast, fair, and secure consensus.
-- **HashConnect:** A library used to establish a secure connection between the dApp and users' Hedera accounts.
-- **Ethers.js:** A JavaScript library for interacting with the Ethereum and compatible blockchains (used here for interacting with Hedera smart contracts).
-- **TypeScript:** A typed superset of JavaScript that enhances development with static type checking.
-- **Nuxt:** For building the user interface of the dApp.
-- **Lighthouse:** For Storing images in IPFS
-
 ### How It Works
 
 1. **Smart Contracts:** Match utilizes smart contracts deployed on the Hedera network. These contracts handle the creation, management, and retrieval of offers, requests, and user stores.
-  
+
 2. **Connection via HashConnect:** The dApp connects to users' Hedera accounts using HashConnect, enabling secure transactions and contract interactions.
 
 3. **Contract Interactions:**
@@ -39,6 +48,23 @@
    - **GetBuyerOffers:** Retrieve all offers related to a buyer's request.
    - **GetOfferImages:** Retrieve all images associated with a specific offer.
    - **GetRequestSellerIds:** Retrieve all seller IDs associated with a specific request.
+
+### Demo
+
+Check out our demo video to see Match in action! The video showcases the technical strengths, usability, and performance of our solution. Watch the walkthrough on [YouTube](https://www.youtube.com/watch?v=zecp5zHwz-8) to learn more about how Match can revolutionize the marketplace experience on Hedera.
+
+### Future Roadmap
+
+**Key Learnings:**
+- The importance of a seamless user experience in dApps.
+- The need for robust smart contract design to handle a wide range of marketplace scenarios.
+
+**Next Steps:**
+- **Enhanced User Profiles:** Adding more features to user profiles, including ratings and reviews.
+- **Multi-Language Support:** Expanding the dApp's accessibility by supporting multiple languages.
+- **Advanced Analytics:** Providing sellers with detailed analytics to better understand buyer behavior.
+- **Mobile App Development:** Extending the platform to mobile devices to reach a broader audience.
+- **Integration with Other Networks:** Exploring the possibility of integrating with other blockchain networks to offer cross-chain transactions.
 
 ### Setup Instructions
 
@@ -78,7 +104,7 @@
    yarn build
    ```
 
-6. **Deploy the Application:** 
+6. **Deploy the Application:**
 
    Deploy the built application to your preferred hosting service.
 
@@ -89,9 +115,11 @@
 - **Managing Stores:** Sellers can manage their stores, view store details, and retrieve all their store IDs.
 
 ### Indexer
+
 - https://github.com/Kingsmen-hackers/finder-backend
 
 ### Contracts
+
 - https://github.com/Kingsmen-hackers/match-contracts
 
 ### Contributing
