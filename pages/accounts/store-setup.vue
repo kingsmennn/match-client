@@ -42,14 +42,14 @@ const userStore = useUserStore()
 const storesStore = useStoreStore()
 const submiting = ref(false)
 const complete = async () => {
-  if(!form.value.locationObtained) return toast.error(locationWarnNotice)
+  // if(!form.value.locationObtained) return toast.error(locationWarnNotice)
   submiting.value = true
   try {
     await storesStore.createStore({
       name: form.value.storeName,
       description: form.value.description,
-      longitude: location.value.lng,
-      latitude: location.value.lat,
+      longitude: location.value.lng || 0,
+      latitude: location.value.lat || 0,
     })
     // redirect back to accounts page
     toast.success("Your store's successfully created!")
