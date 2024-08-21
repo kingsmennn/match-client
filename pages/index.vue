@@ -33,6 +33,11 @@
 
               <!-- should be a connect function -->
               <button
+                @click="()=>{
+                  userStore.isConnected ? 
+                    router.push('/accounts/'+userStore.accountId) :
+                    handleWalletConnect()
+                }"
                 class="tw-inline-block tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
                 <span>Get started</span>
                 <v-icon>mdi-arrow-right</v-icon>
@@ -52,7 +57,7 @@
                 @click="handleSellerBtnClick"
                 class="tw-inline-block tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
                 <span>
-                  {{ isSeller ? 'View Active Requests' : (isBuyer ? 'Your account would be switched to "sellers" account' : 'Register store') }}
+                  {{ isSeller ? 'View Active Requests' : (isBuyer ? 'Your would need to create a "sellers" account' : 'Register store') }}
                   </span>
                 <v-icon>mdi-arrow-right</v-icon>
               </button>
@@ -143,7 +148,8 @@
 <script setup lang="ts">
 import Tabs from '@/components/Tabs.vue'
 import { signOut } from 'firebase/auth'
-import { User, AccountType } from '@/types'
+import { User, AccountType, STORE_KEY_MIDDLEWARE, STORE_KEY } from '@/types'
+import { useUserStore } from '@/pinia/user';
 
 const env = useRuntimeConfig().public
 useHead({
@@ -181,23 +187,45 @@ const handleTabSwitch = (activeTab: string) => {
   carousel.value = tab_list.findIndex((t) => t.slug === tab.value)
 }
 
-const userCookie = useCookie<User>('user')
-const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
-const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER)
+const isSeller = computed(() => userStore?.accountType === AccountType.SELLER)
+const isBuyer = computed(() => userStore?.accountType === AccountType.BUYER)
 
 const router = useRouter()
 const auth = useFirebaseAuth() // only exists on client side
 
+const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
+  const storeCookie = useCookie(STORE_KEY)
+const disconnect = async () => {
+  try {
+    userCookie.value = null as unknown as User
+    storeCookie.value = null
+    await userStore.disconnect()
+  } catch (error) {
+    console.log(error)
+  }
+}
 const handleSellerBtnClick = async () => {
   if (isSeller.value) {
     router.push('/requests')
     return
   } else if (isBuyer.value) {
-    // await signOut(auth!).then(() => {
-    //   userCookie.value = null as unknown as User
-    // })
+    await disconnect()
+    await handleWalletConnect()
   }
-  router.push('/register?user_type=seller')
-
 }
+
+const connecting = ref(false)
+const userStore = useUserStore()
+const handleWalletConnect = async () => {
+  connecting.value = true;
+  try {
+    await userStore.connectToHashConnect();
+    // once connected the subscription function will update the user store
+  } catch (e) {
+    // haldle errors
+    console.log(e);
+  } finally {
+    connecting.value = false;
+  }
+};
 </script>

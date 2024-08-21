@@ -139,6 +139,7 @@ const disconnect = async () => {
     console.log(error)
   }
 }
+
 // check if connected user has been saved to the blockchain
 watch([()=>userStore.blockchainError.userNotFound, ()=>userStore.accountId], ([userExists, accountId]) => {
   if (userExists && accountId) {
