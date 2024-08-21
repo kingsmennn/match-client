@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { CreateOfferDTO, CreateRequestDTO, RequestResponse } from '@/types';
+import { CreateOfferDTO, CreateRequestDTO, Offer, RequestResponse } from '@/types';
 import { AccountId, ContractExecuteTransaction, ContractFunctionParameters, ContractId, TransactionReceipt } from '@hashgraph/sdk';
 import { useUserStore } from './user';
 
@@ -178,6 +178,19 @@ export const useRequestsStore = defineStore('requests', {
         return receipt;
       } catch (error) {
         console.error(error);
+      }
+    },
+    async fetchAllOffers(requestId: number) {
+      const env = useRuntimeConfig().public
+
+      try {
+        const res = await $fetch<Offer[]>(`${env.matchApiUrl}/offers/${requestId}`, {
+          method: 'GET'
+        })
+        // this.list = res
+        return res
+      } catch (error) {
+        console.log({error})
       }
     }
   }

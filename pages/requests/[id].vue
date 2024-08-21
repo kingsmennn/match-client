@@ -185,24 +185,23 @@ onBeforeMount(()=>{
 })
 
 const allOffers = ref<Offer[]>([])
-const fetchAllOffers = () => {
-  const db = getDatabase();
-  const offersRef = query(RTDBRef(db, 'offers/'), orderByChild('requestId'), equalTo(route.params.id as string))
-  onValue(offersRef, (snapshot) => {
-    const offerList: Offer[] = []
-    snapshot.forEach((childSnapshot) => {
-      const childKey = childSnapshot.key;
-      const childData = childSnapshot.val();
-      offerList.push({
-        id: childKey,
-        ...childData,
-        // createdAt: new Date(childData.createdAt.seconds*1000),
-      } as Offer)
-    });
-    allOffers.value = offerList
-  });
+const fetchingOffers = ref(false)
+const fetchAllOffers = async () => {
+  fetchingOffers.value = true
+  try {
+    const res = await requestsStore.fetchAllOffers(requestDetails.value?.requestId!)
+    allOffers.value = res || []
+  } catch (error) {
+    
+  } finally {
+    fetchingOffers.value = false
+  }
+  // allOffers.value = offerList
 }
-onMounted(()=>fetchAllOffers())
+watch(()=>requestDetails.value?.requestId, (val)=>{
+  if(!val) return
+  fetchAllOffers()
+}, { immediate: true })
 
 const renderedOffers = computed(()=>{
   return (
