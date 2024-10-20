@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { CreateOfferDTO, CreateRequestDTO, Offer, RequestResponse } from '@/types';
+import { CoinPayment, CreateOfferDTO, CreateRequestDTO, Offer, RequestResponse } from '@/types';
 import { AccountId, ContractExecuteTransaction, ContractFunctionParameters, ContractId, TransactionReceipt } from '@hashgraph/sdk';
 import { useUserStore } from './user';
 
@@ -11,7 +11,14 @@ export const useRequestsStore = defineStore('requests', {
     list: []
   }),
   getters: {
-    
+    hasLocked() {
+      return ({ updatedAt, period }: { updatedAt: Date; period: number }) => {
+        const updatedAtTime = updatedAt.getTime();
+        const currentTime = Date.now();
+
+        return currentTime >= updatedAtTime + period;
+      };
+    },
   },
   actions: {
     async createRequest({
@@ -104,8 +111,27 @@ export const useRequestsStore = defineStore('requests', {
       }
       return images;
     },
+    async markRequestAsCompleted(requestId: number) {
+    },
+    async deleteRequest(requestId: number) {
+    },
+    removeDeletedRequestFromList(requestId: number) {
+      this.list = this.list.filter(
+        (request) => request.requestId !== requestId
+      );
+    },
+    async payForRequest(requestId: number, coin: CoinPayment) {
+    },
+    async payForRequestToken(requestId: number, coin: CoinPayment) {
+    },
+    async getTransactionHistory(): Promise<any> {
+    },
+    
     
     // SELLERS
+    async fetchAllSellersRequests(accountId: string) {
+      const env = useRuntimeConfig().public;
+    },
     async fetchNearbyRequestsForSellers({lat, long}: { lat: number, long: number}) {
       const env = useRuntimeConfig().public
 

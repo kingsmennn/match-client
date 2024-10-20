@@ -1,3 +1,5 @@
+import { CoinPayment } from "~/types";
+
 export const HEDERA_JSON_RPC = {
   mainnet: "https://mainnet.hashio.io/api",
   testnet: "https://testnet.hashio.io/api",
@@ -12,3 +14,23 @@ export const appMetaData = {
   icons: [window.location.origin + "/favicon.ico"],
   url: window.location.origin,
 };
+
+export const PAYMENT_COIN = "SOL";
+export const tokens: {
+  name: string
+  symbol: string
+  network?: string
+  logo: string
+}[] = [
+  {
+    name: 'Solana',
+    symbol: CoinPayment.SOLANA,
+    logo: 'https://www.svgrepo.com/show/470684/solana.svg',
+  },
+  {
+    name: 'Paypal USD',
+    symbol: CoinPayment.PyUSDT,
+    network: 'solana',
+    logo: 'https://svgicons.com/api/ogimage/?id=213765&n=pyusd',
+  },
+]

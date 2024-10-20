@@ -1,7 +1,16 @@
 export enum AccountType {
-  BUYER = 'buyer',
-  SELLER = 'seller'
+  BUYER = "buyer",
+  SELLER = "seller",
 }
+export enum CoinPayment {
+  SOLANA = "solana",
+  PyUSDT = "pyusdt",
+}
+
+export const CoinDecimals = {
+  [CoinPayment.SOLANA]: 9,
+  [CoinPayment.PyUSDT]: 6,
+};
 
 export type Location = [
   // state: string
@@ -17,13 +26,15 @@ export type User = {
   phone: string;
   location: Location;
   createdAt: Date;
+  updatedAt: Date;
   accountType: AccountType;
   stores?: Store[];
 };
 export type Store = {
-  id?: number
+  id?: number;
   name: string;
   description?: string;
+  phone: string;
   location: Location;
 };
 
@@ -32,6 +43,7 @@ export enum RequestLifecycle {
   ACCEPTED_BY_SELLER = "accepted_by_seller",
   ACCEPTED_BY_BUYER = "accepted_by_buyer",
   REQUEST_LOCKED = "request_locked",
+  PAID = "paid",
   COMPLETED = "completed",
 }
 export enum RequestLifecycleIndex {
@@ -39,11 +51,12 @@ export enum RequestLifecycleIndex {
   ACCEPTED_BY_SELLER,
   ACCEPTED_BY_BUYER,
   REQUEST_LOCKED,
+  PAID,
   COMPLETED,
 }
 
 export type Request = {
-  id?: string;
+  id?: number;
   name: string;
   buyerId: string;
   sellersPriceQuote?: number;
@@ -57,6 +70,8 @@ export type Request = {
   lga: string;
   state: string;
   updatedAt: Date;
+  acceptedOfferId?: number;
+  paid?: boolean;
 };
 
 export type RequestResponse = {
@@ -81,12 +96,13 @@ export type RequestResponse = {
 }
 
 export type Offer = {
-  id?: string;
+  id?: number;
+  offerId?: number;
   price: number;
   images: string[];
-  requestId: string;
+  requestId: number;
   storeName: string;
-  sellerId: string;
+  sellerId: number;
   isAccepted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -105,18 +121,21 @@ type id = number;
 type username = string;
 type phone = string;
 type createdAt = number;
+type updatedAt = number;
 export type BlockchainUser = [
   id,
   username,
   phone,
   Location,
   createdAt,
+  updatedAt,
   AccountType
 ];
 
 export type CreateStoreDTO = {
   name: string;
   description: string;
+  phone: string;
   latitude: number;
   longitude: number;
 };
@@ -139,4 +158,4 @@ export type CreateOfferDTO = {
 export const STORE_KEY = "@userStore";
 export const STORE_KEY_MIDDLEWARE = "@userStoreMiddleware";
 
-export const STORE_STORE_KEY = '@StoreStore'
+export const STORE_STORE_KEY = "@StoreStore";

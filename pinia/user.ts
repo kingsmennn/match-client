@@ -51,6 +51,7 @@ type UserStore = {
   blockchainError: {
     userNotFound: boolean;
   };
+  locationEnabled: boolean;
 };
 
 export const useUserStore = defineStore(STORE_KEY, {
@@ -70,13 +71,15 @@ export const useUserStore = defineStore(STORE_KEY, {
     blockchainError: {
       userNotFound: false,
     },
+    locationEnabled: false,
   }),
   getters: {
     isConnected: (state) => !!state.accountId,
+    userId: (state): number | undefined => state.userDetails?.[0],
     isNotOnboarded: (state) =>
       !!state.accountId && state.blockchainError.userNotFound,
     passedSecondaryCheck: (state) => {
-      return state.userDetails?.[5] === AccountType.BUYER
+      return state.userDetails?.[6] === AccountType.BUYER
         ? // buyers only need give access to their location
           !!state.userDetails?.[3][0]
         : // sellers need to setup their store
@@ -85,7 +88,7 @@ export const useUserStore = defineStore(STORE_KEY, {
     username: (state) => state.userDetails?.[1],
     phone: (state) => state.userDetails?.[2],
     location: (state) => state.userDetails?.[3],
-    accountType: (state) => state.userDetails?.[5],
+    accountType: (state) => state.userDetails?.[6],
   },
   actions: {
     async connectToHashConnect() {
@@ -159,10 +162,9 @@ export const useUserStore = defineStore(STORE_KEY, {
             lat: Number(user[3][1]),
           },
           createdAt: Number(user[4]),
+          updatedAt: Number(user[5]),
           accountType:
-            Number(user[5]) === 0
-              ? AccountType.BUYER
-              : AccountType.SELLER,
+            Number(user[6]) === 0 ? AccountType.BUYER : AccountType.SELLER,
         };
         const { id, username, phone, location, createdAt, accountType } =
           details;
@@ -172,17 +174,19 @@ export const useUserStore = defineStore(STORE_KEY, {
           username,
           phone,
           [location.long, location.lat],
-          createdAt,
+          details.createdAt,
+          details.updatedAt,
           accountType,
         ];
 
         userCookie.value = {
           id: this.accountId!,
-          username,
-          phone,
-          location: [location.long, location.lat],
-          createdAt: new Date(createdAt),
-          accountType,
+          username: details.username,
+          phone: details.phone,
+          location: [details.location.long, details.location.lat],
+          createdAt: new Date(details.createdAt),
+          updatedAt: new Date(details.updatedAt),
+          accountType: details.accountType,
         };
       } else if (!hasId && this.accountId) {
         this.blockchainError.userNotFound = true;
@@ -278,6 +282,10 @@ export const useUserStore = defineStore(STORE_KEY, {
       } catch (error) {
         console.error(error);
       }
+    },
+    async fetchUserById(userId: number) {
+    },
+    async toggleEnableLocation(value: boolean) {
     },
   },
   persist: {

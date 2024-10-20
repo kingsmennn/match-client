@@ -150,7 +150,6 @@ const spatularImages = [
 ]
 const renderedCarouselImages = computed(()=>form.value.images.length ? form.value.images : spatularImages)
 
-const user = useCurrentUser()
 const form = ref({
   name: '',
   description: '',

@@ -147,7 +147,6 @@
 
 <script setup lang="ts">
 import Tabs from '@/components/Tabs.vue'
-import { signOut } from 'firebase/auth'
 import { User, AccountType, STORE_KEY_MIDDLEWARE, STORE_KEY } from '@/types'
 import { useUserStore } from '@/pinia/user';
 
@@ -191,8 +190,6 @@ const isSeller = computed(() => userStore?.accountType === AccountType.SELLER)
 const isBuyer = computed(() => userStore?.accountType === AccountType.BUYER)
 
 const router = useRouter()
-const auth = useFirebaseAuth() // only exists on client side
-
 const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
   const storeCookie = useCookie(STORE_KEY)
 const disconnect = async () => {
