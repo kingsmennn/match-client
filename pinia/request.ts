@@ -93,7 +93,11 @@ export const useRequestsStore = defineStore("requests", {
 
       try {
         const contract = userStore.getContract();
-        const res = await contract.requests(requestId);
+
+        const [images, res] = await Promise.all([
+          this.getRequestImages(requestId),
+          contract.requests(requestId),
+        ]);
 
         const request: RequestResponse = {
           requestId: Number(res[0]),
@@ -109,7 +113,7 @@ export const useRequestsStore = defineStore("requests", {
           updatedAt: Number(res[9]),
           images: [],
         };
-        const images = await this.getRequestImages(request.requestId);
+
         request.images = images || [];
         return request;
       } catch (error) {
