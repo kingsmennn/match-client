@@ -86,8 +86,8 @@ const emits = defineEmits<{
 const carousel = ref(0);
 const displayedPrice = computed<string>(() => {
   if (!props.priceQuote) return "";
-  return 'TODO'
-  // return `${lamportsToSol(props.priceQuote)} ${PAYMENT_COIN}`;
+ 
+  return `${weiToHbar(props.priceQuote)} ${PAYMENT_COIN}`;
 });
 
 const env = useRuntimeConfig().public;

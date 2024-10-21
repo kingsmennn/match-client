@@ -13,3 +13,6 @@ export const getEvmAddress = async (account_id: string) => {
 export const hbarToWei = (hbar: any) => {
   return +hbar * 10 ** 18;
 };
+export const weiToHbar = (wei: any) => {
+  return +wei / 10 ** 18;
+};
