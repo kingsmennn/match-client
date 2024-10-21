@@ -33,11 +33,7 @@
 
               <!-- should be a connect function -->
               <button
-                @click="()=>{
-                  userStore.isConnected ? 
-                    router.push('/accounts/'+userStore.accountId) :
-                    handleWalletConnect()
-                }"
+                @click="handleGetStartedBtnClick"
                 class="tw-inline-block tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
                 <span>Get started</span>
                 <v-icon>mdi-arrow-right</v-icon>
@@ -225,4 +221,15 @@ const handleWalletConnect = async () => {
     connecting.value = false;
   }
 };
+
+const handleGetStartedBtnClick = () => {
+  if(userStore.isConnected) {
+    if(userStore.isNotOnboarded) {
+      router.push('/onboarding')
+      return
+    }
+    router.push('/accounts/'+userStore.accountId)
+    return
+  }
+}
 </script>
