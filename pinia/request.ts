@@ -185,8 +185,64 @@ export const useRequestsStore = defineStore("requests", {
         (request) => request.requestId !== requestId
       );
     },
-    async payForRequest(requestId: number, coin: CoinPayment) {},
-    async payForRequestToken(requestId: number, coin: CoinPayment) {},
+    async payForRequest(requestId: number, coin: CoinPayment) {
+      const userStore = useUserStore();
+      if (!userStore.contract.pairingData) return;
+      const env = useRuntimeConfig().public;
+
+      try {
+        if (coin !== CoinPayment.SOLANA) {
+          throw new Error("Invalid payment method");
+        }
+        let accountId = AccountId.fromString(userStore.accountId!);
+        const index = Object.values(CoinPayment).indexOf(coin);
+        const params = new ContractFunctionParameters();
+        params.addUint256(requestId);
+        params.addUint8(index);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("payForRequest", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    async payForRequestToken(requestId: number, coin: CoinPayment) {
+      const userStore = useUserStore();
+      if (!userStore.contract.pairingData) return;
+      const env = useRuntimeConfig().public;
+
+      try {
+        if (coin === CoinPayment.SOLANA) {
+          throw new Error("Invalid payment method");
+        }
+        let accountId = AccountId.fromString(userStore.accountId!);
+        const index = Object.values(CoinPayment).indexOf(coin);
+        const params = new ContractFunctionParameters();
+        params.addUint256(requestId);
+        params.addUint8(index);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("payForRequestToken", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
     async getTransactionHistory(): Promise<any> {},
 
     // SELLERS
