@@ -260,7 +260,7 @@ export const useUserStore = defineStore(STORE_KEY, {
             (lat || this.userDetails?.[3][1]!) * 10 ** LOCATION_DECIMALS
           ),
           account_type:
-            (account_type || this.userDetails?.[5]!) === AccountType.BUYER
+            (account_type || this.userDetails?.[6]!) === AccountType.BUYER
               ? 0
               : 1,
         };
@@ -273,7 +273,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
-          .setFunction("createUser", params);
+          .setFunction("updateUser", params);
 
         const receipt = await this.contract.hashconnect.sendTransaction(
           AccountId.fromString(this.accountId),
@@ -285,7 +285,24 @@ export const useUserStore = defineStore(STORE_KEY, {
       }
     },
     async fetchUserById(userId: number) {},
-    async toggleEnableLocation(value: boolean) {},
+    async toggleEnableLocation(value: boolean) {
+      if (!this.contract.pairingData || !this.accountId) return;
+      const env = useRuntimeConfig().public;
+
+      try {
+        const params = new ContractFunctionParameters();
+        params.addBool(value);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("toggleLocation", params);
+
+        const receipt = await this.contract.hashconnect.sendTransaction(
+          AccountId.fromString(this.accountId),
+          transaction
+        );
+      } catch (error) {}
+    },
   },
   persist: {
     paths: [
