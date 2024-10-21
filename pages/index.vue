@@ -207,18 +207,17 @@ const handleSellerBtnClick = async () => {
   }
 }
 
-const connecting = ref(false)
 const userStore = useUserStore()
 const handleWalletConnect = async () => {
-  connecting.value = true;
+  userStore.connecting = true;
   try {
-    await userStore.connectToHashConnect();
+    await userStore.handleWalletConnectInComponent();
     // once connected the subscription function will update the user store
   } catch (e) {
     // haldle errors
     console.log(e);
   } finally {
-    connecting.value = false;
+    userStore.connecting = false;
   }
 };
 
@@ -231,5 +230,6 @@ const handleGetStartedBtnClick = () => {
     router.push('/accounts/'+userStore.accountId)
     return
   }
+  handleWalletConnect()
 }
 </script>

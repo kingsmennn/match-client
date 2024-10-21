@@ -40,6 +40,7 @@ import { getEvmAddress } from "@/utils/contract-utils";
 import { useStoreStore } from "./store";
 
 type UserStore = {
+  connecting: boolean;
   accountId: string | null;
   contract: {
     state: HashConnectConnectionState;
@@ -56,6 +57,7 @@ type UserStore = {
 
 export const useUserStore = defineStore(STORE_KEY, {
   state: (): UserStore => ({
+    connecting: false,
     accountId: null,
     contract: {
       state: HashConnectConnectionState.Disconnected,
@@ -124,6 +126,19 @@ export const useUserStore = defineStore(STORE_KEY, {
         }
       );
     },
+    async handleWalletConnectInComponent() {
+      this.connecting = true;
+      try {
+        await this.connectToHashConnect();
+        // once connected the subscription function will update the user store
+      } catch (e) {
+        // haldle errors
+        console.log(e);
+      } finally {
+        this.connecting = false;
+      }
+    },
+
     async disconnect() {
       await this.contract.hashconnect.disconnect();
       this.contract.pairingData = null;
