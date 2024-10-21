@@ -43,9 +43,9 @@
                   </p>
                   <p class="tw-text-sm">
                     Price: 
-                    <!-- <strong
-                      >{{ Number(lamportsToSol(sellersPriceQuote)) }} {{PAYMENT_COIN}}</strong
-                    > -->
+                    <strong
+                      >{{ Number(weiToHbar(sellersPriceQuote)) }} {{PAYMENT_COIN}}</strong
+                    >
                   </p>
                 </template>
               </template>

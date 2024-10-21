@@ -99,13 +99,11 @@
         </div>
       </div>
     </div>
-
-    <!-- :amount="lamportsToSol(attemptPaymentForRequest?.sellersPriceQuote!)" -->
     <PaymentModal
       :is-open="showPaymentModal"
       :requestId="attemptPaymentForRequest?.requestId!"
       :account-id="userStore.accountId!"
-      :amount="0"
+      :amount="weiToHbar(attemptPaymentForRequest?.sellersPriceQuote!)"
       :in-progress="processingPayment"
       @update:is-open="(val) => showPaymentModal = val"
       @on-process-payment="handleProcessPayment"
