@@ -216,7 +216,7 @@ const handleProcessPayment = async (
   processingPayment.value = true
 
   try {
-    if(token == CoinPayment.SOLANA) {
+    if(token == CoinPayment.HBAR) {
       await requestsStore.payForRequest(requestId,token)
     }else {
       await requestsStore.payForRequestToken(requestId,token)

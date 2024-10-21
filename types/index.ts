@@ -3,13 +3,13 @@ export enum AccountType {
   SELLER = "seller",
 }
 export enum CoinPayment {
-  SOLANA = "solana",
-  PyUSDT = "pyusdt",
+  HBAR = "hbar",
+  USDT = "usdt",
 }
 
 export const CoinDecimals = {
-  [CoinPayment.SOLANA]: 9,
-  [CoinPayment.PyUSDT]: 6,
+  [CoinPayment.HBAR]: 9,
+  [CoinPayment.USDT]: 6,
 };
 
 export type Location = [

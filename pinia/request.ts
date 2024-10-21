@@ -189,7 +189,7 @@ export const useRequestsStore = defineStore("requests", {
       const env = useRuntimeConfig().public;
 
       try {
-        if (coin !== CoinPayment.SOLANA) {
+        if (coin !== CoinPayment.HBAR) {
           throw new Error("Invalid payment method");
         }
         let accountId = AccountId.fromString(userStore.accountId!);
@@ -218,7 +218,7 @@ export const useRequestsStore = defineStore("requests", {
       const env = useRuntimeConfig().public;
 
       try {
-        if (coin === CoinPayment.SOLANA) {
+        if (coin === CoinPayment.HBAR) {
           throw new Error("Invalid payment method");
         }
         let accountId = AccountId.fromString(userStore.accountId!);

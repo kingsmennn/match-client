@@ -23,14 +23,14 @@ export const tokens: {
   logo: string;
 }[] = [
   {
-    name: "Solana",
-    symbol: CoinPayment.SOLANA,
-    logo: "https://www.svgrepo.com/show/470684/solana.svg",
+    name: "HBAR",
+    symbol: CoinPayment.HBAR,
+    logo: "https://cryptologos.cc/logos/hedera-hbar-logo.svg?v=035",
   },
   {
-    name: "Paypal USD",
-    symbol: CoinPayment.PyUSDT,
-    network: "solana",
-    logo: "https://svgicons.com/api/ogimage/?id=213765&n=pyusd",
+    name: "USDT",
+    symbol: CoinPayment.USDT,
+    network: "hbar",
+    logo: "https://www.svgrepo.com/show/428625/usdc-usd-coin.svg",
   },
 ];
