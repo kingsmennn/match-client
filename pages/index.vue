@@ -123,7 +123,7 @@
         <button
           @click="()=>handleGetStartedBtnClick(AccountType.BUYER)"
           class="tw-inline-flex tw-justify-between tw-text-4xl tw-font-bold
-          tw-gap-2 tw-flex-grow sm:tw-max-w-[50%] tw-border-b tw-border-black">
+          tw-gap-2 tw-flex-grow sm:tw-max-w-[50%] tw-border-b tw-border-solid tw-border-black">
           <span>Register as buyer</span>
           <v-icon>mdi-arrow-right</v-icon>
         </button>
@@ -131,7 +131,7 @@
         <button
           @click="()=>handleGetStartedBtnClick(AccountType.SELLER)"
           class="tw-inline-flex tw-justify-between tw-text-4xl tw-font-bold
-          tw-gap-2 tw-flex-grow sm:tw-max-w-[50%] tw-border-b tw-border-black">
+          tw-gap-2 tw-flex-grow sm:tw-max-w-[50%] tw-border-b tw-border-solid tw-border-black">
           <span>Register as seller</span>
           <v-icon>mdi-arrow-right</v-icon>
         </button>
@@ -200,10 +200,9 @@ const handleSellerBtnClick = async () => {
   if (isSeller.value) {
     router.push('/requests')
     return
-  } else if (isBuyer.value) {
-    await disconnect()
-    await handleWalletConnect()
   }
+  if(isBuyer.value) await disconnect()
+  handleGetStartedBtnClick(AccountType.SELLER)
 }
 
 const userStore = useUserStore()
