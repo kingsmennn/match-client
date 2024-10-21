@@ -289,7 +289,7 @@ export const useRequestsStore = defineStore("requests", {
         let accountId = AccountId.fromString(userStore.accountId!);
 
         const params = new ContractFunctionParameters();
-        params.addInt256(price);
+        params.addUint256(price);
         params.addStringArray(images);
         params.addUint256(requestId);
         params.addString(storeName);
