@@ -316,6 +316,7 @@ export const useUserStore = defineStore(STORE_KEY, {
           AccountId.fromString(this.accountId),
           transaction
         );
+        return receipt;
       } catch (error) {}
     },
   },

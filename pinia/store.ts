@@ -18,12 +18,13 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     async createStore({
       name,
       description,
+      phone,
       latitude,
       longitude,
     }: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
       if (!userStore.contract.pairingData) return;
-      const env = useRuntimeConfig().public
+      const env = useRuntimeConfig().public;
 
       try {
         let accountId = AccountId.fromString(userStore.accountId!);
@@ -33,12 +34,14 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         const payload = {
           name,
           description,
+          phone,
           long: Math.trunc(longitude * 10 ** LOCATION_DECIMALS),
           lat: Math.trunc(latitude * 10 ** LOCATION_DECIMALS),
         };
 
         params.addString(payload.name);
         params.addString(payload.description);
+        params.addString(payload.phone);
         params.addInt256(payload.lat);
         params.addInt256(payload.long);
         let transaction = new ContractExecuteTransaction()
@@ -51,11 +54,14 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
           transaction
         );
         // save to store
-        userStore.storeDetails = [{
-          name: payload.name,
-          description: payload.description,
-          location: [payload.long, payload.lat],
-        }];
+        userStore.storeDetails = [
+          {
+            name: payload.name,
+            description: payload.description,
+            phone: payload.phone,
+            location: [payload.long, payload.lat],
+          },
+        ];
         return receipt;
       } catch (error) {
         console.error(error);
