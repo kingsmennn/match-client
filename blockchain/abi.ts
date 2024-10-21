@@ -76,6 +76,11 @@ export const marketAbi = [
   },
   {
     inputs: [],
+    name: "Marketplace__RequestNotPaid",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__UnSupportedChainId",
     type: "error",
   },
@@ -351,6 +356,19 @@ export const marketAbi = [
       },
     ],
     name: "RequestDeleted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+    ],
+    name: "RequestMarkedAsCompleted",
     type: "event",
   },
   {
