@@ -11,6 +11,8 @@ import {
   ContractExecuteTransaction,
   ContractFunctionParameters,
   ContractId,
+  Hbar,
+  HbarUnit,
   TransactionReceipt,
 } from "@hashgraph/sdk";
 import { useUserStore } from "./user";
@@ -192,14 +194,20 @@ export const useRequestsStore = defineStore("requests", {
         if (coin !== CoinPayment.HBAR) {
           throw new Error("Invalid payment method");
         }
+        const contract = userStore.getContract();
+        const requestInfo = await contract.requests(requestId);
+
+        const inputHbar = Number(requestInfo[3]);
         let accountId = AccountId.fromString(userStore.accountId!);
         const index = Object.values(CoinPayment).indexOf(coin);
         const params = new ContractFunctionParameters();
         params.addUint256(requestId);
         params.addUint8(index);
+
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
+          .setPayableAmount(Hbar.fromTinybars(inputHbar))
           .setFunction("payForRequest", params);
 
         const receipt = await userStore.contract.hashconnect.sendTransaction(
