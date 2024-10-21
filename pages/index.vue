@@ -201,7 +201,7 @@ const handleSellerBtnClick = async () => {
     router.push('/requests')
     return
   }
-  await disconnect()
+  if(isBuyer.value) await disconnect()
   handleGetStartedBtnClick(AccountType.SELLER)
 }
 
