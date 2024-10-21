@@ -200,10 +200,9 @@ const handleSellerBtnClick = async () => {
   if (isSeller.value) {
     router.push('/requests')
     return
-  } else if (isBuyer.value) {
-    await disconnect()
-    await handleWalletConnect()
   }
+  await disconnect()
+  handleGetStartedBtnClick(AccountType.SELLER)
 }
 
 const userStore = useUserStore()
