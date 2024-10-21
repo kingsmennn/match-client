@@ -104,13 +104,13 @@ export const useUserStore = defineStore(STORE_KEY, {
         this.accountId = userId;
 
         const blockchainUser = await this.fetchUser(this.accountId);
-        this.storeUserDetails(blockchainUser)
+        this.storeUserDetails(blockchainUser);
 
         // if user is a seller, we need to get their store details
         if (this.accountType !== AccountType.SELLER) return;
         const storeStore = useStoreStore();
         const res = await storeStore.getUserStores(this.accountId!);
-        this.storeDetails = res || []
+        this.storeDetails = res || [];
       });
 
       this.contract.hashconnect.disconnectionEvent.on((data) => {
@@ -133,9 +133,10 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
 
     getContract() {
-      const env = useRuntimeConfig().public
-      const contractAddress =
-        AccountId.fromString(env.contractId).toSolidityAddress();
+      const env = useRuntimeConfig().public;
+      const contractAddress = AccountId.fromString(
+        env.contractId
+      ).toSolidityAddress();
       const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
 
       return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
@@ -147,7 +148,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       const user = await contract.users(userAddress);
       return user;
     },
-    async storeUserDetails(user: BlockchainUser){
+    async storeUserDetails(user: BlockchainUser) {
       const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE); // will be used by middleware
 
       // check if the user exists in the blockchain by checking id
@@ -202,7 +203,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       account_type,
     }: CreateUserDTO): Promise<TransactionReceipt | undefined> {
       if (!this.contract.pairingData || !this.accountId) return;
-      const env = useRuntimeConfig().public
+      const env = useRuntimeConfig().public;
 
       try {
         const params = new ContractFunctionParameters();
@@ -222,10 +223,10 @@ export const useUserStore = defineStore(STORE_KEY, {
         );
 
         // wait a while for the previous contract to properly execute
-        await new Promise(resolve=>setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const blockchainUser = await this.fetchUser(this.accountId);
-        this.storeUserDetails(blockchainUser)
+        this.storeUserDetails(blockchainUser);
 
         // resets
         this.blockchainError.userNotFound = false;
@@ -244,7 +245,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       { receipt: TransactionReceipt; location: Location } | undefined
     > {
       if (!this.contract.pairingData || !this.accountId) return;
-      const env = useRuntimeConfig().public
+      const env = useRuntimeConfig().public;
 
       try {
         const params = new ContractFunctionParameters();
@@ -283,10 +284,8 @@ export const useUserStore = defineStore(STORE_KEY, {
         console.error(error);
       }
     },
-    async fetchUserById(userId: number) {
-    },
-    async toggleEnableLocation(value: boolean) {
-    },
+    async fetchUserById(userId: number) {},
+    async toggleEnableLocation(value: boolean) {},
   },
   persist: {
     paths: [
