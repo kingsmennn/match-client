@@ -142,6 +142,7 @@ const fetchUserRequest = async () => {
 }
 
 const unwatch = watch(()=>userStore.accountId, (val)=>{
+  console.log('watching')
   if(!val ) return
   fetchUserRequest()
 }, { immediate: true })

@@ -88,7 +88,6 @@ export const useRequestsStore = defineStore("requests", {
     },
     async getRequest(requestId: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       try {
         const contract = userStore.getContract();
@@ -118,7 +117,6 @@ export const useRequestsStore = defineStore("requests", {
     },
     async getRequestImages(request_id: number): Promise<string[] | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       const contract = userStore.getContract();
       const length = await contract.getRequestImagesLength(request_id);
