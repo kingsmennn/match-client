@@ -51,6 +51,11 @@ export const marketAbi = [
   },
   {
     inputs: [],
+    name: "Marketplace__PriceCannotBeZero",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__RequestAlreadyPaid",
     type: "error",
   },
@@ -82,6 +87,11 @@ export const marketAbi = [
   {
     inputs: [],
     name: "Marketplace__UnauthorizedRemoval",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__UnknownPaymentType",
     type: "error",
   },
   {
@@ -341,6 +351,49 @@ export const marketAbi = [
       },
     ],
     name: "RequestDeleted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "token",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "sellerId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "buyerId",
+        type: "uint256",
+      },
+    ],
+    name: "RequestPaymentTransacted",
     type: "event",
   },
   {
