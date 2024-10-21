@@ -130,7 +130,8 @@ const disconnect = async () => {
 watch([()=>userStore.blockchainError.userNotFound, ()=>userStore.accountId], ([userExists, accountId]) => {
   if (userExists && accountId) {
     // redirect to register page
-    router.push('/onboarding')
+    const type = (route.query.user_type as AccountType) || AccountType.BUYER
+    router.push('/onboarding?user_type='+type)
   }
 })
 </script>

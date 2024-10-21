@@ -31,9 +31,8 @@
                 Send notifications to store owners in markets around you from the comfort of your home
               </p>
 
-              <!-- should be a connect function -->
               <button
-                @click="handleGetStartedBtnClick"
+                @click="()=>handleGetStartedBtnClick()"
                 class="tw-inline-block tw-bg-black tw-text-white tw-p-4 tw-py-2.5 tw-mt-4 tw-rounded-lg">
                 <span>Get started</span>
                 <v-icon>mdi-arrow-right</v-icon>
@@ -121,21 +120,21 @@
 
     <div v-if="!userStore.userId" class="tw-px-6 sm:tw-px-10 tw-p-4 tw-max-w-7xl tw-mx-auto tw-mt-4 sm:tw-mt-10">
       <div class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-10 tw-justify-between">
-        <NuxtLink
-          to="/onboarding?user_type=buyer"
+        <button
+          @click="()=>handleGetStartedBtnClick(AccountType.BUYER)"
           class="tw-inline-flex tw-justify-between tw-text-4xl tw-font-bold
           tw-gap-2 tw-flex-grow sm:tw-max-w-[50%] tw-border-b tw-border-black">
           <span>Register as buyer</span>
           <v-icon>mdi-arrow-right</v-icon>
-        </NuxtLink>
+        </button>
 
-        <NuxtLink
-          to="/onboarding?user_type=seller"
+        <button
+          @click="()=>handleGetStartedBtnClick(AccountType.SELLER)"
           class="tw-inline-flex tw-justify-between tw-text-4xl tw-font-bold
           tw-gap-2 tw-flex-grow sm:tw-max-w-[50%] tw-border-b tw-border-black">
           <span>Register as seller</span>
           <v-icon>mdi-arrow-right</v-icon>
-        </NuxtLink>
+        </button>
       </div>
     </div>
   </div>
@@ -221,10 +220,17 @@ const handleWalletConnect = async () => {
   }
 };
 
-const handleGetStartedBtnClick = () => {
+const handleGetStartedBtnClick = (type?: AccountType) => {
+  router.push({
+    query: {
+      ...router.currentRoute.value.query,
+      user_type: type
+    },
+  })
   if(userStore.isConnected) {
     if(userStore.isNotOnboarded) {
-      router.push('/onboarding')
+      const withType = type ? `?user_type=${type}` : ''
+      router.push('/onboarding'+withType)
       return
     }
     router.push('/accounts/'+userStore.accountId)
