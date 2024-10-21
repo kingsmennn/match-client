@@ -21,9 +21,9 @@
             class="tw-inline-flex tw-items-center tw-p-1 tw-px-3 tw-rounded-full tw-bg-white
             tw-select-none tw-text-black hover:tw-bg-white/80 tw-relative
             tw-transition-all tw-duration-300"
-            :disabled="connecting"
-            @click="()=>userStore.isConnected ? null : handleWalletConnect()">
-            <template v-if="!connecting">
+            :disabled="userStore.connecting"
+            @click="()=>userStore.isConnected ? null : userStore.handleWalletConnectInComponent()">
+            <template v-if="!userStore.connecting">
               {{ userStore.isConnected ? 'Connected' : 'Connect' }}
             </template>
             <v-progress-circular
@@ -111,20 +111,6 @@ const userStore = useUserStore()
 const userCookie = useCookie<User>(STORE_KEY_MIDDLEWARE, { watch: true })
 const storeCookie = useCookie(STORE_KEY)
 const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
-
-const connecting = ref(false)
-const handleWalletConnect = async () => {
-  connecting.value = true;
-  try {
-    await userStore.connectToHashConnect();
-    // once connected the subscription function will update the user store
-  } catch (e) {
-    // haldle errors
-    console.log(e);
-  } finally {
-    connecting.value = false;
-  }
-};
 
 const disconnect = async () => {
   try {
