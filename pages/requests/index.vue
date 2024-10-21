@@ -64,7 +64,6 @@ const fetchUserRequests = async () => {
       lat: userStore.location?.[1]!,
       long: userStore.location?.[0]!,
     })
-    console.log({fetchUserRequestsRes: res})
   } catch (error) {
     console.log(error)
   } finally {
