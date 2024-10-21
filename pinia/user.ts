@@ -248,6 +248,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async updateUser({
@@ -297,6 +298,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         return { receipt, location: [payload.long, payload.lat] };
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async fetchUserById(userId: number) {},
@@ -317,7 +319,10 @@ export const useUserStore = defineStore(STORE_KEY, {
           transaction
         );
         return receipt;
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     },
   },
   persist: {
@@ -325,7 +330,6 @@ export const useUserStore = defineStore(STORE_KEY, {
       "accountId",
       "userDetails",
       "blockchainError.userNotFound",
-
       "storeDetails.name",
       "storeDetails.description",
       "storeDetails.location",

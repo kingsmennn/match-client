@@ -65,6 +65,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async getUserStores(accountId: string): Promise<Store[] | undefined> {
@@ -84,6 +85,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         return stores;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async getUserStoreIds(accountId: string, index: number) {
