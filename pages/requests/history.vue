@@ -53,7 +53,7 @@ const isSeller = computed(
           v-for="(history,i) in histories" :key="i"
           :createdAt="history.createdAt"
           :amount="weiToHbar(history.amount)"
-          :token="history.token"
+          :token="Object.values(CoinPayment)[history.token]"
           :requestId="history.requestId"
           :sellerId="history.sellerId"
           :buyerId="history.buyerId"
