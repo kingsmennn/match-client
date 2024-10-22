@@ -183,7 +183,6 @@ export const useUserStore = defineStore(STORE_KEY, {
             Number(user[6]) === 0 ? AccountType.BUYER : AccountType.SELLER,
         };
 
-        console.log({ details });
         const { id, username, phone, location, createdAt, accountType } =
           details;
 
