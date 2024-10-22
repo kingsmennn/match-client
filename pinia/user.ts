@@ -312,7 +312,8 @@ export const useUserStore = defineStore(STORE_KEY, {
           location: [Number(data[3][0]), Number(data[3][1])],
           createdAt: new Date(Number(data[4]) * 1000),
           updatedAt: new Date(Number(data[5]) * 1000),
-          accountType: Object.values(AccountType)[data[6]],
+          accountType:
+            Number(data[6]) === 0 ? AccountType.BUYER : AccountType.SELLER,
           userAddress: data[8],
           stores: [],
         };
