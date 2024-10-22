@@ -106,6 +106,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         this.accountId = userId;
 
         const blockchainUser = await this.fetchUser(this.accountId);
+        this.locationEnabled = !![...blockchainUser][7];
         this.storeUserDetails(blockchainUser);
 
         // if user is a seller, we need to get their store details
@@ -342,6 +343,21 @@ export const useUserStore = defineStore(STORE_KEY, {
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
+      }
+    },
+    async fetchLocationPreference(): Promise<boolean> {
+      try {
+        return true;
+        // const contract = await this.getContract();
+        // const [profilePda] = findProgramAddressSync(
+        //   [utf8.encode(USER_TAG), this.anchorWallet!.publicKey!.toBuffer()],
+        //   programID
+        // );
+        // const userData = await contract.account.user.fetch(profilePda);
+        // return userData.locationEnabled;
+      } catch (error) {
+        console.error("Error fetching location preference:", error);
         throw error;
       }
     },
