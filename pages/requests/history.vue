@@ -51,7 +51,7 @@ const isSeller = computed(
       <div class="tw-mt-10 tw-grid tw-gap-3">
         <HistoryItem
           v-for="(history,i) in histories" :key="i"
-          :createdAt="history.createdAt"
+          :createdAt="history.createdAt instanceof Date ? history.createdAt : new Date(history.createdAt * 1000)"
           :amount="weiToHbar(history.amount)"
           :token="Object.values(CoinPayment)[history.token]"
           :requestId="history.requestId"
