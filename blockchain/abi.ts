@@ -1276,6 +1276,11 @@ export const marketAbi = [
         name: "location_enabled",
         type: "bool",
       },
+      {
+        internalType: "address",
+        name: "authority",
+        type: "address",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -1341,6 +1346,11 @@ export const marketAbi = [
         internalType: "bool",
         name: "location_enabled",
         type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "authority",
+        type: "address",
       },
     ],
     stateMutability: "view",

@@ -303,6 +303,33 @@ export const useUserStore = defineStore(STORE_KEY, {
       try {
         const contract = this.getContract();
         const user = await contract.usersById(userId);
+
+        console.log(user);
+
+        return {
+          id: user[0],
+          username: user[1],
+          phone: user[2],
+          location: [user[3].toString(), user[4].toString()],
+          createdAt: new Date(user[5] * 1000),
+          updatedAt: new Date(user[6] * 1000),
+          accountType: user[6],
+          userAddress: user[7],
+          stores: [],
+        };
+
+        // user.stores = userStores.map((store: any) => {
+        //   return {
+        //     id: store.account.id.toString(),
+        //     name: store.account.name,
+        //     description: store.account.description,
+        //     phone: store.account.phone,
+        //     location: [
+        //       store.account.location.longitude.toString(),
+        //       store.account.location.latitude.toString(),
+        //     ],
+        //   };
+        // });
         return user;
       } catch (error) {
         console.error(error);
