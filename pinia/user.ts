@@ -217,7 +217,6 @@ export const useUserStore = defineStore(STORE_KEY, {
       long,
       account_type,
     }: CreateUserDTO): Promise<TransactionReceipt | undefined> {
-      if (!this.contract.pairingData || !this.accountId) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -233,14 +232,14 @@ export const useUserStore = defineStore(STORE_KEY, {
           .setFunction("createUser", params);
 
         const receipt = await this.contract.hashconnect.sendTransaction(
-          AccountId.fromString(this.accountId),
+          AccountId.fromString(this.accountId!),
           transaction
         );
 
         // wait a while for the previous contract to properly execute
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        const blockchainUser = await this.fetchUser(this.accountId);
+        const blockchainUser = await this.fetchUser(this.accountId!);
         this.storeUserDetails(blockchainUser);
 
         // resets
@@ -260,7 +259,6 @@ export const useUserStore = defineStore(STORE_KEY, {
     }: Partial<CreateUserDTO>): Promise<
       { receipt: TransactionReceipt; location: Location } | undefined
     > {
-      if (!this.contract.pairingData || !this.accountId) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -292,7 +290,7 @@ export const useUserStore = defineStore(STORE_KEY, {
           .setFunction("updateUser", params);
 
         const receipt = await this.contract.hashconnect.sendTransaction(
-          AccountId.fromString(this.accountId),
+          AccountId.fromString(this.accountId!),
           transaction
         );
         return { receipt, location: [payload.long, payload.lat] };
@@ -301,9 +299,17 @@ export const useUserStore = defineStore(STORE_KEY, {
         throw error;
       }
     },
-    async fetchUserById(userId: number) {},
+    async fetchUserById(userId: number) {
+      try {
+        const contract = this.getContract();
+        const user = await contract.usersById(userId);
+        return user;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
     async toggleEnableLocation(value: boolean) {
-      if (!this.contract.pairingData || !this.accountId) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -315,7 +321,7 @@ export const useUserStore = defineStore(STORE_KEY, {
           .setFunction("toggleLocation", params);
 
         const receipt = await this.contract.hashconnect.sendTransaction(
-          AccountId.fromString(this.accountId),
+          AccountId.fromString(this.accountId!),
           transaction
         );
         return receipt;
