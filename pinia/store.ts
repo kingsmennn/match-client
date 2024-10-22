@@ -23,7 +23,6 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
       longitude,
     }: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -70,7 +69,6 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     },
     async getUserStores(accountId: string): Promise<Store[] | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       try {
         const userAddress = await getEvmAddress(accountId);
@@ -90,7 +88,6 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     },
     async getUserStoreIds(accountId: string, index: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       const userAddress = await getEvmAddress(accountId);
       const contract = userStore.getContract();
@@ -99,7 +96,6 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     },
     async getUserStore(accountId: string, storeId: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       const userAddress = await getEvmAddress(accountId);
       const contract = userStore.getContract();

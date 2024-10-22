@@ -43,7 +43,6 @@ export const useRequestsStore = defineStore("requests", {
       longitude,
     }: CreateRequestDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -136,7 +135,6 @@ export const useRequestsStore = defineStore("requests", {
     },
     async markRequestAsCompleted(requestId: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -161,7 +159,6 @@ export const useRequestsStore = defineStore("requests", {
     },
     async deleteRequest(requestId: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -191,7 +188,6 @@ export const useRequestsStore = defineStore("requests", {
     },
     async payForRequest(requestId: number, coin: CoinPayment) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -226,7 +222,6 @@ export const useRequestsStore = defineStore("requests", {
     },
     async payForRequestToken(requestId: number, coin: CoinPayment) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -294,7 +289,6 @@ export const useRequestsStore = defineStore("requests", {
       storeName,
     }: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
@@ -324,7 +318,6 @@ export const useRequestsStore = defineStore("requests", {
       offerId: number
     ): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
       const env = useRuntimeConfig().public;
 
       try {
