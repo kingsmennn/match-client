@@ -259,7 +259,7 @@ export const useRequestsStore = defineStore("requests", {
           }
         );
 
-        console.log(res);
+        return res;
       } catch (e) {}
     },
 

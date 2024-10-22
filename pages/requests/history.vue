@@ -52,7 +52,7 @@ const isSeller = computed(
         <HistoryItem
           v-for="(history,i) in histories" :key="i"
           :createdAt="history.createdAt"
-          :amount="history.amount"
+          :amount="weiToHbar(history.amount)"
           :token="history.token"
           :requestId="history.requestId"
           :sellerId="history.sellerId"
