@@ -410,6 +410,18 @@ export const marketAbi = [
         name: "buyerId",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "createdAt",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updatedAt",
+        type: "uint256",
+      },
     ],
     name: "RequestPaymentTransacted",
     type: "event",

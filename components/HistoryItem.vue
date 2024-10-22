@@ -29,6 +29,8 @@ const moreDetails = computed(()=> {
     date: props.createdAt
   }
 })
+
+console.log(moreDetails.value)
 </script>
 
 <template>
