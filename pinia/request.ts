@@ -248,7 +248,20 @@ export const useRequestsStore = defineStore("requests", {
         throw error;
       }
     },
-    async getTransactionHistory(): Promise<any> {},
+    async getTransactionHistory(): Promise<any> {
+      const env = useRuntimeConfig().public;
+      const userStore = useUserStore();
+      try {
+        const res = await $fetch<RequestResponse[]>(
+          `${env.matchApiUrl}/transactions/${userStore.userId}`,
+          {
+            method: "GET",
+          }
+        );
+
+        console.log(res);
+      } catch (e) {}
+    },
 
     // SELLERS
     async fetchAllSellersRequests(accountId: string) {
