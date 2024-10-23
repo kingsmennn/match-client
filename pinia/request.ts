@@ -121,17 +121,21 @@ export const useRequestsStore = defineStore("requests", {
       }
     },
     async getRequestImages(request_id: number): Promise<string[] | undefined> {
-      const userStore = useUserStore();
+      try {
+        const userStore = useUserStore();
 
-      const contract = userStore.getContract();
-      const length = await contract.getRequestImagesLength(request_id);
+        const contract = userStore.getContract();
+        const length = await contract.getRequestImagesLength(request_id);
 
-      const images = [];
-      for (let i = 0; i < length; i++) {
-        const image = await contract.getRequestImageByIndex(request_id, i);
-        images.push(image);
+        const images = [];
+        for (let i = 0; i < length; i++) {
+          const image = await contract.getRequestImageByIndex(request_id, i);
+          images.push(image);
+        }
+        return images;
+      } catch (_) {
+        return [];
       }
-      return images;
     },
     async markRequestAsCompleted(requestId: number) {
       const userStore = useUserStore();
