@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import {
+  CoinDecimals,
   CoinPayment,
   CoinPaymentAddress,
   CreateOfferDTO,
@@ -316,14 +317,26 @@ export const useRequestsStore = defineStore("requests", {
       const env = useRuntimeConfig().public;
       const userStore = useUserStore();
       try {
-        const res = await $fetch<RequestResponse[]>(
+        const res = await $fetch<any[]>(
           `${env.matchApiUrl}/transactions/${userStore.userId}`,
           {
             method: "GET",
           }
         );
 
-        return res;
+        const newRes = res.map((transaction) => {
+          return {
+            ...transaction,
+            amount:
+              Number(transaction.amount) /
+              10 **
+                CoinDecimals[
+                  Object.values(CoinPayment)[transaction.token] as CoinPayment
+                ],
+          };
+        });
+
+        return newRes;
       } catch (e) {}
     },
 
