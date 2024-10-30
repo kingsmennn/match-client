@@ -154,6 +154,7 @@ export const useUserStore = defineStore(STORE_KEY, {
       const contractAddress = AccountId.fromString(
         env.contractId
       ).toSolidityAddress();
+
       const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
 
       return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);

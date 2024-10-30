@@ -243,13 +243,18 @@ export const useRequestsStore = defineStore("requests", {
 
         const exchangeRate = await contract.getConversionRate(requestId, index);
 
-        const erc20Contract = userStore.getERC20Contract(coinAddress);
+        console.log({ exchangeRate });
+
+        const erc20Contract = userStore.getERC20Contract(
+          coinAddress.replace("0x", "")
+        );
 
         const allowance = await erc20Contract.allowance(
           accountId,
           env.contractId
         );
 
+        console.log({ allowance });
         if (allowance < exchangeRate) {
           const approveTx =
             new AccountAllowanceApproveTransaction().approveTokenAllowance(
