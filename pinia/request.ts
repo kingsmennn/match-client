@@ -237,17 +237,18 @@ export const useRequestsStore = defineStore("requests", {
         let accountId = AccountId.fromString(userStore.accountId!);
 
         const index = Object.values(CoinPayment).indexOf(coin);
-        const coinAddress = Object.values(CoinPaymentAddress)[index];
+        const coinAddress = Object.values(CoinPaymentAddress)[index].replace(
+          "0x",
+          ""
+        );
 
         const contract = userStore.getContract();
 
         const exchangeRate = await contract.getConversionRate(requestId, index);
 
-        console.log({ exchangeRate });
+        console.log({ exchangeRate, coinAddress });
 
-        const erc20Contract = userStore.getERC20Contract(
-          coinAddress.replace("0x", "")
-        );
+        const erc20Contract = userStore.getERC20Contract(coinAddress);
 
         const allowance = await erc20Contract.allowance(
           accountId,
