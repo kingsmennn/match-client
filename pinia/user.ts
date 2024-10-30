@@ -38,7 +38,7 @@ import {
 } from "@/utils/constants";
 import { getEvmAddress } from "@/utils/contract-utils";
 import { useStoreStore } from "./store";
-import { erc20Abi } from "blockchain/erc20abi";
+import { erc20Abi } from "@/blockchain/erc20abi";
 
 type UserStore = {
   connecting: boolean;
