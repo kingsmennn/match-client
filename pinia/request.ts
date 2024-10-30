@@ -236,21 +236,35 @@ export const useRequestsStore = defineStore("requests", {
         }
         let accountId = AccountId.fromString(userStore.accountId!);
 
-        const approveTx =
-          new AccountAllowanceApproveTransaction().approveTokenAllowance(
-            CoinPaymentAddress[coin],
-            accountId,
-            env.contractId,
-            allowBal
-          );
+        const index = Object.values(CoinPayment).indexOf(coin);
+        const coinAddress = Object.values(CoinPaymentAddress)[index];
 
-        const approveTokenAllowanceReceipt =
-          await userStore.contract.hashconnect.sendTransaction(
+        const contract = userStore.getContract();
+
+        const exchangeRate = await contract.getConversionRate(requestId, index);
+
+        const erc20Contract = userStore.getERC20Contract(coinAddress);
+
+        const allowance = await erc20Contract.allowance(
+          accountId,
+          env.contractId
+        );
+
+        if (allowance < exchangeRate) {
+          const approveTx =
+            new AccountAllowanceApproveTransaction().approveTokenAllowance(
+              coinAddress,
+              accountId,
+              env.contractId,
+              exchangeRate
+            );
+
+          const _ = await userStore.contract.hashconnect.sendTransaction(
             accountId,
             approveTx
           );
+        }
 
-        const index = Object.values(CoinPayment).indexOf(coin);
         const params = new ContractFunctionParameters();
         params.addUint256(requestId);
         params.addUint8(index);

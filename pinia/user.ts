@@ -38,6 +38,7 @@ import {
 } from "@/utils/constants";
 import { getEvmAddress } from "@/utils/contract-utils";
 import { useStoreStore } from "./store";
+import { erc20Abi } from "blockchain/erc20abi";
 
 type UserStore = {
   connecting: boolean;
@@ -156,6 +157,10 @@ export const useUserStore = defineStore(STORE_KEY, {
       const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
 
       return new ethers.Contract(`0x${contractAddress}`, marketAbi, provider);
+    },
+    getERC20Contract(contractAddress: string) {
+      const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
+      return new ethers.Contract(`0x${contractAddress}`, erc20Abi, provider);
     },
     async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
