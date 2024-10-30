@@ -15,6 +15,7 @@ import {
   ContractId,
   Hbar,
   HbarUnit,
+  TokenId,
   TransactionReceipt,
 } from "@hashgraph/sdk";
 import { useUserStore } from "./user";
@@ -255,14 +256,14 @@ export const useRequestsStore = defineStore("requests", {
           env.contractId
         );
 
-        console.log({ allowance });
+        console.log({ allowance, exchangeRate });
         if (allowance < exchangeRate) {
           const approveTx =
             new AccountAllowanceApproveTransaction().approveTokenAllowance(
-              coinAddress,
+              TokenId.fromString("0.0.429274"),
               accountId,
               env.contractId,
-              exchangeRate
+              Number(exchangeRate)
             );
 
           const _ = await userStore.contract.hashconnect.sendTransaction(
