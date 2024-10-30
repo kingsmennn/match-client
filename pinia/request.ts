@@ -244,20 +244,13 @@ export const useRequestsStore = defineStore("requests", {
 
         const exchangeRate = await contract.getConversionRate(requestId, index);
 
-        console.log({ exchangeRate, coinAddress });
-
-        const erc20Contract = userStore.getERC20Contract(
-          AccountId.fromString(coinAddress).toSolidityAddress()
-        );
-
-        console.log(erc20Contract);
+        const erc20Contract = userStore.getERC20Contract(coinAddress);
 
         const allowance = await erc20Contract.allowance(
-          accountId,
-          env.contractId
+          `0x${accountId.toSolidityAddress()}`,
+          `0x${AccountId.fromString(env.contractId).toSolidityAddress()}`
         );
 
-        console.log({ allowance, exchangeRate });
         if (allowance < exchangeRate) {
           const approveTx =
             new AccountAllowanceApproveTransaction().approveTokenAllowance(
@@ -271,6 +264,8 @@ export const useRequestsStore = defineStore("requests", {
             accountId,
             approveTx
           );
+        } else {
+          console.log("Allowance already set");
         }
 
         const params = new ContractFunctionParameters();
