@@ -1,12 +1,14 @@
 import { defineStore } from "pinia";
 import {
   CoinPayment,
+  CoinPaymentAddress,
   CreateOfferDTO,
   CreateRequestDTO,
   Offer,
   RequestResponse,
 } from "@/types";
 import {
+  AccountAllowanceApproveTransaction,
   AccountId,
   ContractExecuteTransaction,
   ContractFunctionParameters,
@@ -233,6 +235,21 @@ export const useRequestsStore = defineStore("requests", {
           throw new Error("Invalid payment method");
         }
         let accountId = AccountId.fromString(userStore.accountId!);
+
+        const approveTx =
+          new AccountAllowanceApproveTransaction().approveTokenAllowance(
+            CoinPaymentAddress[coin],
+            accountId,
+            env.contractId,
+            allowBal
+          );
+
+        const approveTokenAllowanceReceipt =
+          await userStore.contract.hashconnect.sendTransaction(
+            accountId,
+            approveTx
+          );
+
         const index = Object.values(CoinPayment).indexOf(coin);
         const params = new ContractFunctionParameters();
         params.addUint256(requestId);

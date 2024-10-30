@@ -29,7 +29,7 @@ export const tokens: {
   },
   {
     name: "USDT",
-    symbol: CoinPayment.USDT,
+    symbol: CoinPayment.USDC,
     network: "hbar",
     logo: "https://www.svgrepo.com/show/428625/usdc-usd-coin.svg",
   },

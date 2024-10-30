@@ -4,12 +4,16 @@ export enum AccountType {
 }
 export enum CoinPayment {
   HBAR = "hbar",
-  USDT = "usdt",
+  USDC = "usdc",
+}
+export enum CoinPaymentAddress {
+  HBAR = "",
+  USDC = "0x0000000000000000000000000000000000068cDa",
 }
 
 export const CoinDecimals = {
   [CoinPayment.HBAR]: 9,
-  [CoinPayment.USDT]: 6,
+  [CoinPayment.USDC]: 6,
 };
 
 export type Location = [
@@ -75,25 +79,25 @@ export type Request = {
 };
 
 export type RequestResponse = {
-  _id?: string
-  transactionHash?: string
-  address?: string
-  buyerAddress?: string
-  images: string[]
-  lifecycle: RequestLifecycleIndex
-  requestId: number
-  signature?: string
-  createdAt: number
-  updatedAt: number
-  buyerId: number
-  description: string
-  requestName: string
-  sellerIds?: number[]
-  lockedSellerId?: number
-  longitude: number
-  latitude: number
-  sellersPriceQuote?: number
-}
+  _id?: string;
+  transactionHash?: string;
+  address?: string;
+  buyerAddress?: string;
+  images: string[];
+  lifecycle: RequestLifecycleIndex;
+  requestId: number;
+  signature?: string;
+  createdAt: number;
+  updatedAt: number;
+  buyerId: number;
+  description: string;
+  requestName: string;
+  sellerIds?: number[];
+  lockedSellerId?: number;
+  longitude: number;
+  latitude: number;
+  sellersPriceQuote?: number;
+};
 
 export type Offer = {
   id?: number;
