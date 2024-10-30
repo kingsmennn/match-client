@@ -264,8 +264,6 @@ export const useRequestsStore = defineStore("requests", {
             accountId,
             approveTx
           );
-        } else {
-          console.log("Allowance already set");
         }
 
         const params = new ContractFunctionParameters();
