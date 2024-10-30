@@ -28,7 +28,7 @@ export const tokens: {
     logo: "https://cryptologos.cc/logos/hedera-hbar-logo.svg?v=035",
   },
   {
-    name: "USDT",
+    name: "USDC",
     symbol: CoinPayment.USDC,
     network: "hbar",
     logo: "https://www.svgrepo.com/show/428625/usdc-usd-coin.svg",
