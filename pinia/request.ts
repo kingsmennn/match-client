@@ -238,10 +238,7 @@ export const useRequestsStore = defineStore("requests", {
         let accountId = AccountId.fromString(userStore.accountId!);
 
         const index = Object.values(CoinPayment).indexOf(coin);
-        const coinAddress = Object.values(CoinPaymentAddress)[index].replace(
-          "0x",
-          ""
-        );
+        const coinAddress = Object.values(CoinPaymentAddress)[index];
 
         const contract = userStore.getContract();
 
@@ -249,7 +246,11 @@ export const useRequestsStore = defineStore("requests", {
 
         console.log({ exchangeRate, coinAddress });
 
-        const erc20Contract = userStore.getERC20Contract(coinAddress);
+        const erc20Contract = userStore.getERC20Contract(
+          AccountId.fromString(coinAddress).toSolidityAddress()
+        );
+
+        console.log(erc20Contract);
 
         const allowance = await erc20Contract.allowance(
           accountId,
@@ -260,7 +261,7 @@ export const useRequestsStore = defineStore("requests", {
         if (allowance < exchangeRate) {
           const approveTx =
             new AccountAllowanceApproveTransaction().approveTokenAllowance(
-              TokenId.fromString("0.0.429274"),
+              TokenId.fromString(coinAddress),
               accountId,
               env.contractId,
               Number(exchangeRate)

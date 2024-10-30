@@ -8,7 +8,7 @@ export enum CoinPayment {
 }
 export enum CoinPaymentAddress {
   HBAR = "",
-  USDC = "0x0000000000000000000000000000000000068cDa",
+  USDC = "0.0.429274",
 }
 
 export const CoinDecimals = {
