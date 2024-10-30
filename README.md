@@ -59,6 +59,10 @@ Check out our demo video to see Match in action! The video showcases the technic
 - The importance of a seamless user experience in dApps.
 - The need for robust smart contract design to handle a wide range of marketplace scenarios.
 
+**Price Feeds:**
+- https://docs.chain.link/data-feeds/price-feeds/addresses?network=hedera&page=1
+
+
 **Next Steps:**
 - **Enhanced User Profiles:** Adding more features to user profiles, including ratings and reviews.
 - **Multi-Language Support:** Expanding the dApp's accessibility by supporting multiple languages.
