@@ -16,6 +16,11 @@ export const marketAbi = [
   },
   {
     inputs: [],
+    name: "Marketplace__InsufficientAllowance",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__InsufficientFunds",
     type: "error",
   },
@@ -81,6 +86,11 @@ export const marketAbi = [
   },
   {
     inputs: [],
+    name: "Marketplace__TokenAssociationFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__UnSupportedChainId",
     type: "error",
   },
@@ -103,19 +113,25 @@ export const marketAbi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "bool",
-        name: "enabled",
-        type: "bool",
+        indexed: true,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "userId",
-        type: "uint256",
+        internalType: "int64",
+        name: "result",
+        type: "int64",
       },
     ],
-    name: "LocationEnabled",
+    name: "AssociationSuccessful",
     type: "event",
   },
   {
@@ -541,6 +557,19 @@ export const marketAbi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+    ],
+    name: "associateToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_price",
         type: "uint256",
@@ -676,19 +705,6 @@ export const marketAbi = [
     name: "deleteRequest",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getAggregatorV3",
-    outputs: [
-      {
-        internalType: "contract AggregatorV3Interface",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
