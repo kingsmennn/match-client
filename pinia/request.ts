@@ -75,7 +75,8 @@ export const useRequestsStore = defineStore("requests", {
     },
     async fetchAllUserRequests(accountId: string) {
       const env = useRuntimeConfig().public;
-      const userAddress = await getEvmAddress(accountId);
+      const accountInfo = await getAccountInfo(accountId);
+      const userAddress = accountInfo.evm_address;
 
       try {
         const res = await $fetch<RequestResponse[]>(
