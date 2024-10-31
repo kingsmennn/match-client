@@ -137,7 +137,3 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 ### License
 
 Match is licensed under the MIT License.
-
----
-
-With Match, experience a seamless, secure, and efficient marketplace on the Hedera network, where buyers and sellers connect with confidence.
