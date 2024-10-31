@@ -93,10 +93,11 @@ Check out our demo video to see Match in action! The video showcases the technic
    Create a `.env` file in the root directory and add the following variables:
 
    ```bash
-    LIGHTHOUSE_API_KEY = 274fXXXXXXX.947
-    HEDERA_BASE_URL = https://testnet.mirrornode.hedera.com
-    MATCH_API_URL = https://ninth-matter-407315.wn.r.appspot.com
-    CONTRACT_ID = 0.0.4708377
+      LIGHTHOUSE_API_KEY = 2XXX3.514XXXXXxfac947
+      HEDERA_BASE_URL = https://testnet.mirrornode.hedera.com
+      MATCH_API_URL = https://ninth-matter-407315.wn.r.appspot.com
+      CONTRACT_ID = 0.0.5059450
+      TIME_TILL_LOCK = 1 * 60 * 1000
    ```
 
 4. **Start the Development Server:**
