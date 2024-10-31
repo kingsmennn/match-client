@@ -229,38 +229,7 @@ export const useRequestsStore = defineStore("requests", {
         throw error;
       }
     },
-    async associateTokenWithContract(tokenAddress: string) {
-      const userStore = useUserStore();
-      const env = useRuntimeConfig().public;
 
-      try {
-        const contractInfo = await getAccountInfo(env.contractId);
-        for (let info of contractInfo.balance.tokens) {
-          if (info.token_id === tokenAddress) {
-            return;
-          }
-        }
-        let accountId = AccountId.fromString(userStore.accountId!);
-
-        const params = new ContractFunctionParameters();
-        params.addAddress(
-          AccountId.fromString(tokenAddress).toSolidityAddress()
-        );
-        let transaction = new ContractExecuteTransaction()
-          .setContractId(ContractId.fromString(env.contractId))
-          .setGas(1000000)
-          .setFunction("associateToken", params);
-
-        const receipt = await userStore.contract.hashconnect.sendTransaction(
-          accountId,
-          transaction
-        );
-        return receipt;
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    },
     async payForRequestToken(requestId: number, coin: CoinPayment) {
       const userStore = useUserStore();
       const env = useRuntimeConfig().public;
@@ -299,8 +268,6 @@ export const useRequestsStore = defineStore("requests", {
             approveTx
           );
         }
-
-        await this.associateTokenWithContract(coinAddress);
 
         const params = new ContractFunctionParameters();
         params.addUint256(requestId);

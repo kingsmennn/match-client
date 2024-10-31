@@ -28,6 +28,8 @@ import {
   User,
   Location,
   Store,
+  CoinPayment,
+  CoinPaymentAddress,
 } from "@/types";
 import {
   appMetaData,
@@ -105,7 +107,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         // set the account id of the user
         const userId: string = this.contract.pairingData.accountIds[0];
         this.accountId = userId;
-
+        await this.associateTokenWithContract(CoinPaymentAddress.USDC);
         const blockchainUser = await this.fetchUser(this.accountId);
         this.locationEnabled = !![...blockchainUser][7];
         this.storeUserDetails(blockchainUser);
@@ -138,6 +140,38 @@ export const useUserStore = defineStore(STORE_KEY, {
         console.log(e);
       } finally {
         this.connecting = false;
+      }
+    },
+    async associateTokenWithContract(tokenAddress: string) {
+      const userStore = useUserStore();
+      const env = useRuntimeConfig().public;
+
+      try {
+        const contractInfo = await getAccountInfo(env.contractId);
+        for (let info of contractInfo.balance.tokens) {
+          if (info.token_id === tokenAddress) {
+            return;
+          }
+        }
+        let accountId = AccountId.fromString(userStore.accountId!);
+
+        const params = new ContractFunctionParameters();
+        params.addAddress(
+          AccountId.fromString(tokenAddress).toSolidityAddress()
+        );
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("associateToken", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
       }
     },
 
