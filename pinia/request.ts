@@ -229,11 +229,17 @@ export const useRequestsStore = defineStore("requests", {
         throw error;
       }
     },
-    async associateTokenWithContract(tokenAddress: string, contractId: string) {
+    async associateTokenWithContract(tokenAddress: string) {
       const userStore = useUserStore();
       const env = useRuntimeConfig().public;
 
       try {
+        const contractInfo = await getAccountInfo(env.contractId);
+        for (let info of contractInfo.balance.tokens) {
+          if (info.token_id === tokenAddress) {
+            return;
+          }
+        }
         let accountId = AccountId.fromString(userStore.accountId!);
 
         const params = new ContractFunctionParameters();
@@ -294,7 +300,7 @@ export const useRequestsStore = defineStore("requests", {
           );
         }
 
-        await this.associateTokenWithContract(coinAddress, env.contractId);
+        await this.associateTokenWithContract(coinAddress);
 
         const params = new ContractFunctionParameters();
         params.addUint256(requestId);

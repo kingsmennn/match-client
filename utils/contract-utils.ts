@@ -14,25 +14,6 @@ export const getAccountInfo = async (
   }
 };
 
-// tokens = result['balance']['tokens']
-//         for token in tokens:
-//             if(token['token_id'] == token_Id):
-//                 return float(token['balance'])
-//         return 0.0
-
-// const res = {
-//   evm_address: "0x1234",
-//   balance: {
-//     hbar: 100,
-//     tokens: [
-//       {
-//         token_id: "0x1234",
-//         balance: 100,
-//       },
-//     ],
-//   },
-// };
-
 export const hbarToWei = (hbar: any) => {
   return +hbar * 10 ** 8;
 };
