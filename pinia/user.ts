@@ -199,10 +199,7 @@ export const useUserStore = defineStore(STORE_KEY, {
         AccountId.fromString(contractAddress).toSolidityAddress();
 
       const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
-      // return new ethers.Contract(`0x${contractAddr}`, erc20Abi, provider);
       return new ethers.Contract(`0x${contractAddr}`, erc20Abi, provider);
-      // const provider = new ethers.JsonRpcProvider(HEDERA_JSON_RPC.testnet);
-      // return new ethers.Contract(`0x${contractAddress}`, erc20Abi, provider);
     },
     async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
