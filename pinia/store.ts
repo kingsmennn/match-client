@@ -9,7 +9,7 @@ import {
 } from "@hashgraph/sdk";
 import { useUserStore } from "./user";
 import { LOCATION_DECIMALS } from "@/utils/constants";
-import { getEvmAddress } from "@/utils/contract-utils";
+import { getAccountInfo } from "@/utils/contract-utils";
 
 export const useStoreStore = defineStore(STORE_STORE_KEY, {
   state: () => ({}),
@@ -71,7 +71,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
       const userStore = useUserStore();
 
       try {
-        const accountInfo = await getEvmAddress(accountId);
+        const accountInfo = await getAccountInfo(accountId);
         const userAddress = accountInfo.evm_address;
         const contract = userStore.getContract();
         const storeCount = await contract.userStoreCount(userAddress);
@@ -90,7 +90,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     async getUserStoreIds(accountId: string, index: number) {
       const userStore = useUserStore();
 
-      const accountInfo = await getEvmAddress(accountId);
+      const accountInfo = await getAccountInfo(accountId);
       const userAddress = accountInfo.evm_address;
 
       const contract = userStore.getContract();
@@ -100,7 +100,7 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     async getUserStore(accountId: string, storeId: number) {
       const userStore = useUserStore();
 
-      const userAddress = await getEvmAddress(accountId);
+      const userAddress = await getAccountInfo(accountId);
       const contract = userStore.getContract();
       const store = await contract.userStores(userAddress, storeId);
       return store;

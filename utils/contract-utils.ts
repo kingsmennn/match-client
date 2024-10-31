@@ -1,6 +1,6 @@
 import { AccountResponse } from "types";
 
-export const getEvmAddress = async (
+export const getAccountInfo = async (
   account_id: string
 ): Promise<AccountResponse> => {
   const env = useRuntimeConfig().public;

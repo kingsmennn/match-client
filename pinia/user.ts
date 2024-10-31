@@ -36,7 +36,7 @@ import {
   LOCATION_DECIMALS,
   PROJECT_ID,
 } from "@/utils/constants";
-import { getEvmAddress } from "@/utils/contract-utils";
+import { getAccountInfo } from "@/utils/contract-utils";
 import { useStoreStore } from "./store";
 import { erc20Abi } from "@/blockchain/erc20abi";
 
@@ -172,7 +172,7 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
     async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
-      const accountInfo = await getEvmAddress(account_id);
+      const accountInfo = await getAccountInfo(account_id);
       const userAddress = accountInfo.evm_address;
 
       const user = await contract.users(userAddress);
