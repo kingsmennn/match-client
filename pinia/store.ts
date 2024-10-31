@@ -71,7 +71,8 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
       const userStore = useUserStore();
 
       try {
-        const userAddress = await getEvmAddress(accountId);
+        const accountInfo = await getEvmAddress(accountId);
+        const userAddress = accountInfo.evm_address;
         const contract = userStore.getContract();
         const storeCount = await contract.userStoreCount(userAddress);
         const stores = [];
@@ -89,7 +90,9 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     async getUserStoreIds(accountId: string, index: number) {
       const userStore = useUserStore();
 
-      const userAddress = await getEvmAddress(accountId);
+      const accountInfo = await getEvmAddress(accountId);
+      const userAddress = accountInfo.evm_address;
+
       const contract = userStore.getContract();
       const storeIds = await contract.userStoreIds(userAddress, index);
       return storeIds;

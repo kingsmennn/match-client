@@ -11,6 +11,21 @@ export enum CoinPaymentAddress {
   USDC = "0.0.429274",
 }
 
+type TokenBalance = {
+  token_id: string;
+  balance: number;
+};
+
+type Balance = {
+  hbar: number;
+  tokens: TokenBalance[];
+};
+
+export type AccountResponse = {
+  evm_address: string;
+  balance: Balance;
+};
+
 export const CoinDecimals = {
   [CoinPayment.HBAR]: 8,
   [CoinPayment.USDC]: 6,

@@ -172,7 +172,8 @@ export const useUserStore = defineStore(STORE_KEY, {
     },
     async fetchUser(account_id: string): Promise<BlockchainUser> {
       const contract = this.getContract();
-      const userAddress = await getEvmAddress(account_id);
+      const accountInfo = await getEvmAddress(account_id);
+      const userAddress = accountInfo.evm_address;
 
       const user = await contract.users(userAddress);
       return user;
