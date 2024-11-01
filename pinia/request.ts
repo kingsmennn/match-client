@@ -372,6 +372,7 @@ export const useRequestsStore = defineStore("requests", {
           accountId,
           transaction
         );
+        console.log({ receipt });
         return receipt;
       } catch (error) {
         console.error(error);
