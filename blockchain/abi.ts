@@ -86,6 +86,11 @@ export const marketAbi = [
   },
   {
     inputs: [],
+    name: "Marketplace__StoreNeededToCreateOffer",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__TokenAssociationFailed",
     type: "error",
   },
