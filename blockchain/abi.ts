@@ -1,7 +1,27 @@
 export const marketAbi = [
   {
     inputs: [],
+    name: "Marketplace_InvalidUser",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace_UserAlreadyExists",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__IndexOutOfBounds",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__InsufficientAllowance",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__InsufficientFunds",
     type: "error",
   },
   {
@@ -36,6 +56,51 @@ export const marketAbi = [
   },
   {
     inputs: [],
+    name: "Marketplace__PriceCannotBeZero",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__RequestAlreadyPaid",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__RequestLocked",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__RequestNotAccepted",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__RequestNotLocked",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__RequestNotPaid",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__StoreNeededToCreateOffer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__TokenAssociationFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__UnSupportedChainId",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "Marketplace__UnauthorizedBuyer",
     type: "error",
   },
@@ -43,6 +108,61 @@ export const marketAbi = [
     inputs: [],
     name: "Marketplace__UnauthorizedRemoval",
     type: "error",
+  },
+  {
+    inputs: [],
+    name: "Marketplace__UnknownPaymentType",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "int64",
+        name: "result",
+        type: "int64",
+      },
+    ],
+    name: "AssociationSuccessful",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "offerId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "buyerAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isAccepted",
+        type: "bool",
+      },
+    ],
+    name: "OfferAccepted",
+    type: "event",
   },
   {
     anonymous: false,
@@ -67,9 +187,9 @@ export const marketAbi = [
       },
       {
         indexed: false,
-        internalType: "int256",
+        internalType: "uint256",
         name: "price",
-        type: "int256",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -88,6 +208,12 @@ export const marketAbi = [
         internalType: "uint256",
         name: "sellerId",
         type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256[]",
+        name: "sellerIds",
+        type: "uint256[]",
       },
     ],
     name: "OfferCreated",
@@ -131,6 +257,18 @@ export const marketAbi = [
         indexed: true,
         internalType: "uint256",
         name: "sellerId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updatedAt",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "sellersPriceQuote",
         type: "uint256",
       },
     ],
@@ -233,6 +371,87 @@ export const marketAbi = [
     inputs: [
       {
         indexed: true,
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+    ],
+    name: "RequestDeleted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+    ],
+    name: "RequestMarkedAsCompleted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "token",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "sellerId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "buyerId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "createdAt",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updatedAt",
+        type: "uint256",
+      },
+    ],
+    name: "RequestPaymentTransacted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "sellerAddress",
         type: "address",
@@ -297,6 +516,37 @@ export const marketAbi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "userAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "userId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "username",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "accountType",
+        type: "uint8",
+      },
+    ],
+    name: "UserUpdated",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -313,32 +563,21 @@ export const marketAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "tokenAddress",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
     ],
-    name: "buyerOffers",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
+    name: "associateToken",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "int256",
+        internalType: "uint256",
         name: "_price",
-        type: "int256",
+        type: "uint256",
       },
       {
         internalType: "string[]",
@@ -407,6 +646,11 @@ export const marketAbi = [
         type: "string",
       },
       {
+        internalType: "string",
+        name: "_phone",
+        type: "string",
+      },
+      {
         internalType: "int256",
         name: "_latitude",
         type: "int256",
@@ -453,6 +697,56 @@ export const marketAbi = [
     name: "createUser",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_requestId",
+        type: "uint256",
+      },
+    ],
+    name: "deleteRequest",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum Marketplace.CoinPayment",
+        name: "coin",
+        type: "uint8",
+      },
+    ],
+    name: "getConversionRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getLocationPreference",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -588,6 +882,19 @@ export const marketAbi = [
     inputs: [
       {
         internalType: "uint256",
+        name: "_requestId",
+        type: "uint256",
+      },
+    ],
+    name: "markRequestAsCompleted",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "",
         type: "uint256",
       },
@@ -600,9 +907,9 @@ export const marketAbi = [
         type: "uint256",
       },
       {
-        internalType: "int256",
+        internalType: "uint256",
         name: "price",
-        type: "int256",
+        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -634,6 +941,11 @@ export const marketAbi = [
         name: "updatedAt",
         type: "uint256",
       },
+      {
+        internalType: "address",
+        name: "authority",
+        type: "address",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -642,13 +954,90 @@ export const marketAbi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_offerId",
+        name: "requestId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum Marketplace.CoinPayment",
+        name: "coin",
+        type: "uint8",
+      },
+    ],
+    name: "payForRequest",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum Marketplace.CoinPayment",
+        name: "coin",
+        type: "uint8",
+      },
+    ],
+    name: "payForRequestToken",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "removeOffer",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "requestPaymentInfo",
+    outputs: [
+      {
+        internalType: "address",
+        name: "authority",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "buyer",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "seller",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "enum Marketplace.CoinPayment",
+        name: "token",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "createdAt",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "updatedAt",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -677,9 +1066,9 @@ export const marketAbi = [
         type: "uint256",
       },
       {
-        internalType: "int256",
+        internalType: "uint256",
         name: "sellersPriceQuote",
-        type: "int256",
+        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -723,8 +1112,64 @@ export const marketAbi = [
         name: "updatedAt",
         type: "uint256",
       },
+      {
+        internalType: "bool",
+        name: "paid",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "acceptedOfferId",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
+    ],
+    name: "toggleLocation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_username",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_phone",
+        type: "string",
+      },
+      {
+        internalType: "int256",
+        name: "_latitude",
+        type: "int256",
+      },
+      {
+        internalType: "int256",
+        name: "_longitude",
+        type: "int256",
+      },
+      {
+        internalType: "enum Marketplace.AccountType",
+        name: "_accountType",
+        type: "uint8",
+      },
+    ],
+    name: "updateUser",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -801,6 +1246,11 @@ export const marketAbi = [
         type: "string",
       },
       {
+        internalType: "string",
+        name: "phone",
+        type: "string",
+      },
+      {
         components: [
           {
             internalType: "int256",
@@ -869,9 +1319,95 @@ export const marketAbi = [
         type: "uint256",
       },
       {
+        internalType: "uint256",
+        name: "updatedAt",
+        type: "uint256",
+      },
+      {
         internalType: "enum Marketplace.AccountType",
         name: "accountType",
         type: "uint8",
+      },
+      {
+        internalType: "bool",
+        name: "location_enabled",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "authority",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "usersById",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "username",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "phone",
+        type: "string",
+      },
+      {
+        components: [
+          {
+            internalType: "int256",
+            name: "latitude",
+            type: "int256",
+          },
+          {
+            internalType: "int256",
+            name: "longitude",
+            type: "int256",
+          },
+        ],
+        internalType: "struct Marketplace.Location",
+        name: "location",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "createdAt",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "updatedAt",
+        type: "uint256",
+      },
+      {
+        internalType: "enum Marketplace.AccountType",
+        name: "accountType",
+        type: "uint8",
+      },
+      {
+        internalType: "bool",
+        name: "location_enabled",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "authority",
+        type: "address",
       },
     ],
     stateMutability: "view",

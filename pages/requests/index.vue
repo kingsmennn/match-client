@@ -18,6 +18,7 @@
           :itemName="request.requestName"
           :thumbnail="request.images[0]"
           :created-at="new Date(request.createdAt * 1000)"
+          :updated-at="new Date(request.updatedAt * 1000)"
           :buyerId="request.buyerId"
           :locked-seller-id="request.lockedSellerId ?? null"
           :sellers-price-quote="request.sellersPriceQuote ?? null"
@@ -63,7 +64,6 @@ const fetchUserRequests = async () => {
       lat: userStore.location?.[1]!,
       long: userStore.location?.[0]!,
     })
-    console.log({fetchUserRequestsRes: res})
   } catch (error) {
     console.log(error)
   } finally {

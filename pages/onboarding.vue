@@ -111,6 +111,7 @@ const form = ref<User>({
   location: [ 0, 0 ],
   phone: '',
   createdAt: new Date(),
+  updatedAt: new Date(),
 })
 
 const snackbar = ref({

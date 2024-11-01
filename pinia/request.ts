@@ -1,17 +1,42 @@
-import { defineStore } from 'pinia';
-import { CreateOfferDTO, CreateRequestDTO, Offer, RequestResponse } from '@/types';
-import { AccountId, ContractExecuteTransaction, ContractFunctionParameters, ContractId, TransactionReceipt } from '@hashgraph/sdk';
-import { useUserStore } from './user';
+import { defineStore } from "pinia";
+import {
+  CoinDecimals,
+  CoinPayment,
+  CoinPaymentAddress,
+  CreateOfferDTO,
+  CreateRequestDTO,
+  Offer,
+  RequestResponse,
+} from "@/types";
+import {
+  AccountAllowanceApproveTransaction,
+  AccountId,
+  ContractExecuteTransaction,
+  ContractFunctionParameters,
+  ContractId,
+  Hbar,
+  HbarUnit,
+  TokenId,
+  TransactionReceipt,
+} from "@hashgraph/sdk";
+import { useUserStore } from "./user";
 
 type RequestsStoreType = {
-  list: RequestResponse[]
-}
-export const useRequestsStore = defineStore('requests', {
+  list: RequestResponse[];
+};
+export const useRequestsStore = defineStore("requests", {
   state: (): RequestsStoreType => ({
-    list: []
+    list: [],
   }),
   getters: {
-    
+    hasLocked() {
+      return ({ updatedAt, period }: { updatedAt: Date; period: number }) => {
+        const updatedAtTime = updatedAt.getTime();
+        const currentTime = Date.now();
+
+        return currentTime >= updatedAtTime + period;
+      };
+    },
   },
   actions: {
     async createRequest({
@@ -22,12 +47,11 @@ export const useRequestsStore = defineStore('requests', {
       longitude,
     }: CreateRequestDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
-      const env = useRuntimeConfig().public
+      const env = useRuntimeConfig().public;
 
       try {
         let accountId = AccountId.fromString(userStore.accountId!);
-    
+
         const params = new ContractFunctionParameters();
         params.addString(name);
         params.addString(description);
@@ -38,35 +62,47 @@ export const useRequestsStore = defineStore('requests', {
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
           .setFunction("createRequest", params);
-    
-        const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async fetchAllUserRequests(accountId: string) {
-      const env = useRuntimeConfig().public
-      const userAddress = await getEvmAddress(accountId);
+      const env = useRuntimeConfig().public;
+      const accountInfo = await getAccountInfo(accountId);
+      const userAddress = accountInfo.evm_address;
 
       try {
-        const res = await $fetch<RequestResponse[]>(`${env.matchApiUrl}/requests/${userAddress}`, {
-          method: 'GET'
-        })
-        this.list = res
-        return res
+        const res = await $fetch<RequestResponse[]>(
+          `${env.matchApiUrl}/requests/${userAddress}`,
+          {
+            method: "GET",
+          }
+        );
+        this.list = res;
+        return res;
       } catch (error) {
-        console.log({error})
+        console.log({ error });
+        throw error;
       }
     },
     async getRequest(requestId: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       try {
         const contract = userStore.getContract();
-        const res = await contract.requests(requestId);
-  
+
+        const [images, res] = await Promise.all([
+          this.getRequestImages(requestId),
+          contract.requests(requestId),
+        ]);
+
         const request: RequestResponse = {
           requestId: Number(res[0]),
           requestName: res[1],
@@ -80,53 +116,235 @@ export const useRequestsStore = defineStore('requests', {
           createdAt: Number(res[6]),
           updatedAt: Number(res[9]),
           images: [],
-        }
-        const images = await this.getRequestImages(request.requestId)
-        request.images = images || []
+        };
+
+        request.images = images || [];
         return request;
       } catch (error) {
-        console.log(error)
+        console.log(error);
+        throw error;
       }
     },
-    async getRequestImages(
-      request_id: number
-    ): Promise<string[] | undefined> {
-      const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
+    async getRequestImages(request_id: number): Promise<string[] | undefined> {
+      try {
+        const userStore = useUserStore();
 
-      const contract = userStore.getContract();
-      const length = await contract.getRequestImagesLength(request_id);
-    
-      const images = [];
-      for (let i = 0; i < length; i++) {
-        const image = await contract.getRequestImageByIndex(request_id, i);
-        images.push(image);
+        const contract = userStore.getContract();
+        const length = await contract.getRequestImagesLength(request_id);
+
+        const images = [];
+        for (let i = 0; i < length; i++) {
+          const image = await contract.getRequestImageByIndex(request_id, i);
+          images.push(image);
+        }
+        return images;
+      } catch (_) {
+        return [];
       }
-      return images;
     },
-    
+    async markRequestAsCompleted(requestId: number) {
+      const userStore = useUserStore();
+      const env = useRuntimeConfig().public;
+
+      try {
+        let accountId = AccountId.fromString(userStore.accountId!);
+
+        const params = new ContractFunctionParameters();
+        params.addUint256(requestId);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("markRequestAsCompleted", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    async deleteRequest(requestId: number) {
+      const userStore = useUserStore();
+      const env = useRuntimeConfig().public;
+
+      try {
+        let accountId = AccountId.fromString(userStore.accountId!);
+
+        const params = new ContractFunctionParameters();
+        params.addUint256(requestId);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("deleteRequest", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    removeDeletedRequestFromList(requestId: number) {
+      this.list = this.list.filter(
+        (request) => request.requestId !== requestId
+      );
+    },
+    async payForRequest(requestId: number, coin: CoinPayment) {
+      const userStore = useUserStore();
+      const env = useRuntimeConfig().public;
+
+      try {
+        if (coin !== CoinPayment.HBAR) {
+          throw new Error("Invalid payment method");
+        }
+        const contract = userStore.getContract();
+        const requestInfo = await contract.requests(requestId);
+
+        const inputHbar = Number(requestInfo[3]);
+        let accountId = AccountId.fromString(userStore.accountId!);
+        const index = Object.values(CoinPayment).indexOf(coin);
+        const params = new ContractFunctionParameters();
+        params.addUint256(requestId);
+        params.addUint8(index);
+
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setPayableAmount(Hbar.fromTinybars(inputHbar))
+          .setFunction("payForRequest", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+
+    async payForRequestToken(requestId: number, coin: CoinPayment) {
+      const userStore = useUserStore();
+      const env = useRuntimeConfig().public;
+
+      try {
+        if (coin === CoinPayment.HBAR) {
+          throw new Error("Invalid payment method");
+        }
+        let accountId = AccountId.fromString(userStore.accountId!);
+
+        const index = Object.values(CoinPayment).indexOf(coin);
+        const coinAddress = Object.values(CoinPaymentAddress)[index];
+
+        const contract = userStore.getContract();
+
+        const exchangeRate = await contract.getConversionRate(requestId, index);
+
+        const erc20Contract = userStore.getERC20Contract(coinAddress);
+
+        const allowance = await erc20Contract.allowance(
+          `0x${accountId.toSolidityAddress()}`,
+          `0x${AccountId.fromString(env.contractId).toSolidityAddress()}`
+        );
+
+        if (allowance < exchangeRate) {
+          const approveTx =
+            new AccountAllowanceApproveTransaction().approveTokenAllowance(
+              TokenId.fromString(coinAddress),
+              accountId,
+              env.contractId,
+              Number(exchangeRate)
+            );
+
+          const _ = await userStore.contract.hashconnect.sendTransaction(
+            accountId,
+            approveTx
+          );
+        }
+
+        const params = new ContractFunctionParameters();
+        params.addUint256(requestId);
+        params.addUint8(index);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("payForRequestToken", params);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    async getTransactionHistory(): Promise<any> {
+      const env = useRuntimeConfig().public;
+      const userStore = useUserStore();
+      try {
+        const res = await $fetch<any[]>(
+          `${env.matchApiUrl}/transactions/${userStore.userId}`,
+          {
+            method: "GET",
+          }
+        );
+
+        const newRes = res.map((transaction) => {
+          return {
+            ...transaction,
+            amount:
+              Number(transaction.amount) /
+              10 **
+                CoinDecimals[
+                  Object.values(CoinPayment)[transaction.token] as CoinPayment
+                ],
+          };
+        });
+
+        return newRes;
+      } catch (e) {}
+    },
+
     // SELLERS
-    async fetchNearbyRequestsForSellers({lat, long}: { lat: number, long: number}) {
-      const env = useRuntimeConfig().public
+    async fetchAllSellersRequests(accountId: string) {
+      const env = useRuntimeConfig().public;
+    },
+    async fetchNearbyRequestsForSellers({
+      lat,
+      long,
+    }: {
+      lat: number;
+      long: number;
+    }) {
+      const env = useRuntimeConfig().public;
 
       try {
         const res = await $fetch<RequestResponse[]>(
           `${env.matchApiUrl}/requests`,
           {
-            method: 'POST',
+            method: "POST",
             body: {
               sellerLat: lat,
-              sellerLong: long
-            }
+              sellerLong: long,
+            },
           }
-        )
-        
-        this.list = res
-        return res
-      } catch (error) {
-        console.log({error})
-      }
+        );
 
+        this.list = res;
+        return res;
+      } catch (error) {
+        console.log({ error });
+        throw error;
+      }
     },
     async createOffer({
       price,
@@ -135,14 +353,13 @@ export const useRequestsStore = defineStore('requests', {
       storeName,
     }: CreateOfferDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
-      const env = useRuntimeConfig().public
-    
+      const env = useRuntimeConfig().public;
+
       try {
         let accountId = AccountId.fromString(userStore.accountId!);
-    
+
         const params = new ContractFunctionParameters();
-        params.addInt256(price);
+        params.addUint256(price);
         params.addStringArray(images);
         params.addUint256(requestId);
         params.addString(storeName);
@@ -150,48 +367,59 @@ export const useRequestsStore = defineStore('requests', {
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
           .setFunction("createOffer", params);
-    
-        const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
+        console.log({ receipt });
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async acceptOffer(
       offerId: number
     ): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
-      const env = useRuntimeConfig().public
-    
+      const env = useRuntimeConfig().public;
+
       try {
         let accountId = AccountId.fromString(userStore.accountId!);
-    
+
         const params = new ContractFunctionParameters();
         params.addUint256(offerId);
         let transaction = new ContractExecuteTransaction()
           .setContractId(ContractId.fromString(env.contractId))
           .setGas(1000000)
           .setFunction("acceptOffer", params);
-    
-        const receipt = await userStore.contract.hashconnect.sendTransaction(accountId, transaction);
+
+        const receipt = await userStore.contract.hashconnect.sendTransaction(
+          accountId,
+          transaction
+        );
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async fetchAllOffers(requestId: number) {
-      const env = useRuntimeConfig().public
+      const env = useRuntimeConfig().public;
 
       try {
-        const res = await $fetch<Offer[]>(`${env.matchApiUrl}/offers/${requestId}`, {
-          method: 'GET'
-        })
+        const res = await $fetch<Offer[]>(
+          `${env.matchApiUrl}/offers/${requestId}`,
+          {
+            method: "GET",
+          }
+        );
         // this.list = res
-        return res
+        return res;
       } catch (error) {
-        console.log({error})
+        console.log({ error });
       }
-    }
-  }
+    },
+  },
 });

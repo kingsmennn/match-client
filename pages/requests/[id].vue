@@ -32,7 +32,7 @@
             :class="[is_active ? 'tw-border-black' : 'tw-text-gray-400 tw-border-transparent']"
             class="tw-border-b-4 tw-py-2 tw-transition tw-duration-300 tw-font-medium tw-cursor-pointer">
             <span class="tw-flex tw-flex-col tw-items-center">
-              <span>{{ tab?.name }}</span>
+              <span>{{ (tab as any)?.name }}</span>
             </span>
           </div>
         </template>
@@ -54,14 +54,6 @@
               <h3 class="tw-text-5xl tw-font-bold">Description</h3>
               <p class="tw-mt-2 tw-text-2xl">{{ requestDetails.description }}</p>
             </div>
-
-            <!-- <div class="">
-              <h3 class="tw-text-5xl tw-font-bold">Target Market</h3>
-              <p class="tw-mt-2 tw-text-2xl tw-capitalize">
-                {{ !!requestDetails?.market ? `${requestDetails?.market}, ` : '' }}
-                {{ `${requestDetails?.lga}, ${requestDetails?.state}` }}
-              </p>
-            </div> -->
           </div>
 
           <div
@@ -69,18 +61,21 @@
             class="sm:tw-col-span-1">
             <template v-if="isBuyer" >
               <div v-if="renderedOffers.length" class="tw-space-y-4">
-                <SellerOffer
-                  v-for="(offer,n) in renderedOffers"
-                  :key="n"
-                  :offer-id="offer.id!"
-                  :request-id="requestDetails.requestId"
-                  :store-name="offer.storeName"
-                  :buyer-id="requestDetails.buyerId"
-                  :seller-id="offer.sellerId"
-                  :images="offer.images"
-                  :lifecycle="requestDetails.lifecycle"
-                  :price-quote="offer.price"
-                />
+                <template v-for="(offer,n) in renderedOffers" :key="n">
+                  <!-- {{ offer }} -->
+                  <SellerOffer
+                    :offer-id="offer.offerId!"
+                    :request-id="requestDetails.requestId"
+                    :store-name="offer.storeName"
+                    :buyer-id="requestDetails.buyerId"
+                    :seller-id="Number(offer.sellerId)"
+                    :images="offer.images"
+                    :lifecycle="requestDetails.lifecycle"
+                    :price-quote="offer.price"
+                    :is-accepted="offer.isAccepted"
+                    @offer-accepted="handleMarkAsAccepted(offer.offerId!)"
+                  />
+                </template>
               </div>
               <div v-else
                 class="tw-p-6 tw-py-10 tw-text-center tw-border-4 tw-border-gray-400/5 tw-rounded-2xl
@@ -121,12 +116,11 @@
 <script setup lang="ts">
 import SellerOffer from '@/components/SellerOffer.vue';
 import SellerQuoteRequestor from '@/components/SellerQuoteRequestor.vue';
-import { getDatabase, onValue, ref as RTDBRef, query, orderByChild, equalTo } from 'firebase/database';
 import { AccountType, Offer, Request, RequestLifecycleIndex, RequestResponse, User } from '@/types';
 import moment from 'moment'
 import { useRequestsStore } from '@/pinia/request';
 import { useUserStore } from '@/pinia/user';
-import { HashConnectConnectionState } from 'hashconnect';
+import { toast } from 'vue-sonner';
 
 definePageMeta({
   middleware: 'auth',
@@ -146,8 +140,10 @@ const fetchUserRequest = async () => {
   const res = await requestsStore.getRequest(route.params.id as unknown as number)
   requestDetails.value = res
 }
-const unwatch = watch(()=>userStore.contract.state, (val)=>{
-  if(!val || val !== HashConnectConnectionState.Paired ) return
+
+const unwatch = watch(()=>userStore.accountId, (val)=>{
+  console.log('watching')
+  if(!val ) return
   fetchUserRequest()
 }, { immediate: true })
 
@@ -192,7 +188,7 @@ const fetchAllOffers = async () => {
     const res = await requestsStore.fetchAllOffers(requestDetails.value?.requestId!)
     allOffers.value = res || []
   } catch (error) {
-    
+    toast.error("error fetching offers")
   } finally {
     fetchingOffers.value = false
   }
@@ -204,8 +200,10 @@ watch(()=>requestDetails.value?.requestId, (val)=>{
 }, { immediate: true })
 
 const renderedOffers = computed(()=>{
+  if(requestDetails.value?.lifecycle === RequestLifecycleIndex.ACCEPTED_BY_BUYER) {
+    return allOffers.value
+  }
   return (
-    requestDetails.value?.lifecycle === RequestLifecycleIndex.ACCEPTED_BY_BUYER ||
     requestDetails.value?.lifecycle === RequestLifecycleIndex.REQUEST_LOCKED ||
     requestDetails.value?.lifecycle === RequestLifecycleIndex.COMPLETED
   )
@@ -217,11 +215,21 @@ const sellerExistingOffer = computed(()=>{
   if(!allOffers.value.length) return null as unknown as Offer
   let res: Offer = null as unknown as Offer
   allOffers.value.forEach((offer)=>{
-    if(offer.sellerId === userStore.accountId){
+    if(Number(offer.sellerId) === userStore.userId){
       res = offer
     }
   })
   return res
 })
 
+const handleMarkAsAccepted = (offerId: number) => {
+  // mark offer as accepted
+  allOffers.value.forEach((offer)=>{
+    // reset all other offers
+    offer.isAccepted = false
+    if(offer.id === offerId){
+      offer.isAccepted = true
+    }
+  })
+}
 </script>

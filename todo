@@ -1,5 +1,6 @@
 1. use did: digital identity 
-2. use NFT proof of payment
-3. use HBAR and USDT for payment
-4. work on button on the home page
-5. add image deletion after upload
+2. use NFT proof of payment 
+3. use HBAR and USDT for payment ✅
+4. work on button on the home page ✅
+5. add image deletion after upload 
+6. add review for seller (sellerid,requestId,offerId, and rating / 5)

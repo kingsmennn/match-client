@@ -9,7 +9,7 @@ import {
 } from "@hashgraph/sdk";
 import { useUserStore } from "./user";
 import { LOCATION_DECIMALS } from "@/utils/constants";
-import { getEvmAddress } from "@/utils/contract-utils";
+import { getAccountInfo } from "@/utils/contract-utils";
 
 export const useStoreStore = defineStore(STORE_STORE_KEY, {
   state: () => ({}),
@@ -18,12 +18,12 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
     async createStore({
       name,
       description,
+      phone,
       latitude,
       longitude,
     }: CreateStoreDTO): Promise<TransactionReceipt | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
-      const env = useRuntimeConfig().public
+      const env = useRuntimeConfig().public;
 
       try {
         let accountId = AccountId.fromString(userStore.accountId!);
@@ -33,12 +33,14 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         const payload = {
           name,
           description,
+          phone,
           long: Math.trunc(longitude * 10 ** LOCATION_DECIMALS),
           lat: Math.trunc(latitude * 10 ** LOCATION_DECIMALS),
         };
 
         params.addString(payload.name);
         params.addString(payload.description);
+        params.addString(payload.phone);
         params.addInt256(payload.lat);
         params.addInt256(payload.long);
         let transaction = new ContractExecuteTransaction()
@@ -51,22 +53,26 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
           transaction
         );
         // save to store
-        userStore.storeDetails = [{
-          name: payload.name,
-          description: payload.description,
-          location: [payload.long, payload.lat],
-        }];
+        userStore.storeDetails = [
+          {
+            name: payload.name,
+            description: payload.description,
+            phone: payload.phone,
+            location: [payload.long, payload.lat],
+          },
+        ];
         return receipt;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async getUserStores(accountId: string): Promise<Store[] | undefined> {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
       try {
-        const userAddress = await getEvmAddress(accountId);
+        const accountInfo = await getAccountInfo(accountId);
+        const userAddress = accountInfo.evm_address;
         const contract = userStore.getContract();
         const storeCount = await contract.userStoreCount(userAddress);
         const stores = [];
@@ -78,22 +84,23 @@ export const useStoreStore = defineStore(STORE_STORE_KEY, {
         return stores;
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     async getUserStoreIds(accountId: string, index: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
-      const userAddress = await getEvmAddress(accountId);
+      const accountInfo = await getAccountInfo(accountId);
+      const userAddress = accountInfo.evm_address;
+
       const contract = userStore.getContract();
       const storeIds = await contract.userStoreIds(userAddress, index);
       return storeIds;
     },
     async getUserStore(accountId: string, storeId: number) {
       const userStore = useUserStore();
-      if (!userStore.contract.pairingData) return;
 
-      const userAddress = await getEvmAddress(accountId);
+      const userAddress = await getAccountInfo(accountId);
       const contract = userStore.getContract();
       const store = await contract.userStores(userAddress, storeId);
       return store;

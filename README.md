@@ -53,13 +53,20 @@ Our solution is evaluated based on the following criteria:
 
 Check out our demo video to see Match in action! The video showcases the technical strengths, usability, and performance of our solution. Watch the walkthrough on [YouTube](https://www.youtube.com/watch?v=zecp5zHwz-8) to learn more about how Match can revolutionize the marketplace experience on Hedera.
 
+### Price Feeds and USDC Integration
+
+- **Price Feeds:** We are utilizing the latest price feed addresses on the Hedera network. You can find them here: [Chainlink Price Feeds](https://docs.chain.link/data-feeds/price-feeds/addresses?network=hedera&page=1).
+- **USDC Integration:** We have integrated the Hedera Token Service into our smart contract to enable seamless USDC association, enhancing our transaction capabilities and ensuring efficient token management. [Hedera Token Service](https://hips.hedera.com/hip/hip-206)
+
 ### Future Roadmap
 
 **Key Learnings:**
+
 - The importance of a seamless user experience in dApps.
 - The need for robust smart contract design to handle a wide range of marketplace scenarios.
 
 **Next Steps:**
+
 - **Enhanced User Profiles:** Adding more features to user profiles, including ratings and reviews.
 - **Multi-Language Support:** Expanding the dApp's accessibility by supporting multiple languages.
 - **Advanced Analytics:** Providing sellers with detailed analytics to better understand buyer behavior.
@@ -86,10 +93,11 @@ Check out our demo video to see Match in action! The video showcases the technic
    Create a `.env` file in the root directory and add the following variables:
 
    ```bash
-    LIGHTHOUSE_API_KEY = 274fXXXXXXX.947
-    HEDERA_BASE_URL = https://testnet.mirrornode.hedera.com
-    MATCH_API_URL = https://ninth-matter-407315.wn.r.appspot.com
-    CONTRACT_ID = 0.0.4708377
+      LIGHTHOUSE_API_KEY = 2XXX3.514XXXXXxfac947
+      HEDERA_BASE_URL = https://testnet.mirrornode.hedera.com
+      MATCH_API_URL = https://ninth-matter-407315.wn.r.appspot.com
+      CONTRACT_ID = 0.0.5059450
+      TIME_TILL_LOCK = 1 * 60 * 1000
    ```
 
 4. **Start the Development Server:**
@@ -129,7 +137,3 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 ### License
 
 Match is licensed under the MIT License.
-
----
-
-With Match, experience a seamless, secure, and efficient marketplace on the Hedera network, where buyers and sellers connect with confidence.

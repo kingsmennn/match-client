@@ -6,21 +6,31 @@
         class="tw-mb-6"
       />
 
-      <div class="tw-mb-6 tw-flex tw-justify-between tw-items-center">
+      <div class="tw-mb-6 tw-flex max-md:tw-flex-col tw-justify-between tw-items-center">
         <div
           class="tw-h-16 tw-w-16 tw-rounded-full tw-bg-gray-100 tw-text-4xl tw-font-black
-          tw-flex tw-items-center tw-justify-center tw-select-none">
+          tw-flex tw-items-center tw-justify-center tw-select-none max-md:tw-self-start">
           {{ userInitial }}
         </div>
 
-        <NuxtLink
-          v-if="isBuyer"
-          to="/requests/create"
-          class="tw-inline-block tw-p-4 tw-px-6 tw-rounded-full tw-bg-black
-          tw-select-none tw-text-white hover:tw-bg-black/80
-          tw-transition-all tw-duration-300 tw-font-black">
-          Request for an item
-        </NuxtLink>
+        <div class="tw-flex tw-gap-2">
+          <NuxtLink
+            to="/requests/history"
+            class="tw-inline-flex tw-p-4 tw-px-6 tw-rounded-full tw-items-center
+            tw-select-none tw-text-black tw-bg-transparent hover:tw-bg-black/10
+            tw-transition-all tw-duration-300 tw-font-black">
+            Transactions
+          </NuxtLink>
+
+          <NuxtLink
+            v-if="isBuyer"
+            to="/requests/create"
+            class="tw-inline-flex tw-p-4 tw-px-6 tw-rounded-full tw-bg-black
+            tw-select-none tw-text-white hover:tw-bg-black/80 tw-text-center
+            tw-transition-all tw-duration-300 tw-font-black">
+            Request for an item
+          </NuxtLink>
+        </div>
       </div>
       
       <div>
@@ -51,11 +61,13 @@
               :itemName="request.requestName"
               :thumbnail="request.images[0]"
               :created-at="new Date(request.createdAt * 1000)"
+              :updated-at="new Date(request.updatedAt * 1000)"
               :buyerId="request.buyerAddress"
               :buyer-address="request.buyerAddress!"
-              :locked-seller-address="request.lockedSellerId ?? null"
+              :lockedSellerId="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
               :account-type="userStore.accountType!"
+              @on-attempt-payment="()=>handlePaymentModal(request.requestId)"
             />
           </div>
           
@@ -67,9 +79,10 @@
               :itemName="request.requestName"
               :thumbnail="request.images[0]"
               :created-at="new Date(request.createdAt * 1000)"
+              :updated-at="new Date(request.updatedAt * 1000)"
               :buyerId="request.buyerAddress"
               :buyer-address="request.buyerAddress!"
-              :locked-seller-address="request.lockedSellerId ?? null"
+              :lockedSellerId="request.lockedSellerId ?? null"
               :sellers-price-quote="request.sellersPriceQuote ?? null"
               :account-type="userStore.accountType!"
               is-completed
@@ -86,18 +99,34 @@
         </div>
       </div>
     </div>
+    <PaymentModal
+      :is-open="showPaymentModal"
+      :requestId="attemptPaymentForRequest?.requestId!"
+      :account-id="userStore.accountId!"
+      :amount="weiToHbar(attemptPaymentForRequest?.sellersPriceQuote!)"
+      :in-progress="processingPayment"
+      @update:is-open="(val) => showPaymentModal = val"
+      @on-process-payment="handleProcessPayment"
+      :payment-coin="PAYMENT_COIN"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+// import { AnchorWallet, useAnchorWallet, useWallet } from "solana-wallets-vue";
 import FinalizeRegistration from '@/components/FinalizeRegistration.vue'
 import Tabs from '@/components/Tabs.vue';
 import RequestItem from '@/components/RequestItem.vue';
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { RequestLifecycle, AccountType, User, Request, Offer, RequestLifecycleIndex } from '@/types'
+import { RequestLifecycle, AccountType, User, RequestResponse, Offer, RequestLifecycleIndex, CoinPayment } from '@/types'
 import { useUserStore } from '@/pinia/user';
 import { useRequestsStore } from '@/pinia/request';
+import PaymentModal from '@/components/PaymentModal.vue';
+import { toast } from 'vue-sonner';
+// import { AnchorError } from '@project-serum/anchor';
+// import { lamportsToSol } from '@/utils/contract-utils';
+import { PAYMENT_COIN } from '@/utils/constants';
 
 const env = useRuntimeConfig().public
 useHead({
@@ -133,12 +162,8 @@ onBeforeMount(()=>{
 
 const requestsStore = useRequestsStore()
 onMounted(()=>{
-  requestsStore.fetchAllUserRequests(userStore.accountId!)
-})
-
-onMounted(()=>{
   if (isSeller.value) {
-    // fetchSellersAcceptedOfferIds()
+    requestsStore.fetchAllSellersRequests(userStore.accountId!)
     return
   }
 
@@ -146,97 +171,70 @@ onMounted(()=>{
 })
 
 const activeRequestList = computed(() => {
-  if (isSeller.value) {
-    return []
-    // return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
-  }
+  // if (isSeller.value) {
+  //   // return sellerRequestList.value.filter(request => request.lifecycle !== RequestLifecycle.COMPLETED).reverse()
+  // }
   return requestsStore.list.filter(request=>{
     return request.lifecycle !== RequestLifecycleIndex.COMPLETED
   })
 })
 
 const completedRequestList = computed(() => {
-  if (isSeller.value) {
-    // return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
-  }
+  // if (isSeller.value) {
+  //   // return sellerRequestList.value.filter(request => request.lifecycle === RequestLifecycle.COMPLETED).reverse()
+  // }
   return requestsStore.list.filter(request=>{
     return request.lifecycle === RequestLifecycleIndex.COMPLETED
   })
 })
 
-// const userRequestList = ref<Request[]>([])
+const showPaymentModal = ref(false)
+const attemptPaymentForRequest = ref<RequestResponse>()
+const handlePaymentModal = (requestId: RequestResponse['requestId']) => {
+  const request = requestsStore.list.find(request => request.requestId === requestId)
+  if (!request) return
+  showPaymentModal.value = true
+  attemptPaymentForRequest.value = request
+}
 
-// const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
-// const fetchSellersAcceptedOfferIds = async () => {
-// }
-// const sellerRequestList = ref<Request[]>([])
+const processingPayment = ref(false)
+const handleProcessPayment = async (
+  {
+    requestId,
+    amount,
+    token,
+    accountId
+  }:{
+    requestId: RequestResponse['requestId'],
+    amount: number
+    token: CoinPayment
+    accountId: string
+  }
+) => {
+  processingPayment.value = true
+
+  try {
+    if(token == CoinPayment.HBAR) {
+      await requestsStore.payForRequest(requestId,token)
+    }else {
+      await requestsStore.payForRequestToken(requestId,token)
+    }
+    toast.success('Payment successful')
+  } catch (error:any) {
+ 
+    // if (error instanceof AnchorError) {
+    //   const err: AnchorError = error;
+    //   toast.error(err.error.errorMessage);
+    //   return;
+    // }
+    if(error.transactionMessage) {
+       toast.error(error.transactionMessage);
+       return;
+    }
+    toast.error(error);
+  }finally {
+    showPaymentModal.value = false
+    processingPayment.value = false
+  }
+}
 </script>
-
-<!-- <script setup lang="ts">
-import { getDatabase, ref as RTDBRef, equalTo, orderByChild, query, onValue } from "firebase/database";
-
-
-
-const isCompletedNow = ref(false)
-const isCompleted = computed(()=>!!userCookie.value?.username)
-
-
-const user = useCurrentUser()
-const userCookie = useCookie<User>('user')
-const userInitial = computed(() => userCookie.value?.username?.charAt(0).toUpperCase() ?? '?')
-const isSeller = computed(() => userCookie.value?.accountType === AccountType.SELLER)
-const isBuyer = computed(() => userCookie.value?.accountType === AccountType.BUYER) 
-
-const userRequestList = ref<Request[]>([])
-// fetching from firebase RTDB
-const fetchUserRequests = async () => {
-  const db = getDatabase();
-  const myRequestsRef = query(RTDBRef(db, 'requests/'), orderByChild('buyerId'), equalTo(user.value?.uid!))
-  onValue(myRequestsRef, (snapshot) => {
-    const newRequestList: Request[] = []
-    snapshot.forEach((childSnapshot) => {
-      const childKey = childSnapshot.key;
-      const childData = childSnapshot.val();
-      newRequestList.push({
-        id: childKey,
-        ...childData,
-      } as Request)
-    });
-    userRequestList.value = newRequestList
-  });
-}
-
-
-const requestIdsWithAcceptedOffersFromSeller = ref<string[]>([])
-const fetchSellersAcceptedOfferIds = async () => {
-  const db = getDatabase();
-
-  const sellerOfferRef = query(RTDBRef(db, 'offers/'), orderByChild('sellerId'), equalTo(user.value?.uid!))
-  onValue(sellerOfferRef, (snapshot) => {
-    const list:string[] = []
-    snapshot.forEach((childSnapshot) => {
-      const childData = childSnapshot.val();
-      list.push(childData.requestId)
-    })
-    requestIdsWithAcceptedOffersFromSeller.value = list
-  })
-}
-const sellerRequestList = ref<Request[]>([])
-watch(()=>requestIdsWithAcceptedOffersFromSeller.value, (value)=>{
-  sellerRequestList.value = []
-  const db = getDatabase();
-  value.map((requestId)=>{
-    const acceptedRequestsRef = RTDBRef(db, 'requests/'+ requestId)
-    onValue(acceptedRequestsRef, (snapshot) => {
-      const data = {
-        ...snapshot.val(),
-        id: snapshot.key
-      }
-      // if sellers offer was not the one accepted, then don't show it
-      if(data.lifecycle !== RequestLifecycle.ACCEPTED_BY_SELLER && data.lockedSellerId !== user.value?.uid!) return
-      sellerRequestList.value.push(data)
-    // using once here because of a duplication bug when updates trigger this function
-    }, { onlyOnce: true });
-  })
-})
-</script> -->
