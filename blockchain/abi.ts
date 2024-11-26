@@ -575,6 +575,44 @@ export const marketAbi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "balanceOfETH",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "balanceOfUSDC",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_price",
         type: "uint256",
@@ -1411,6 +1449,19 @@ export const marketAbi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "enum Marketplace.CoinPayment",
+        name: "coin",
+        type: "uint8",
+      },
+    ],
+    name: "withdrawSellerProfit",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ];

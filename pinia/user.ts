@@ -406,6 +406,20 @@ export const useUserStore = defineStore(STORE_KEY, {
         throw error;
       }
     },
+    async getSellerBalance(accountId: string, coin: CoinPayment) {
+      const userStore = useUserStore();
+
+      const userAddress = await getAccountInfo(accountId);
+      const contract = userStore.getContract();
+
+      if (coin === CoinPayment.HBAR) {
+        const hbarBalance = await contract.balanceOfETH(userAddress);
+        return hbarBalance;
+      } else if (coin === CoinPayment.USDC) {
+        const usdcBalance = await contract.balanceOfUSDC(userAddress);
+        return usdcBalance;
+      } else return 0;
+    },
   },
   persist: {
     paths: [
