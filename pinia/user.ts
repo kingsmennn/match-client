@@ -420,6 +420,28 @@ export const useUserStore = defineStore(STORE_KEY, {
         return usdcBalance;
       } else return 0;
     },
+    async withdrawSellerProfit(coin: CoinPayment) {
+      const env = useRuntimeConfig().public;
+
+      try {
+        const index = Object.values(CoinPayment).indexOf(coin);
+        const params = new ContractFunctionParameters();
+        params.addUint8(index);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("withdrawSellerProfit", params);
+
+        const receipt = await this.contract.hashconnect.sendTransaction(
+          AccountId.fromString(this.accountId!),
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
   },
   persist: {
     paths: [
