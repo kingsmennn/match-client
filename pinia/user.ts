@@ -409,7 +409,8 @@ export const useUserStore = defineStore(STORE_KEY, {
     async getSellerBalance(accountId: string, coin: CoinPayment) {
       const userStore = useUserStore();
 
-      const userAddress = await getAccountInfo(accountId);
+      const accountInfo = await getAccountInfo(accountId);
+      const userAddress = accountInfo.evm_address;
       const contract = userStore.getContract();
 
       if (coin === CoinPayment.HBAR) {
