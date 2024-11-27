@@ -109,6 +109,18 @@ export const useUserStore = defineStore(STORE_KEY, {
         this.accountId = userId;
         await this.associateTokenWithContract(CoinPaymentAddress.USDC);
         const blockchainUser = await this.fetchUser(this.accountId);
+        const hbar = await this.getSellerBalance(
+          this.accountId,
+          CoinPayment.HBAR
+        );
+        const usdcBal = await this.getSellerBalance(
+          this.accountId,
+          CoinPayment.USDC
+        );
+        console.log({
+          hbar,
+          usdcBal,
+        });
         this.locationEnabled = !![...blockchainUser][7];
         this.storeUserDetails(blockchainUser);
 
@@ -409,7 +421,8 @@ export const useUserStore = defineStore(STORE_KEY, {
     async getSellerBalance(accountId: string, coin: CoinPayment) {
       const userStore = useUserStore();
 
-      const userAddress = await getAccountInfo(accountId);
+      const accountInfo = await getAccountInfo(accountId);
+      const userAddress = accountInfo.evm_address;
       const contract = userStore.getContract();
 
       if (coin === CoinPayment.HBAR) {
