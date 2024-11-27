@@ -17,7 +17,10 @@ const fetchBalance = async () => {
   try {
     const promises = Object.values(CoinPayment).map(async (coin) => {
       const res = await userStore.getSellerBalance(userStore.accountId!, coin);
-      return { coin, balance: res };
+      const index = Object.values(CoinPayment).indexOf(coin);
+      return { coin, balance: Number(res) /
+        10 **
+        CoinDecimals[coin] };
     });
     const results = await Promise.all(promises);
     balances.value = results;
