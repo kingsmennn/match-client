@@ -267,6 +267,9 @@ export const useRequestsStore = defineStore("requests", {
             accountId,
             approveTx
           );
+
+          // wait for the transaction to complete
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
 
         const params = new ContractFunctionParameters();
