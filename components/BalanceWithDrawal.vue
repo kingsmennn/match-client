@@ -51,7 +51,7 @@ const handleWithdraw = async (coin: CoinPayment) => {
         <v-icon>mdi-refresh</v-icon>
       </button>
     </div>
-    <ul class="tw-grid tw-grid-cols-2 tw-gap-4">
+    <ul class="tw-grid md:tw-grid-cols-2 tw-gap-4">
       <li
         v-for="(balance, index) in balances" :key="index"
         class="tw-ring-1 tw-ring-black/10 tw-rounded-md tw-p-4 tw-bg-white
