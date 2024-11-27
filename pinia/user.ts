@@ -427,9 +427,9 @@ export const useUserStore = defineStore(STORE_KEY, {
       const env = useRuntimeConfig().public;
 
       try {
+        const index = Object.values(CoinPayment).indexOf(coin);
         if (coin === CoinPayment.USDC) {
           // associate USDC token with seller
-          const index = Object.values(CoinPayment).indexOf(coin);
           const coinAddress = Object.values(CoinPaymentAddress)[index];
           const tokenAssoc = new TokenAssociateTransaction()
             .setAccountId(this.accountId!)
@@ -441,7 +441,6 @@ export const useUserStore = defineStore(STORE_KEY, {
           // wait for the transaction to complete
           await new Promise((resolve) => setTimeout(resolve, 2000));
         }
-        const index = Object.values(CoinPayment).indexOf(coin);
         const params = new ContractFunctionParameters();
         params.addUint8(index);
         let transaction = new ContractExecuteTransaction()
