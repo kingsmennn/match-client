@@ -58,13 +58,32 @@ const handleWithdraw = async (coin: CoinPayment) => {
         tw-flex tw-items-start md:tw-items-center tw-justify-between">
         <span class="tw-uppercase">{{ balance.balance + ' ' + balance.coin }}</span>
         <button
-          @click="handleWithdraw(balance.coin)"
+          :id="`withdraw-${balance.coin}`"
           class="tw-bg-black tw-text-white tw-rounded-full tw-py-2
           tw-px-4 tw-text-sm tw-font-bold"
           :class="{ 'tw-bg-black/80': fetching || balance.balance <= 0 }"
           :disabled="fetching || balance.balance <= 0">
           Withdraw
         </button>
+
+        <v-menu
+          :activator="`#withdraw-${balance.coin}`"
+          transition="slide-y-transition">
+          <div
+            class="tw-bg-white tw-mt-2 tw-p-2 tw-rounded-lg
+            tw-flex tw-flex-col tw-gap-3 tw-shadow-lg">
+            <span class="tw-text-sm tw-border-b tw-px-3 tw-py-2 tw-pb-1.5">
+              Are you sure you want <br />to withdraw your {{ balance.coin }}?
+            </span>
+
+            <button
+              @click="handleWithdraw(balance.coin)"
+              class="tw-p-2 tw-px-4 tw-rounded-full tw-bg-emerald-600 tw-select-none tw-text-white
+              hover:tw-bg-emerald-600/80 tw-transition-all tw-duration-300 tw-font-medium">
+              Confirm
+            </button>
+          </div>
+        </v-menu>
       </li>
       <template v-if="fetching">
         <li
