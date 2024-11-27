@@ -8,6 +8,8 @@ import {
   // ContractId,
   // Hbar,
   LedgerId,
+  TokenAssociateTransaction,
+  TokenId,
   TransactionReceipt,
   // TransactionReceipt,
 } from "@hashgraph/sdk";
@@ -425,6 +427,20 @@ export const useUserStore = defineStore(STORE_KEY, {
       const env = useRuntimeConfig().public;
 
       try {
+        if (coin === CoinPayment.USDC) {
+          // associate USDC token with seller
+          const index = Object.values(CoinPayment).indexOf(coin);
+          const coinAddress = Object.values(CoinPaymentAddress)[index];
+          const tokenAssoc = new TokenAssociateTransaction()
+            .setAccountId(this.accountId!)
+            .setTokenIds([TokenId.fromString(coinAddress)]);
+          const _ = await this.contract.hashconnect.sendTransaction(
+            AccountId.fromString(this.accountId!),
+            tokenAssoc
+          );
+          // wait for the transaction to complete
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
         const index = Object.values(CoinPayment).indexOf(coin);
         const params = new ContractFunctionParameters();
         params.addUint8(index);
