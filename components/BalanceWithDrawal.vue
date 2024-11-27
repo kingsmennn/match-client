@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/pinia/user";
 import { tokens } from "~/utils/constants";
-import { CoinPayment } from "@/types";
+import { CoinDecimals, CoinPayment } from "@/types";
 
 const userStore = useUserStore();
 
