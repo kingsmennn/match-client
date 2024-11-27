@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/pinia/user";
 import { tokens } from "~/utils/constants";
-import { CoinPayment } from "@/types";
+import { CoinDecimals, CoinPayment } from "@/types";
 
 const userStore = useUserStore();
 
@@ -15,10 +15,14 @@ const fetchBalance = async () => {
   try {
     Object.values(CoinPayment).map(async (coin) => {
       const res = await userStore.getSellerBalance(userStore.accountId!, coin);
-      console.log({coin, res})
+      const index = Object.values(CoinPayment).indexOf(coin);
+      console.log({ res, index });
+     
       balances.value.push({
         coin,
-        balance: res
+        balance: Number(res) /
+        10 **
+        CoinDecimals[coin],
       })
     })
   } catch (error) {
