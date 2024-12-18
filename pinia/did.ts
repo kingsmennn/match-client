@@ -1,17 +1,20 @@
 import {
-    DidMethodOperation,
-    HcsDid,
+  DidMethodOperation,
+  HcsDid,
   HcsIdentityNetwork,
   HcsIdentityNetworkBuilder,
 } from "@hashgraph/did-sdk-js";
-import { Hbar, PrivateKey } from "@hashgraph/sdk";
+import { AccountId, Hbar, PrivateKey } from "@hashgraph/sdk";
+import { useUserStore } from "./user";
 
-const getIdNetwork = (): Promise<HcsIdentityNetwork> => {
+const getIdNetwork = async (): Promise<HcsIdentityNetwork> => {
+  const userStore = useUserStore();
+  const env = useRuntimeConfig().public;
   const privateKey = PrivateKey.generate();
 
   // Derive the public key
   const publicKey = privateKey.publicKey;
-  const identityNetwork = new HcsIdentityNetworkBuilder()
+  const identityNetwork = await new HcsIdentityNetworkBuilder()
     .setNetwork("testnet") // or "mainnet"
     .setAppnetName("MatchAppnet")
     .setPublicKey(publicKey)
@@ -19,6 +22,12 @@ const getIdNetwork = (): Promise<HcsIdentityNetwork> => {
     .setDidTopicMemo("MatchAppnet DID topic")
     .setVCTopicMemo("MatchAppnet VC topic")
     .execute(client);
+
+  const receipt = await userStore.contract.hashconnect.sendTransaction(
+    AccountId.fromString(userStore.accountId!),
+    identityNetwork
+  );
+
   return identityNetwork;
 };
 
@@ -45,8 +54,14 @@ const saveUserDetails = async () => {
     .execute(client);
 };
 
-const resolveDid = async (did: string) => {
+const resolveDid = async (didString: string) => {
   const identityNetwork = await getIdNetwork();
-  const didDocument = await identityNetwork.resolveDid(did);
-  console.log("DID Document:", didDocument);
+  const NO_MORE_MESSAGES_TIMEOUT = 15 * 1000;
+  identityNetwork
+    .getDidResolver()
+    .addDid(didString)
+    .setTimeout(NO_MORE_MESSAGES_TIMEOUT)
+    .onError(onError)
+    .whenFinished((m) => mapRef.push(m))
+    .execute(this.client);
 };

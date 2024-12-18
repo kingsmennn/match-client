@@ -31,5 +31,11 @@
     "random-word-slugs": "^0.1.7",
     "universal-cookie": "^7",
     "vue-sonner": "^1.1.4"
+  },
+  "overrides": {
+    "@hashgraph/sdk": "2.41.0"
+  },
+  "resolutions": {
+    "@hashgraph/sdk": "2.41.0"
   }
 }
