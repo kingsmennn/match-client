@@ -8,6 +8,8 @@ import {
   // ContractId,
   // Hbar,
   LedgerId,
+  TokenAssociateTransaction,
+  TokenId,
   TransactionReceipt,
   // TransactionReceipt,
 } from "@hashgraph/sdk";
@@ -403,6 +405,56 @@ export const useUserStore = defineStore(STORE_KEY, {
         // return userData.locationEnabled;
       } catch (error) {
         console.error("Error fetching location preference:", error);
+        throw error;
+      }
+    },
+    async getSellerBalance(accountId: string, coin: CoinPayment) {
+      const userStore = useUserStore();
+
+      const accountInfo = await getAccountInfo(accountId);
+      const userAddress = accountInfo.evm_address;
+      const contract = userStore.getContract();
+
+      if (coin === CoinPayment.HBAR) {
+        const hbarBalance = await contract.balanceOfETH(userAddress);
+        return hbarBalance;
+      } else if (coin === CoinPayment.USDC) {
+        const usdcBalance = await contract.balanceOfUSDC(userAddress);
+        return usdcBalance;
+      } else return 0;
+    },
+    async withdrawSellerProfit(coin: CoinPayment) {
+      const env = useRuntimeConfig().public;
+
+      try {
+        const index = Object.values(CoinPayment).indexOf(coin);
+        if (coin === CoinPayment.USDC) {
+          // associate USDC token with seller
+          const coinAddress = Object.values(CoinPaymentAddress)[index];
+          const tokenAssoc = new TokenAssociateTransaction()
+            .setAccountId(this.accountId!)
+            .setTokenIds([TokenId.fromString(coinAddress)]);
+          const _ = await this.contract.hashconnect.sendTransaction(
+            AccountId.fromString(this.accountId!),
+            tokenAssoc
+          );
+          // wait for the transaction to complete
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+        const params = new ContractFunctionParameters();
+        params.addUint8(index);
+        let transaction = new ContractExecuteTransaction()
+          .setContractId(ContractId.fromString(env.contractId))
+          .setGas(1000000)
+          .setFunction("withdrawSellerProfit", params);
+
+        const receipt = await this.contract.hashconnect.sendTransaction(
+          AccountId.fromString(this.accountId!),
+          transaction
+        );
+        return receipt;
+      } catch (error) {
+        console.error(error);
         throw error;
       }
     },

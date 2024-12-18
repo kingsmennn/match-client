@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { CreateStoreDTO, Store, STORE_STORE_KEY } from "@/types";
+import { CoinPayment, CreateStoreDTO, Store, STORE_STORE_KEY } from "@/types";
 import {
   AccountId,
   ContractExecuteTransaction,

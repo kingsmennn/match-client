@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HistoryItem from '@/components/HistoryItem.vue';
+import BalanceWithDrawal from '@/components/BalanceWithDrawal.vue';
 import { useUserStore } from '@/pinia/user';
 import { useRequestsStore } from '@/pinia/request';
 import { AccountType, CoinPayment, STORE_KEY_MIDDLEWARE, User } from '@/types';
@@ -38,6 +39,8 @@ const isSeller = computed(
         <v-icon>mdi-chevron-left</v-icon>
         <span>Back</span>
       </NuxtLink>
+
+      <BalanceWithDrawal v-if="isSeller" class="tw-my-4 tw-mb-10" />
 
       <h1 class="tw-text-5xl tw-font-bold tw-mt-4">History</h1>
       <p class="tw-text-gray-500">
