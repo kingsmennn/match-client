@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@firebase/app-types": "^0.9.0",
+    "@hashgraph/did-sdk-js": "^0.1.1",
     "@hashgraph/sdk": "2.41.0",
     "@invictus.codes/nuxt-vuetify": "^0.3.0",
     "@lighthouse-web3/sdk": "^0.3.7",
